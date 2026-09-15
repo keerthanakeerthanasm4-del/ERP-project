@@ -1,0 +1,659 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Permanent+Marker&family=Montserrat:wght@500;600;700;800;900&display=swap');
+
+
+/* ==============================
+   RESET
+============================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Montserrat", Arial, sans-serif;
+}
+
+
+/* ==============================
+   MAIN PAGE
+============================== */
+
+.home-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+
+  background-image:
+    linear-gradient(
+      rgba(0, 115, 255, 0.02),
+      rgba(0, 80, 180, 0.02)
+    ),
+    url("/college.jpg");
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+
+/* ==============================
+   HD LIGHT / BRIGHTNESS
+============================== */
+
+.home-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 130, 255, 0.03),
+      rgba(0, 60, 150, 0.01)
+    );
+
+  z-index: 1;
+  pointer-events: none;
+}
+
+
+/* ==============================
+   TOP LOGO
+============================== */
+
+.logo-area {
+  position: absolute;
+  top: 28px;
+  left: 68px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  z-index: 20;
+}
+
+.cap {
+  font-size: 38px;
+
+  filter:
+    grayscale(1)
+    brightness(0)
+    invert(1);
+
+  text-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.logo-text {
+  color: white;
+
+  font-family: "Montserrat", sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+
+  text-shadow:
+    0 2px 7px rgba(0, 0, 0, 0.55);
+}
+
+
+/* ==============================
+   PLAN BUILD SUCCEED
+============================== */
+
+.tagline {
+  position: absolute;
+
+  top: 82px;
+  left: 50%;
+
+  transform:
+    translateX(-50%)
+    rotate(-4deg);
+
+  display: flex;
+  align-items: center;
+
+  gap: 25px;
+
+  color: white;
+
+  font-family: "Caveat", cursive;
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-shadow:
+    0 3px 7px rgba(0, 0, 0, 0.6);
+
+  z-index: 20;
+}
+
+.tagline b {
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+
+/* ==============================
+   LEFT HANDWRITTEN TEXT
+============================== */
+
+.left-text {
+  position: absolute;
+
+  left: 7.2%;
+  top: 198px;
+
+  color: white;
+
+  font-family: "Caveat", cursive;
+  font-size: 25px;
+  font-weight: 700;
+
+  line-height: 1.08;
+
+  transform: rotate(-7deg);
+
+  text-shadow:
+    0 3px 7px rgba(0, 0, 0, 0.7);
+
+  z-index: 20;
+}
+
+.underline {
+  width: 108px;
+  height: 3px;
+
+  margin-top: 9px;
+
+  background: white;
+
+  border-radius: 50%;
+
+  transform: rotate(-5deg);
+
+  box-shadow:
+    0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ==============================
+   MAIN TITLE
+============================== */
+
+.main-title {
+  position: absolute;
+
+  top: 135px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  text-align: center;
+
+  white-space: nowrap;
+
+  z-index: 15;
+}
+
+
+/* ==============================
+   CAMPUS
+============================== */
+
+.campus {
+  color: white;
+
+  font-family:
+    "Permanent Marker",
+    Impact,
+    "Arial Black",
+    sans-serif;
+
+  font-size: clamp(78px, 9vw, 145px);
+
+  font-weight: 400;
+
+  letter-spacing: -4px;
+
+  line-height: 0.95;
+
+  transform: rotate(-3deg);
+
+  text-shadow:
+    0 5px 2px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.18);
+
+  filter:
+    drop-shadow(0 2px 2px rgba(255, 255, 255, 0.2));
+}
+
+
+/* ==============================
+   PROJECT TRACKER
+============================== */
+
+.project-title {
+  margin-top: 8px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+
+  font-family:
+    "Permanent Marker",
+    Impact,
+    "Arial Black",
+    sans-serif;
+
+  font-size: clamp(48px, 6vw, 96px);
+
+  font-weight: 400;
+
+  letter-spacing: -3px;
+
+  line-height: 0.9;
+
+  transform: rotate(-5deg);
+
+  text-shadow:
+    0 5px 8px rgba(0, 0, 0, 0.18);
+}
+
+.project {
+  color: #08d9ff;
+
+  text-shadow:
+    0 3px 5px rgba(0, 70, 130, 0.25),
+    0 0 15px rgba(0, 225, 255, 0.15);
+}
+
+.tracker {
+  color: #ff9bcf;
+
+  text-shadow:
+    0 3px 5px rgba(130, 20, 80, 0.22),
+    0 0 15px rgba(255, 130, 210, 0.18);
+}
+
+
+/* ==============================
+   TITLE UNDERLINE
+============================== */
+
+.title-line {
+  width: 460px;
+  height: 8px;
+
+  margin: 3px auto 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #00d9ff,
+      #ff9bcf,
+      transparent
+    );
+
+  border-radius: 50%;
+
+  transform:
+    rotate(-4deg)
+    skewX(-20deg);
+
+  opacity: 0.9;
+
+  filter:
+    blur(0.2px)
+    drop-shadow(0 3px 4px rgba(0, 0, 0, 0.15));
+}
+
+
+/* ==============================
+   PAPER PLANE
+============================== */
+
+.paper-plane {
+  position: absolute;
+
+  top: 137px;
+  left: 72.5%;
+
+  width: 82px;
+  height: 82px;
+
+  z-index: 20;
+
+  transform: rotate(-8deg);
+
+  filter:
+    drop-shadow(0 3px 5px rgba(0, 0, 0, 0.35));
+}
+
+.paper-plane svg {
+  width: 82px;
+  height: 82px;
+}
+
+.plane-line {
+  position: absolute;
+
+  width: 75px;
+  height: 35px;
+
+  left: -48px;
+  top: 45px;
+
+  border-top: 2px solid rgba(255, 255, 255, 0.8);
+
+  border-radius: 50%;
+
+  transform: rotate(-25deg);
+}
+
+
+/* ==============================
+   RIGHT CIRCLE
+============================== */
+
+.right-circle {
+  position: absolute;
+
+  right: 8%;
+  top: 125px;
+
+  width: 154px;
+  height: 108px;
+
+  border:
+    2px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 50%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  font-family: "Caveat", cursive;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  line-height: 1.02;
+
+  transform: rotate(-8deg);
+
+  text-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.7);
+
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.15);
+
+  z-index: 20;
+}
+
+
+/* ==============================
+   GET STARTED BUTTON
+============================== */
+
+.get-started {
+  position: absolute;
+
+  left: 50%;
+  bottom: 62px;
+
+  transform: translateX(-50%);
+
+  width: 280px;
+  height: 72px;
+
+  border:
+    2px solid rgba(255, 255, 255, 0.55);
+
+  border-radius: 50px;
+
+  background:
+    linear-gradient(
+      105deg,
+      #00d5ff 0%,
+      #3587ff 50%,
+      #a93cff 100%
+    );
+
+  color: white;
+
+  font-family: "Montserrat", sans-serif;
+
+  font-size: 21px;
+  font-weight: 700;
+
+  letter-spacing: 0.1px;
+
+  box-shadow:
+    0 8px 28px rgba(0, 90, 255, 0.45),
+    0 0 30px rgba(150, 60, 255, 0.28),
+    inset 0 1px 2px rgba(255, 255, 255, 0.45);
+
+  cursor: pointer;
+
+  z-index: 30;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.get-started:hover {
+  transform:
+    translateX(-50%)
+    scale(1.05);
+
+  box-shadow:
+    0 12px 35px rgba(0, 90, 255, 0.55),
+    0 0 40px rgba(150, 60, 255, 0.35);
+}
+
+.get-started .arrow {
+  margin-left: 19px;
+
+  font-size: 31px;
+
+  vertical-align: -2px;
+}
+
+
+/* ==============================
+   BOTTOM SHAPES
+============================== */
+
+.bottom-shape {
+  position: absolute;
+
+  bottom: -135px;
+
+  width: 530px;
+  height: 245px;
+
+  border-radius:
+    50% 50% 0 0;
+
+  opacity: 0.92;
+
+  z-index: 8;
+
+  filter:
+    drop-shadow(0 -3px 10px rgba(0, 80, 180, 0.12));
+}
+
+.left-shape {
+  left: -145px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #39c5ff,
+      #7040ff
+    );
+
+  transform: rotate(12deg);
+}
+
+.right-shape {
+  right: -145px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #35c8ff,
+      #c238e9
+    );
+
+  transform: rotate(-12deg);
+}
+
+
+/* ==============================
+   TABLET
+============================== */
+
+@media (max-width: 1000px) {
+
+  .logo-area {
+    left: 35px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+  }
+
+  .left-text {
+    left: 5%;
+  }
+
+  .right-circle {
+    right: 5%;
+  }
+
+  .paper-plane {
+    left: 72%;
+  }
+
+  .title-line {
+    width: 360px;
+  }
+}
+
+
+/* ==============================
+   MOBILE
+============================== */
+
+@media (max-width: 700px) {
+
+  .logo-area {
+    top: 18px;
+    left: 20px;
+    gap: 8px;
+  }
+
+  .cap {
+    font-size: 27px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .tagline {
+    top: 67px;
+
+    gap: 12px;
+
+    font-size: 21px;
+  }
+
+  .main-title {
+    top: 120px;
+  }
+
+  .campus {
+    font-size: 62px;
+    letter-spacing: -2px;
+  }
+
+  .project-title {
+    font-size: 37px;
+    gap: 5px;
+    letter-spacing: -1px;
+  }
+
+  .title-line {
+    width: 230px;
+    height: 5px;
+  }
+
+  .left-text {
+    top: 255px;
+    left: 5%;
+    font-size: 19px;
+  }
+
+  .right-circle {
+    top: 190px;
+    right: 5%;
+
+    width: 105px;
+    height: 75px;
+
+    font-size: 16px;
+  }
+
+  .paper-plane {
+    display: none;
+  }
+
+  .get-started {
+    width: 230px;
+    height: 60px;
+
+    bottom: 40px;
+
+    font-size: 18px;
+  }
+
+  .get-started .arrow {
+    font-size: 25px;
+  }
+
+  .bottom-shape {
+    width: 380px;
+    height: 170px;
+
+    bottom: -100px;
+  }
+}
