@@ -1,0 +1,228 @@
+/* MAIN DASHBOARD */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: inherit;
+  color: #101d3c;
+}
+
+/* NAVIGATION BAR */
+
+.dashboard-header {
+  width: 100%;
+  height: 65px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #091b42;
+  color: white;
+}
+
+.dashboard-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.dashboard-logo {
+  font-size: 25px;
+}
+
+.dashboard-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.user-profile-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: white;
+  color: #091b42;
+  font-weight: 700;
+}
+
+.dashboard-logout {
+  margin-left: 15px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #091b42;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* COLLEGE WELCOME BANNER */
+
+.college-welcome-banner {
+  position: relative;
+  max-width: 1100px;
+  min-height: 190px;
+  margin: 55px auto 40px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 15px;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      #eaf3ff 0%,
+      #e9e8ff 30%,
+      rgba(225, 230, 255, 0.85) 45%,
+      rgba(225, 230, 255, 0.05) 75%
+    ),
+    url("/campus-bg.jpg");
+
+  background-repeat: no-repeat, no-repeat;
+
+  /* Enlarge image without vertically centering it */
+  background-size: cover, 120% auto;
+
+  /* Keep the upper roof visible and shift it to the right */
+  background-position: center, left top;
+}
+
+.college-banner-content {
+  position: relative;
+  z-index: 1;
+}
+
+.college-banner-content h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 800;
+  color: #091b42;
+}
+
+.college-banner-content p {
+  margin: 0;
+  font-size: 15px;
+  color: #53617f;
+}
+
+.college-banner-accent {
+  width: 80px;
+  height: 5px;
+  margin-top: 18px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    #00c5ed,
+    #a52bff
+  );
+}
+
+/* ASSIGNED PROJECTS */
+
+.assigned-projects {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.assigned-projects h2 {
+  margin-bottom: 20px;
+  font-size: 21px;
+  font-weight: 750;
+  color: #091b42;
+}
+
+.dashboard-message {
+  padding: 22px;
+  border-radius: 10px;
+  background: #f5f7fc;
+  color: #53617f;
+  text-align: center;
+}
+
+.dashboard-error {
+  color: #d32f2f;
+}
+
+/* PROJECT CARDS */
+
+.project-list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(250px, 1fr)
+  );
+  gap: 20px;
+}
+
+.student-project-card {
+  padding: 24px;
+  border: 1px solid #e3e9f5;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(9, 27, 66, 0.06);
+}
+
+.student-project-card h3 {
+  margin: 0 0 12px;
+  color: #091b42;
+}
+
+.student-project-card p {
+  color: #68758f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.project-status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #e9f2ff;
+  color: #1769d2;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 0 4%;
+  }
+
+  .dashboard-brand {
+    font-size: 16px;
+  }
+
+  .dashboard-user {
+    font-size: 12px;
+  }
+
+  .dashboard-logout {
+    padding: 7px 12px;
+  }
+
+  .college-welcome-banner {
+    margin: 30px 15px;
+    padding: 25px;
+    min-height: 160px;
+    background-size: cover, 120% auto;
+    background-position: center, left top;
+  }
+
+  .college-banner-content h1 {
+    font-size: 23px;
+  }
+
+  .assigned-projects {
+    margin: 0 15px;
+  }
+}
