@@ -9,6 +9,11 @@ import {
 
 import "./App.css";
 import Dashboard from "./Dashboard";
+import ProjectLeadDashboard from "./PROJECTLEAD/ProjectLeadDashboard.jsx";
+import CreateProject from "./PROJECTLEAD/CreateProject.jsx";
+import ProjectDetails from "./PROJECTLEAD/ProjectDetails.jsx";
+
+import ProjectLeadProfile from "./PROJECTLEAD/ProjectLeadProfile.jsx";
 
 /* -------------------------------------------------------
    API CONFIGURATION
@@ -864,6 +869,18 @@ export default function App() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route
+          path="/project-lead/dashboard"
+          element={<ProjectLeadDashboard />}
+      />
+
+      <Route path="/project-lead/create-project" element={<CreateProject />} />
+      <Route path="/project-lead/projects/:projectId" element={<ProjectDetails />} />
+
+      <Route
+          path="/project-lead/profile"
+          element={<ProjectLeadProfile />}
+      />
 
       <Route
         path="*"
