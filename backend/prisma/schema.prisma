@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client-js"
+  output       = "../generated/prisma"
 }
 
 datasource db {
@@ -15,6 +16,10 @@ model User {
   ph_no        String?
   join_date    DateTime @default(now())
   dept_name    String?
+
+  role         String   @default("STUDENT")
+
+  leadProjects Project[] @relation("ProjectLead")
 }
 
 model Project {
@@ -24,4 +29,7 @@ model Project {
   start_date   DateTime?
   deadline     DateTime?
   status       String   @default("ACTIVE")
+
+  projectLeadId Int?
+  projectLead   User?   @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
 }

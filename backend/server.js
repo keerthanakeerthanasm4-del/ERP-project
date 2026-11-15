@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/prisma/index.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
@@ -240,6 +240,7 @@ app.post("/api/auth/login", async (req, res) => {
         name: user.name,
         usn: user.usn,
         email: user.email,
+        role: user.role,
       },
     });
 
@@ -251,7 +252,138 @@ app.post("/api/auth/login", async (req, res) => {
     });
   }
 });
+// CREATE PROJECT LEAD - HOD ONLY
+app.post("/api/hod/create-project-lead", async (req, res) => {
+  try {
+    // Verify HOD token
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({ message: "HOD access only" });
+    }
+
+    const { name, email, department } = req.body;
+
+    if (!name || !email || !department) {
+      return res.status(400).json({
+        message: "Please provide all required details",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        message: "This email address already exists",
+      });
+    }
+
+    // Generate a temporary password for the new account
+    const temporaryPassword = crypto.randomBytes(12).toString("base64url");
+    const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+
+    const newLead = await prisma.user.create({
+      data: {
+        name: name.trim(),
+        email: normalizedEmail,
+        dept_name: department,
+        passwordHash,
+        role: "PROJECT_LEAD",
+      },
+    });
+
+    res.status(201).json({
+      message: "Project Lead created successfully!",
+      temporaryPassword,
+      lead: {
+        id: newLead.user_id,
+        name: newLead.name,
+        email: newLead.email,
+        department: newLead.dept_name,
+        status: "Active",
+      },
+    });
+
+  } catch (error) {
+    console.error("Create Project Lead Error:", error);
+
+    if (error.name === "JsonWebTokenError" ||
+        error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+
+    res.status(500).json({
+      message: "Failed to create Project Lead",
+    });
+  }
+});
+// GET ALL PROJECT LEADS - HOD ONLY
+app.get("/api/hod/project-leads", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const leads = await prisma.user.findMany({
+      where: { role: "PROJECT_LEAD" },
+      select: {
+        user_id: true,
+        name: true,
+        email: true,
+        dept_name: true,
+      },
+    });
+
+    res.json({
+      leads: leads.map((lead) => ({
+        id: lead.user_id,
+        name: lead.name,
+        email: lead.email,
+        department: lead.dept_name,
+        status: "Active",
+      })),
+    });
+
+  } catch (error) {
+    console.error("Fetch Project Leads Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch Project Leads",
+    });
+  }
+});
 /* -------------------------------------------------------
    5. GOOGLE LOGIN - ACCOUNT SELECTION
 ------------------------------------------------------- */
@@ -395,7 +527,145 @@ app.post("/api/auth/google", async (req, res) => {
     });
   }
 });
+// GET ALL PROJECTS - HOD ONLY
+app.get("/api/hod/projects", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const projects = await prisma.project.findMany({
+      include: {
+        projectLead: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+            dept_name: true,
+          },
+        },
+      },
+      orderBy: {
+        project_name: "asc",
+      },
+    });
+
+    res.json({ projects });
+
+  } catch (error) {
+    console.error("Fetch HOD Projects Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch projects",
+    });
+  }
+});
+// ASSIGN / CHANGE / REMOVE PROJECT LEAD - HOD ONLY
+app.patch("/api/hod/projects/:projectId/lead", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const { leadId } = req.body;
+    const projectId = req.params.projectId;
+
+    const project = await prisma.project.findUnique({
+      where: { project_id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        message: "Project not found",
+      });
+    }
+
+    let assignedLeadId = null;
+
+    if (leadId !== null) {
+      assignedLeadId = Number(leadId);
+
+      if (!Number.isInteger(assignedLeadId)) {
+        return res.status(400).json({
+          message: "Invalid Project Lead ID",
+        });
+      }
+
+      const lead = await prisma.user.findUnique({
+        where: { user_id: assignedLeadId },
+      });
+
+      if (!lead || lead.role !== "PROJECT_LEAD") {
+        return res.status(404).json({
+          message: "Project Lead not found",
+        });
+      }
+    }
+
+    const updatedProject = await prisma.project.update({
+      where: { project_id: projectId },
+      data: {
+        projectLeadId: assignedLeadId,
+      },
+      include: {
+        projectLead: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+            dept_name: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      message: "Project Lead assignment updated successfully",
+      project: updatedProject,
+    });
+
+  } catch (error) {
+    console.error("Project Lead Assignment Error:", error);
+
+    res.status(500).json({
+      message: "Failed to update Project Lead assignment",
+    });
+  }
+});
 /* -------------------------------------------------------
    START SERVER
 ------------------------------------------------------- */

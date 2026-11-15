@@ -1,3 +1,4 @@
+import HODDashboard from "./HOD/HOD pages/HODDashboard.jsx";
 import { useState, useEffect, useRef } from "react";
 import {
   Link,
@@ -849,7 +850,19 @@ function RegisterPage() {
     </main>
   );
 }
+function RoleDashboard() {
+  const storedUser = JSON.parse(
+    localStorage.getItem("user") ||
+    sessionStorage.getItem("user") ||
+    "null"
+  );
 
+  if (storedUser?.role === "HOD") {
+    return <HODDashboard />;
+  }
+
+  return <Dashboard />;
+}
 /* -------------------------------------------------------
    APP ROUTES
 ------------------------------------------------------- */
@@ -863,7 +876,7 @@ export default function App() {
 
       <Route path="/register" element={<RegisterPage />} />
 
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<RoleDashboard />} />
 
       <Route
         path="*"
