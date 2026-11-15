@@ -11,7 +11,7 @@ model User {
   name         String
   usn          String?  @unique
   email        String   @unique
-  passwordHash String
+  passwordHash String?
   ph_no        String?
   join_date    DateTime @default(now())
   dept_name    String?
