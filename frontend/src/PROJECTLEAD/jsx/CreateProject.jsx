@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./CreateProject.css";
-
+import "../css/CreateProject.css";
 const API_URL = "http://localhost:5000";
-
 export default function CreateProject() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -11,7 +9,6 @@ export default function CreateProject() {
   const [deadline, setDeadline] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -24,15 +21,26 @@ export default function CreateProject() {
       }
       const response = await fetch(`${API_URL}/api/project-lead/projects`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: name.trim(), projectId: projectId.trim(), deadline }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          projectId: projectId.trim(),
+          deadline
+        })
       });
       const data = await response.json();
       if (!response.ok) {
         setError(data.message || "Could not create the project.");
         return;
       }
-      navigate("/project-lead/dashboard", { state: { created: true } });
+      navigate("/project-lead/dashboard", {
+        state: {
+          created: true
+        }
+      });
     } catch (err) {
       console.error("Create project:", err);
       setError("Unable to connect to the backend.");
@@ -40,13 +48,7 @@ export default function CreateProject() {
       setSaving(false);
     }
   }
-
-  return (
-    <main className="create-project-page">
-      <header className="cp-header">
-        <span>🎓 Project Portal</span>
-        <button type="button" onClick={() => navigate("/project-lead/dashboard")}>Back to Dashboard</button>
-      </header>
+  return <main className="create-project-page">
       <section className="cp-card">
         <p className="cp-eyebrow">PROJECT LEAD</p>
         <h1>Create a project</h1>
@@ -65,6 +67,5 @@ export default function CreateProject() {
           </div>
         </form>
       </section>
-    </main>
-  );
+    </main>;
 }

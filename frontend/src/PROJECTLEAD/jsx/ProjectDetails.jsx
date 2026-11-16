@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./ProjectDetails.css";
-
+import "../css/ProjectDetails.css";
 const API_URL = window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:5000" : "http://localhost:5000";
-const ROLE_LABELS = { TEAM_LEAD: "Team Lead", TECH_LEAD: "Tech Lead", TEAM_MEMBER: "Team Member" };
-
+const ROLE_LABELS = {
+  TEAM_LEAD: "Team Lead",
+  TECH_LEAD: "Tech Lead",
+  TEAM_MEMBER: "Team Member"
+};
 export default function ProjectDetails() {
-  const { projectId } = useParams();
+  const {
+    projectId
+  } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [usn, setUsn] = useState("");
@@ -17,12 +21,14 @@ export default function ProjectDetails() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-
   const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
-
   async function loadProject() {
     try {
-      const response = await fetch(`${API_URL}/api/project-lead/projects/${encodeURIComponent(projectId)}`, { headers: { Authorization: `Bearer ${token()}` } });
+      const response = await fetch(`${API_URL}/api/project-lead/projects/${encodeURIComponent(projectId)}`, {
+        headers: {
+          Authorization: `Bearer ${token()}`
+        }
+      });
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 401) navigate("/login");
@@ -33,14 +39,17 @@ export default function ProjectDetails() {
     } catch (err) {
       console.error("Load project details:", err);
       setError("Unable to connect to the backend.");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }
-
   useEffect(() => {
-    if (!token()) { navigate("/login"); return; }
+    if (!token()) {
+      navigate("/login");
+      return;
+    }
     loadProject();
   }, [projectId]);
-
   async function addUser(event) {
     event.preventDefault();
     setError("");
@@ -49,24 +58,35 @@ export default function ProjectDetails() {
     try {
       const response = await fetch(`${API_URL}/api/project-lead/projects/${encodeURIComponent(projectId)}/members`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({ usn: usn.trim(), email: email.trim(), role }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token()}`
+        },
+        body: JSON.stringify({
+          usn: usn.trim(),
+          email: email.trim(),
+          role
+        })
       });
       const data = await response.json();
-      if (!response.ok) { setError(data.message || "Unable to add user."); return; }
+      if (!response.ok) {
+        setError(data.message || "Unable to add user.");
+        return;
+      }
       setMessage(`${data.member.name} added as ${ROLE_LABELS[data.member.role]}.`);
-      setUsn(""); setEmail(""); setRole("TEAM_MEMBER");
+      setUsn("");
+      setEmail("");
+      setRole("TEAM_MEMBER");
       setShowAddForm(false);
       await loadProject();
     } catch (err) {
       console.error("Add project member:", err);
       setError("Unable to connect to the backend.");
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   }
-
-  return (
-    <main className="pd-page">
-      <header className="pd-header"><strong>🎓 Project Portal</strong><button onClick={() => navigate("/project-lead/dashboard")}>Back to Dashboard</button></header>
+  return <main className="pd-page">
       <div className="pd-content">
         <button className="pd-back" onClick={() => navigate("/project-lead/dashboard")}>← Projects</button>
         {loading ? <p>Loading project…</p> : error && !project ? <p className="pd-error">{error}</p> : project && <>
@@ -76,7 +96,11 @@ export default function ProjectDetails() {
                 <p className="pd-eyebrow">PROJECT DETAILS</p>
                 <h1>{project.project_name}</h1>
               </div>
-              <button className="pd-add-user" onClick={() => { setError(""); setMessage(""); setShowAddForm(value => !value); }}>
+              <button className="pd-add-user" onClick={() => {
+              setError("");
+              setMessage("");
+              setShowAddForm(value => !value);
+            }}>
                 {showAddForm ? "Close" : "+ Add User"}
               </button>
             </div>
@@ -99,6 +123,5 @@ export default function ProjectDetails() {
           </section>
         </>}
       </div>
-    </main>
-  );
+    </main>;
 }
