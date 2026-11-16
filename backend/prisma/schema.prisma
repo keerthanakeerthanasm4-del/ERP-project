@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,7 +16,9 @@ model User {
   ph_no        String?  @map("phone")
   join_date    DateTime @default(now())
   dept_name    String?
-  projects     Project[] @relation("ProjectLead")
+  role         String   @default("STUDENT")
+
+  leadProjects Project[]       @relation("ProjectLead")
   memberships  ProjectMember[]
 }
 
@@ -26,10 +29,11 @@ model Project {
   start_date   DateTime?
   deadline     DateTime?
   status       String   @default("ACTIVE")
-  lead_user_id Int
   created_at   DateTime @default(now())
-  lead         User     @relation("ProjectLead", fields: [lead_user_id], references: [user_id], onDelete: Cascade)
-  members      ProjectMember[]
+
+  projectLeadId Int?
+  projectLead   User?           @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
+  members       ProjectMember[]
 }
 
 enum ProjectMemberRole {
@@ -44,8 +48,9 @@ model ProjectMember {
   user_id    Int
   role       ProjectMemberRole
   added_at   DateTime          @default(now())
-  project    Project           @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
-  user       User              @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  project Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([project_id, user_id])
 }

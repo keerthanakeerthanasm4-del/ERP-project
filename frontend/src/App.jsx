@@ -1,3 +1,4 @@
+import HODDashboard from "./HOD/HOD pages/HODDashboard.jsx";
 import { useState, useEffect, useRef } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
@@ -69,7 +70,7 @@ function saveLogin(data, rememberMe, navigate) {
     sessionStorage.setItem("token", data.token);
   }
   localStorage.setItem("user", JSON.stringify(data.user));
-  navigate("/dashboard");
+  navigate(data.user?.role === "PROJECT_LEAD" ? "/project-lead/dashboard" : "/dashboard");
 }
 
 /* -------------------------------------------------------
@@ -572,20 +573,28 @@ function RegisterPage() {
       </section>
     </main>;
 }
+function RoleDashboard() {
+  const storedUser = JSON.parse(
+    localStorage.getItem("user") ||
+    sessionStorage.getItem("user") ||
+    "null"
+  );
 
+  if (storedUser?.role === "HOD") return <HODDashboard />;
+  if (storedUser?.role === "PROJECT_LEAD") return <Navigate to="/project-lead/dashboard" replace />;
+  return <Dashboard />;
+}
 /* -------------------------------------------------------
    APP ROUTES
 ------------------------------------------------------- */
 
 export default function App() {
-  return <Routes>
+  return (
+    <Routes>
       <Route path="/" element={<HomePage />} />
-
       <Route path="/login" element={<LoginPage />} />
-
       <Route path="/register" element={<RegisterPage />} />
-
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/dashboard" element={<RoleDashboard />} />
       <Route path="/project-lead" element={<ProjectLeadLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ProjectLeadDashboard />} />
@@ -595,7 +604,7 @@ export default function App() {
         <Route path="create-project" element={<CreateProject />} />
         <Route path="projects/:projectId" element={<ProjectDetails />} />
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>;
+    </Routes>
+  );
 }
