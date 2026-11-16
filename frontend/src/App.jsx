@@ -9,6 +9,8 @@ import {
 
 import "./App.css";
 import Dashboard from "./Dashboard";
+import ProjectLeadDashboard from "./PROJECTLEAD/ProjectLeadDashboard";
+import ProjectLeadProfile from "./PROJECTLEAD/ProjectLeadProfile";
 
 /* -------------------------------------------------------
    API CONFIGURATION
@@ -854,17 +856,38 @@ function RegisterPage() {
    APP ROUTES
 ------------------------------------------------------- */
 
+/* -------------------------------------------------------
+   APP ROUTES
+------------------------------------------------------- */
+
 export default function App() {
   return (
     <Routes>
+      {/* HOME PAGE */}
       <Route path="/" element={<HomePage />} />
 
+      {/* LOGIN PAGE */}
       <Route path="/login" element={<LoginPage />} />
 
+      {/* REGISTRATION PAGE */}
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* STUDENT DASHBOARD */}
       <Route path="/dashboard" element={<Dashboard />} />
 
+      {/* PROJECT LEAD DASHBOARD */}
+      <Route
+        path="/projectlead/dashboard"
+        element={<ProjectLeadDashboard />}
+      />
+
+      {/* PROJECT LEAD PROFILE */}
+      <Route
+        path="/projectlead/profile"
+        element={<ProjectLeadProfile />}
+      />
+
+      {/* INVALID ROUTES */}
       <Route
         path="*"
         element={<Navigate to="/" replace />}
@@ -872,3 +895,6 @@ export default function App() {
     </Routes>
   );
 }
+
+
+    
