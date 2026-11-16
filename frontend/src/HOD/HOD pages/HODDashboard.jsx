@@ -1,4 +1,4 @@
-import svceLogo from "../../assets/svce-logo.png";
+import projectLogo from "../../assets/project-logo.png";
 import HODProjects from "./HODProjects";
 import CreateProjectLead from "./CreateProjectLead.jsx";
 import HODProfile from "./HODProfile.jsx";
@@ -337,9 +337,9 @@ const fetchHODProjects = async () => {
     <div className="hod-layout">
       <aside className={`hod-sidebar ${sidebarOpen ? "" : "collapsed"}`}>
         <div className="sidebar-brand">
-          <img
-  src={svceLogo}
-  alt="SVCE Logo"
+         <img
+  src={projectLogo}
+  alt="Project Logo"
   className="svce-logo"
 />
           {sidebarOpen && (

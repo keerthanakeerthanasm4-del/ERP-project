@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "seed:hod": "node seed-hod.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

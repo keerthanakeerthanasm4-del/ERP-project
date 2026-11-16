@@ -14,6 +14,10 @@ const { Pool } = pg;
 const app = express();
 const PORT = 5000;
 
+// Development HOD credentials requested for the login page.
+const HOD_LOGIN_EMAIL = "hodsvce@gmail.com";
+const HOD_LOGIN_PASSWORD = "hodsvce@123";
+
 // Environment variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -203,7 +207,45 @@ app.post("/api/auth/login", async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user
+    // --------------------------------
+    // 1. HARDCODED HOD LOGIN
+    // --------------------------------
+
+    if (
+      normalizedEmail === HOD_LOGIN_EMAIL &&
+      password === HOD_LOGIN_PASSWORD
+    ) {
+      const hod = await prisma.user.findUnique({
+        where: {
+          email: normalizedEmail,
+        },
+      });
+
+      if (!hod || hod.role !== "HOD") {
+        return res.status(403).json({
+          message: "HOD account not found or role is incorrect",
+        });
+      }
+
+      const token = generateToken(hod);
+
+      return res.json({
+        message: "HOD login successful",
+        token,
+        user: {
+          user_id: hod.user_id,
+          name: hod.name,
+          usn: hod.usn,
+          email: hod.email,
+          role: hod.role,
+        },
+      });
+    }
+
+    // --------------------------------
+    // 2. NORMAL STUDENT / USER LOGIN
+    // --------------------------------
+
     const user = await prisma.user.findUnique({
       where: {
         email: normalizedEmail,
@@ -216,7 +258,6 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    // Compare password
     const passwordMatch = await bcrypt.compare(
       password,
       user.passwordHash
@@ -228,13 +269,11 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    // Generate token
     const token = generateToken(user);
 
-    res.json({
+    return res.json({
       message: "Login successful",
       token,
-
       user: {
         user_id: user.user_id,
         name: user.name,
@@ -252,138 +291,7 @@ app.post("/api/auth/login", async (req, res) => {
     });
   }
 });
-// CREATE PROJECT LEAD - HOD ONLY
-app.post("/api/hod/create-project-lead", async (req, res) => {
-  try {
-    // Verify HOD token
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const hod = await prisma.user.findUnique({
-      where: { user_id: decoded.user_id },
-    });
-
-    if (!hod || hod.role !== "HOD") {
-      return res.status(403).json({ message: "HOD access only" });
-    }
-
-    const { name, email, department } = req.body;
-
-    if (!name || !email || !department) {
-      return res.status(400).json({
-        message: "Please provide all required details",
-      });
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        message: "This email address already exists",
-      });
-    }
-
-    // Generate a temporary password for the new account
-    const temporaryPassword = crypto.randomBytes(12).toString("base64url");
-    const passwordHash = await bcrypt.hash(temporaryPassword, 10);
-
-    const newLead = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        dept_name: department,
-        passwordHash,
-        role: "PROJECT_LEAD",
-      },
-    });
-
-    res.status(201).json({
-      message: "Project Lead created successfully!",
-      temporaryPassword,
-      lead: {
-        id: newLead.user_id,
-        name: newLead.name,
-        email: newLead.email,
-        department: newLead.dept_name,
-        status: "Active",
-      },
-    });
-
-  } catch (error) {
-    console.error("Create Project Lead Error:", error);
-
-    if (error.name === "JsonWebTokenError" ||
-        error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Invalid or expired token" });
-    }
-
-    res.status(500).json({
-      message: "Failed to create Project Lead",
-    });
-  }
-});
-// GET ALL PROJECT LEADS - HOD ONLY
-app.get("/api/hod/project-leads", async (req, res) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Authentication required",
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const hod = await prisma.user.findUnique({
-      where: { user_id: decoded.user_id },
-    });
-
-    if (!hod || hod.role !== "HOD") {
-      return res.status(403).json({
-        message: "HOD access only",
-      });
-    }
-
-    const leads = await prisma.user.findMany({
-      where: { role: "PROJECT_LEAD" },
-      select: {
-        user_id: true,
-        name: true,
-        email: true,
-        dept_name: true,
-      },
-    });
-
-    res.json({
-      leads: leads.map((lead) => ({
-        id: lead.user_id,
-        name: lead.name,
-        email: lead.email,
-        department: lead.dept_name,
-        status: "Active",
-      })),
-    });
-
-  } catch (error) {
-    console.error("Fetch Project Leads Error:", error);
-
-    res.status(500).json({
-      message: "Failed to fetch Project Leads",
-    });
-  }
-});
 /* -------------------------------------------------------
    5. GOOGLE LOGIN - ACCOUNT SELECTION
 ------------------------------------------------------- */
