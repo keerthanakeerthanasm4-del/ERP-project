@@ -16,7 +16,7 @@ const PORT = 5000;
 
 // Development HOD credentials requested for the login page.
 const HOD_LOGIN_EMAIL = "hodsvce@gmail.com";
-const HOD_LOGIN_PASSWORD = "hodsve@123";
+const HOD_LOGIN_PASSWORD = "hodsvce@123";
 
 // Environment variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
