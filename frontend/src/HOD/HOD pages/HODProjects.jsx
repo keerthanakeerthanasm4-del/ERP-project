@@ -149,7 +149,7 @@ const handleAssignLead = async (projectId, leadId) => {
     </p>
 
     <p>
-      <strong>Lead Email:</strong>{" "}
+      <strong> Project Lead Email:</strong>{" "}
       {project.projectLead
         ? project.projectLead.email
         : "Not Assigned"}

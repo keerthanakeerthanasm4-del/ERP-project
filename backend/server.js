@@ -585,20 +585,25 @@ app.post("/api/project-lead/projects/:projectId/members", requireAuth, async (re
 app.get("/api/hod/projects", requireHod, async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
-      include: {
-        projectLead: {
-          select: {
-            user_id: true,
-            name: true,
-            email: true,
-            dept_name: true,
-          },
-        },
+  include: {
+    projectLead: {
+      select: {
+        user_id: true,
+        name: true,
+        email: true,
+        dept_name: true,
       },
+    },
+    phases: {
       orderBy: {
-        project_name: "asc",
+        phase_order: "asc",
       },
-    });
+    },
+  },
+  orderBy: {
+    project_name: "asc",
+  },
+});
 
     res.json({ projects });
 
@@ -607,6 +612,54 @@ app.get("/api/hod/projects", requireHod, async (req, res) => {
 
     res.status(500).json({
       message: "Failed to fetch projects",
+    });
+  }
+});
+app.get("/api/hod/project-leads", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const leads = await prisma.user.findMany({
+      where: {
+        role: "PROJECT_LEAD",
+      },
+      select: {
+        user_id: true,
+        name: true,
+        email: true,
+        dept_name: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    res.json({ leads });
+
+  } catch (error) {
+    console.error("Fetch Project Leads Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch Project Leads",
     });
   }
 });

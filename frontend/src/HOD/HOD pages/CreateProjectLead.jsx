@@ -30,7 +30,17 @@ function CreateProjectLead() {
   const [selectedLead, setSelectedLead] = useState("");
   const [message, setMessage] = useState("");
   const API_URL = "http://localhost:5000";
+const readApiResponse = async (response) => {
+  const text = await response.text();
 
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Server returned HTML instead of JSON. HTTP Status: ${response.status}. Check the backend API route.`
+    );
+  }
+};
 useEffect(() => {
   fetchProjectLeads();
 }, []);
@@ -52,7 +62,7 @@ const fetchProjects = async () => {
       }
     );
 
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to fetch projects");
@@ -85,7 +95,7 @@ const fetchProjectLeads = async () => {
       }
     );
 
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to fetch Project Leads");
@@ -124,7 +134,7 @@ const handleCreateLead = async (e) => {
       }
     );
 
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       setMessage(data.message || "Failed to create Project Lead.");
@@ -206,41 +216,7 @@ const handleCreateLead = async (e) => {
         </div>
       </div>
 
-      {/* SUMMARY CARDS */}
-      <div className="pl-summary-grid">
-
-        <div className="pl-summary-card">
-          <div className="pl-summary-icon blue">
-            <Users size={23} />
-          </div>
-          <div>
-            <h3>{leads.length}</h3>
-            <p>Total Project Leads</p>
-          </div>
-        </div>
-
-        <div className="pl-summary-card">
-          <div className="pl-summary-icon purple">
-            <FolderKanban size={23} />
-          </div>
-          <div>
-            <h3>{projects.filter((p) => p.leadEmail).length}</h3>
-            <p>Assigned Projects</p>
-          </div>
-        </div>
-
-        <div className="pl-summary-card">
-          <div className="pl-summary-icon green">
-            <CheckCircle size={23} />
-          </div>
-          <div>
-            <h3>{projects.filter((p) => !p.leadEmail).length}</h3>
-            <p>Unassigned Projects</p>
-          </div>
-        </div>
-
-      </div>
-
+    
       {/* NOTIFICATION */}
       {message && (
         <div className="pl-message">

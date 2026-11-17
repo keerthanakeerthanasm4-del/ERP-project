@@ -16,24 +16,27 @@ model User {
   ph_no        String?  @map("phone")
   join_date    DateTime @default(now())
   dept_name    String?
-  role         String   @default("STUDENT")
+
+  role String @default("STUDENT")
 
   leadProjects Project[]       @relation("ProjectLead")
   memberships  ProjectMember[]
 }
 
 model Project {
-  project_id   String   @id
+  project_id   String    @id
   project_name String
   description  String?
   start_date   DateTime?
   deadline     DateTime?
-  status       String   @default("ACTIVE")
-  created_at   DateTime @default(now())
+  status       String    @default("ACTIVE")
+  created_at   DateTime  @default(now())
 
   projectLeadId Int?
-  projectLead   User?           @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
-  members       ProjectMember[]
+  projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
+
+  phases  ProjectPhase[]
+  members ProjectMember[]
 }
 
 enum ProjectMemberRole {
@@ -53,4 +56,19 @@ model ProjectMember {
   user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([project_id, user_id])
+}
+
+model ProjectPhase {
+  phase_id     Int     @id @default(autoincrement())
+  phase_name   String
+  phase_order  Int     @default(0)
+  is_completed Boolean @default(false)
+
+  project_id String
+  project    Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([project_id])
 }
