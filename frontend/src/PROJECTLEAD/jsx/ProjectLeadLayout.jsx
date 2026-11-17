@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import "../css/ProjectLeadLayout.css";
+import "../css/ProjectLeadMotion.css";
 export default function ProjectLeadLayout() {
   const navigate = useNavigate();
   let user = {};
