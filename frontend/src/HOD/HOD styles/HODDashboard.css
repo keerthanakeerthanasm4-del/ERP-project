@@ -521,7 +521,33 @@ td {
   margin: 0;
   font-size: 12px;
 }
+/* PROJECT PHASE BLOCKS */
 
+/* GLYPH-STYLE PROJECT PHASES */
+
+.project-phases {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.phase-block {
+  width: 22px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.phase-block.pending {
+  background: #dce1e9;
+}
+
+.phase-block.completed {
+  background: #19c982;
+  box-shadow: 0 0 6px rgba(25, 201, 130, 0.4);
+}
 .on-track {
   color: #0c9a63;
 }
@@ -678,15 +704,48 @@ td {
   margin-bottom: 24px;
 }
 
+.profile-avatar-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+}
+
 .profile-avatar {
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #08d8ed, #713cff);
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #f8fbfb, #f0f0f2);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+.profile-camera-button {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: #0c0c0c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
 }
 
 .profile-overview-info {
@@ -1486,4 +1545,42 @@ td {
 .hod-sidebar.collapsed .sidebar-link.active {
   width: 100%;
   justify-content: center;
+}
+.banner-content h3 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.banner-meeting-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.banner-meeting-row h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.banner-date {
+  background: rgba(255, 255, 255, 0.8);
+  color: #2445a8;
+  padding: 9px 18px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .banner-meeting-row h2 {
+    font-size: 18px;
+  }
+
+  .banner-date {
+    font-size: 14px;
+  }
 }

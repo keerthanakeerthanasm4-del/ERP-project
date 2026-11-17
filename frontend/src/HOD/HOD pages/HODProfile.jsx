@@ -1,15 +1,37 @@
+import { useState, useRef } from "react";
+
 import {
   UserRound,
   Mail,
   Phone,
   Building2,
   GraduationCap,
-  BriefcaseBusiness,
-  CalendarDays,
   ShieldCheck,
+  Camera,
 } from "lucide-react";
 
 function HODProfile() {
+  const [profileImage, setProfileImage] = useState(null);
+const fileInputRef = useRef(null);
+
+const handleImageChange = (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please select a valid image.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Image size must be less than 5 MB.");
+    return;
+  }
+
+  const imageURL = URL.createObjectURL(file);
+  setProfileImage(imageURL);
+};
   const hod = {
     name: "HOD Name",
     designation: "Head of Department",
@@ -41,9 +63,33 @@ function HODProfile() {
       {/* PROFILE OVERVIEW */}
       <section className="profile-overview">
 
-        <div className="profile-avatar">
-          <UserRound size={65} />
-        </div>
+       <div className="profile-avatar-wrapper">
+
+  <div className="profile-avatar">
+    {profileImage ? (
+      <img src={profileImage} alt="HOD Profile" />
+    ) : (
+      <UserRound size={65} />
+    )}
+  </div>
+
+  <button
+    className="profile-camera-button"
+    onClick={() => fileInputRef.current.click()}
+    title="Change Profile Picture"
+  >
+    <Camera size={18} />
+  </button>
+
+  <input
+    type="file"
+    accept="image/*"
+    ref={fileInputRef}
+    onChange={handleImageChange}
+    hidden
+  />
+
+</div>
 
         <div className="profile-overview-info">
           <h2>{hod.name}</h2>

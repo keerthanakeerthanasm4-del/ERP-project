@@ -76,16 +76,17 @@ const fetchHODProjects = async () => {
     }
 
     const formattedProjects = (data.projects || []).map((project) => ({
-      name: project.project_name,
-      status: project.status,
-      icon: project.project_name.toLowerCase().includes("qr")
-        ? <ShieldCheck />
-        : project.project_name.toLowerCase().includes("erp")
-        ? <Cpu />
-        : <Bot />,
-    }));
+  name: project.project_name,
+  status: project.status,
+  phases: project.phases || [],
+  icon: project.project_name.toLowerCase().includes("qr")
+    ? <ShieldCheck />
+    : project.project_name.toLowerCase().includes("erp")
+    ? <Cpu />
+    : <Bot />,
+}));
 
-    setProjects(formattedProjects);
+setProjects(formattedProjects);
   } catch (error) {
     console.error("HOD Projects Error:", error);
   }
@@ -131,7 +132,7 @@ const fetchHODProjects = async () => {
         <>
           <header className="hod-header">
             <div>
-              <h1>WELCOME TO SVCE PROJECT PORTAL</h1>
+              <h1>WELCOME TO PROGRIS PROJECT PORTAL</h1>
               <p>Manage your department's projects and meetings efficiently</p>
             </div>
 
@@ -156,22 +157,28 @@ const fetchHODProjects = async () => {
           </header>
 
           <section className="next-meeting-banner">
-            <div className="banner-icon">
-              <Bell />
-            </div>
+  <div className="banner-icon">
+    <Bell />
+  </div>
 
-            <div className="banner-divider"></div>
+  <div className="banner-divider"></div>
 
-            <div className="banner-content">
-              <h3>Next Meeting</h3>
-              <h2>ERP meeting at 11:00 AM today</h2>
-            </div>
+  <div className="banner-content">
+    <h3>Next Meeting</h3>
 
-            <button className="banner-button" onClick={() => setActivePage("Meetings")}>
-              View Details <ArrowRight size={20} />
-            </button>
-          </section>
+    <div className="banner-meeting-row">
+      <h2>ERP meeting at 11:00 AM today</h2>
+      <span className="banner-date">Nov 16, 2026</span>
+    </div>
+  </div>
 
+  <button
+    className="banner-button"
+    onClick={() => setActivePage("Meetings")}
+  >
+    View Details <ArrowRight size={20} />
+  </button>
+</section>
           <section className="quick-actions">
             <button
               className="quick-action-card"
@@ -300,11 +307,22 @@ const fetchHODProjects = async () => {
                   <div className="project-icon">{project.icon}</div>
 
                   <div className="project-info">
-                    <h4>{project.name}</h4>
-                    <p className={project.status === "At Risk" ? "risk" : "on-track"}>
-                      ● Status: {project.status}
-                    </p>
-                  </div>
+  <h4>{project.name}</h4>
+
+  <p className={project.status === "At Risk" ? "risk" : "on-track"}>
+    ● Status: {project.status}
+  </p>
+
+  <div className="project-phases">
+  {project.phases.map((phase) => (
+    <span
+      key={phase.phase_id}
+      className={`phase-block ${phase.is_completed ? "completed" : "pending"}`}
+      title={phase.phase_name}
+    />
+  ))}
+</div>
+</div>
 
                   <button
                     className="view-details-button"
@@ -344,7 +362,7 @@ const fetchHODProjects = async () => {
 />
           {sidebarOpen && (
             <div>
-              <h2>SVCE</h2>
+              <h2>PROGRIS</h2>
               <p>Project Portal</p>
             </div>
           )}

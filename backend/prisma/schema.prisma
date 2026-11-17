@@ -1,6 +1,6 @@
 generator client {
-  provider     = "prisma-client-js"
-  output       = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -17,19 +17,36 @@ model User {
   join_date    DateTime @default(now())
   dept_name    String?
 
-  role         String   @default("STUDENT")
+  role String @default("STUDENT")
 
   leadProjects Project[] @relation("ProjectLead")
 }
 
 model Project {
-  project_id   String   @id
+  project_id   String    @id
   project_name String
   description  String?
   start_date   DateTime?
   deadline     DateTime?
-  status       String   @default("ACTIVE")
+  status       String    @default("ACTIVE")
 
   projectLeadId Int?
-  projectLead   User?   @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
+  projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
+
+  phases ProjectPhase[]
+}
+
+model ProjectPhase {
+  phase_id     Int     @id @default(autoincrement())
+  phase_name   String
+  phase_order  Int     @default(0)
+  is_completed Boolean @default(false)
+
+  project_id String
+  project    Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([project_id])
 }
