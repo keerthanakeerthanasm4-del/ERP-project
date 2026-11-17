@@ -160,44 +160,6 @@ const handleAssignLead = async (projectId, leadId) => {
 >
   View Details
 </button>
-    <hr />
-
-    <h4>Manage Project Lead</h4>
-
-    <select
-      value={
-        selectedLeads[project.project_id] ??
-        project.projectLead?.user_id ??
-        ""
-      }
-      onChange={(e) =>
-        setSelectedLeads({
-          ...selectedLeads,
-          [project.project_id]: e.target.value,
-        })
-      }
-    >
-      <option value="">Remove / No Project Lead</option>
-
-      {leads.map((lead) => (
-        <option key={lead.id} value={lead.id}>
-          {lead.name} - {lead.department}
-        </option>
-      ))}
-    </select>
-
-    <button
-      onClick={() =>
-        handleAssignLead(
-          project.project_id,
-          selectedLeads[project.project_id] ??
-          project.projectLead?.user_id ??
-          ""
-        )
-      }
-    >
-      Update Project Lead
-    </button>
 
   </div>
 ))}

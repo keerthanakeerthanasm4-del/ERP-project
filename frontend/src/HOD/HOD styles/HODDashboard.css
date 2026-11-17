@@ -178,6 +178,15 @@
   background: linear-gradient(135deg, #08d8ed, #713cff);
   color: white;
   font-weight: 700;
+  overflow: hidden;
+  padding: 0;
+}
+.hod-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 /* NEXT MEETING BANNER */

@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 
 function HODProfile() {
-  const [profileImage, setProfileImage] = useState(null);
+ const [profileImage, setProfileImage] = useState(
+  localStorage.getItem("hodProfileImage") || null
+);
 const fileInputRef = useRef(null);
 
 const handleImageChange = (event) => {
@@ -24,13 +26,26 @@ const handleImageChange = (event) => {
     return;
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    alert("Image size must be less than 5 MB.");
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Image size must be less than 2 MB.");
     return;
   }
 
-  const imageURL = URL.createObjectURL(file);
-  setProfileImage(imageURL);
+  const reader = new FileReader();
+
+  reader.onloadend = () => {
+    const imageURL = reader.result;
+
+    localStorage.setItem("hodProfileImage", imageURL);
+    setProfileImage(imageURL);
+
+    // Notify the Dashboard in the same browser tab
+    window.dispatchEvent(new Event("profileImageUpdated"));
+
+    alert("Profile picture updated successfully!");
+  };
+
+  reader.readAsDataURL(file);
 };
   const hod = {
     name: "HOD Name",

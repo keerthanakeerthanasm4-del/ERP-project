@@ -305,133 +305,132 @@ const handleCreateLead = async (e) => {
 
       </div>
 
-      {/* ASSIGN PROJECT LEAD */}
-      <div className="pl-main-card">
+      {/* ASSIGN AND MANAGE PROJECT LEADS */}
+<div className="pl-main-card">
 
-        <div className="pl-section-title">
-          <div className="pl-title-icon purple">
-            <ArrowRightLeft size={22} />
-          </div>
+  <div className="pl-section-title">
+    <div className="pl-title-icon purple">
+      <ArrowRightLeft size={22} />
+    </div>
 
-          <div>
-            <h2>Assign Project Lead</h2>
-            <p>Assign or change the lead responsible for a project.</p>
-          </div>
-        </div>
+    <div>
+      <h2>Add & Manage Project Leads</h2>
+      <p>Assign, view, change or remove project lead assignments.</p>
+    </div>
+  </div>
 
-        <div className="pl-assignment-form">
+  {/* ASSIGNMENT FORM */}
+  <div className="pl-assignment-form">
 
-          <div className="pl-form-group">
-            <label>Select Project</label>
+    <div className="pl-form-group">
+      <label>Select Project</label>
 
-            <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-            >
-              <option value="">Choose Project</option>
+      <select
+        value={selectedProject}
+        onChange={(e) => setSelectedProject(e.target.value)}
+      >
+        <option value="">Choose Project</option>
 
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {projects.map((project) => (
+          <option key={project.id} value={project.id}>
+            {project.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-          <div className="pl-form-group">
-            <label>Select Project Lead</label>
+    <div className="pl-form-group">
+      <label>Select Project Lead</label>
 
-            <select
-              value={selectedLead}
-              onChange={(e) => setSelectedLead(e.target.value)}
-            >
-              <option value="">Choose Project Lead</option>
+      <select
+        value={selectedLead}
+        onChange={(e) => setSelectedLead(e.target.value)}
+      >
+        <option value="">Choose Project Lead</option>
 
-              {leads.map((lead) => (
-                <option key={lead.id} value={lead.email}>
-                  {lead.name} ({lead.email})
-                </option>
-              ))}
-            </select>
-          </div>
+        {leads.map((lead) => (
+          <option key={lead.id} value={lead.email}>
+            {lead.name} ({lead.email})
+          </option>
+        ))}
+      </select>
+    </div>
 
-          <button
-            className="pl-assign-button"
-            onClick={handleAssignLead}
-          >
-            <UserPlus size={17} />
-            Assign Lead
-          </button>
+    <button
+      className="pl-assign-button"
+      onClick={handleAssignLead}
+    >
+      <UserPlus size={17} />
+      Assign Lead
+    </button>
 
-        </div>
+  </div>
 
-      </div>
+  <hr className="pl-assignment-divider" />
 
-      {/* PROJECT ASSIGNMENT LIST */}
-      <div className="pl-main-card">
+  {/* EXISTING ASSIGNMENTS */}
+  <div className="pl-section-title pl-existing-heading">
+    <div className="pl-title-icon">
+      <FolderKanban size={22} />
+    </div>
 
-        <div className="pl-section-title">
-          <div className="pl-title-icon">
+    <div>
+      <h2>Current Assignments</h2>
+      <p>View or remove existing project lead assignments.</p>
+    </div>
+  </div>
+
+  <div className="pl-project-list">
+
+    {projects.map((project) => {
+      const assignedLead = leads.find(
+        (lead) => lead.email === project.leadEmail
+      );
+
+      return (
+        <div className="pl-project-row" key={project.id}>
+
+          <div className="pl-project-icon">
             <FolderKanban size={22} />
           </div>
 
-          <div>
-            <h2>Project Assignments</h2>
-            <p>View and manage existing project lead assignments.</p>
+          <div className="pl-project-info">
+            <h3>{project.name}</h3>
+
+            <p>
+              {assignedLead
+                ? `Project Lead: ${assignedLead.name} (${assignedLead.email})`
+                : "No Project Lead assigned"}
+            </p>
           </div>
-        </div>
 
-        <div className="pl-project-list">
+          <span
+            className={
+              assignedLead
+                ? "pl-assigned-status"
+                : "pl-unassigned-status"
+            }
+          >
+            {assignedLead ? "Assigned" : "Unassigned"}
+          </span>
 
-          {projects.map((project) => {
-            const assignedLead = leads.find(
-              (lead) => lead.email === project.leadEmail
-            );
-
-            return (
-              <div className="pl-project-row" key={project.id}>
-
-                <div className="pl-project-icon">
-                  <FolderKanban size={22} />
-                </div>
-
-                <div className="pl-project-info">
-                  <h3>{project.name}</h3>
-
-                  <p>
-                    {assignedLead
-                      ? `Project Lead: ${assignedLead.name} (${assignedLead.email})`
-                      : "No Project Lead assigned"}
-                  </p>
-                </div>
-
-                <span
-                  className={
-                    assignedLead
-                      ? "pl-assigned-status"
-                      : "pl-unassigned-status"
-                  }
-                >
-                  {assignedLead ? "Assigned" : "Unassigned"}
-                </span>
-
-                {assignedLead && (
-                  <button
-                    className="pl-remove-button"
-                    onClick={() => handleRemoveAssignment(project.id)}
-                    title="Remove assignment"
-                  >
-                    <Trash2 size={17} />
-                  </button>
-                )}
-
-              </div>
-            );
-          })}
+          {assignedLead && (
+            <button
+              className="pl-remove-button"
+              onClick={() => handleRemoveAssignment(project.id)}
+              title="Remove assignment"
+            >
+              <Trash2 size={17} />
+            </button>
+          )}
 
         </div>
+      );
+    })}
 
-      </div>
+  </div>
+
+</div>
 
       {/* PROJECT LEAD ACCOUNTS */}
       <div className="pl-main-card">
