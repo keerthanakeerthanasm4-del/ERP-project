@@ -536,13 +536,52 @@ app.post("/api/project-lead/projects", requireAuth, async (req, res) => {
     if (!name?.trim() || !projectId?.trim() || !deadline) return res.status(400).json({ message: "Project name, ID, and deadline are required." });
     const parsedDeadline = new Date(`${deadline}T00:00:00.000Z`);
     if (Number.isNaN(parsedDeadline.getTime())) return res.status(400).json({ message: "Enter a valid deadline." });
+
+    const isCodeAuthenticatedHod =
+      req.auth.role === "HOD" && req.auth.auth_method === "code";
+    let projectLeadId = null;
+
+    if (!isCodeAuthenticatedHod) {
+      const userId = Number(req.auth.user_id);
+      if (!Number.isSafeInteger(userId) || userId <= 0) {
+        return res.status(403).json({
+          message: "Your login is not linked to a Project Lead account. Sign in with a registered Project Lead account or create the project as HOD.",
+        });
+      }
+
+      const projectLead = await prisma.user.findUnique({
+        where: { user_id: userId },
+        select: { user_id: true, role: true },
+      });
+
+      if (!projectLead) {
+        return res.status(403).json({
+          message: "Your Project Lead account was not found in this database. Ask the HOD to create or assign your account, then sign in again.",
+        });
+      }
+
+      if (projectLead.role !== "PROJECT_LEAD") {
+        return res.status(403).json({
+          message: "Your account is not assigned the Project Lead role yet.",
+        });
+      }
+
+      projectLeadId = projectLead.user_id;
+    }
+
     const project = await prisma.project.create({
-      data: { project_id: projectId.trim(), project_name: name.trim(), deadline: parsedDeadline, projectLeadId: Number(req.auth.user_id) },
+      data: {
+        project_id: projectId.trim(),
+        project_name: name.trim(),
+        deadline: parsedDeadline,
+        projectLeadId,
+      },
     });
     res.status(201).json({ message: "Project created successfully.", project });
   } catch (error) {
     console.error("Create project:", error);
     if (error.code === "P2002") return res.status(409).json({ message: "That project ID is already in use." });
+    if (error.code === "P2003") return res.status(400).json({ message: "The selected Project Lead does not exist in this database." });
     res.status(500).json({ message: "Unable to create project." });
   }
 });
@@ -615,29 +654,8 @@ app.get("/api/hod/projects", requireHod, async (req, res) => {
     });
   }
 });
-app.get("/api/hod/project-leads", async (req, res) => {
+app.get("/api/hod/project-leads", requireHod, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Authentication required",
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const hod = await prisma.user.findUnique({
-      where: { user_id: decoded.user_id },
-    });
-
-    if (!hod || hod.role !== "HOD") {
-      return res.status(403).json({
-        message: "HOD access only",
-      });
-    }
-
     const leads = await prisma.user.findMany({
       where: {
         role: "PROJECT_LEAD",
@@ -653,7 +671,17 @@ app.get("/api/hod/project-leads", async (req, res) => {
       },
     });
 
-    res.json({ leads });
+    res.json({
+      leads: leads.map((lead) => ({
+        id: lead.user_id,
+        user_id: lead.user_id,
+        name: lead.name,
+        email: lead.email,
+        department: lead.dept_name || "",
+        dept_name: lead.dept_name,
+        status: "Active",
+      })),
+    });
 
   } catch (error) {
     console.error("Fetch Project Leads Error:", error);
@@ -661,6 +689,75 @@ app.get("/api/hod/project-leads", async (req, res) => {
     res.status(500).json({
       message: "Failed to fetch Project Leads",
     });
+  }
+});
+
+app.post("/api/hod/create-project-lead", requireHod, async (req, res) => {
+  try {
+    const { name, email, department, temporaryPassword } = req.body;
+    const normalizedName = typeof name === "string" ? name.trim() : "";
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const normalizedDepartment = typeof department === "string" ? department.trim() : "";
+
+    if (
+      !normalizedName ||
+      !normalizedEmail ||
+      !normalizedDepartment ||
+      typeof temporaryPassword !== "string" ||
+      temporaryPassword.length < 8
+    ) {
+      return res.status(400).json({
+        message: "Name, email, department, and a temporary password of at least 8 characters are required.",
+      });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { user_id: true },
+    });
+    if (existingUser) {
+      return res.status(409).json({
+        message: "That email already belongs to an account. Use a different email address.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(temporaryPassword, 12);
+    const lead = await prisma.user.create({
+      data: {
+        name: normalizedName,
+        email: normalizedEmail,
+        dept_name: normalizedDepartment,
+        passwordHash,
+        role: "PROJECT_LEAD",
+      },
+      select: {
+        user_id: true,
+        name: true,
+        email: true,
+        dept_name: true,
+      },
+    });
+
+    res.status(201).json({
+      message: "Project Lead account created.",
+      lead: {
+        id: lead.user_id,
+        user_id: lead.user_id,
+        name: lead.name,
+        email: lead.email,
+        department: lead.dept_name || "",
+        dept_name: lead.dept_name,
+        status: "Active",
+      },
+    });
+  } catch (error) {
+    console.error("Create Project Lead Error:", error);
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        message: "That email already belongs to an account.",
+      });
+    }
+    res.status(500).json({ message: "Unable to create Project Lead account." });
   }
 });
 // ASSIGN / CHANGE / REMOVE PROJECT LEAD - HOD ONLY

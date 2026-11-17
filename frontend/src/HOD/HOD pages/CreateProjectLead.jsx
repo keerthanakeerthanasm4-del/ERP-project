@@ -23,6 +23,7 @@ function CreateProjectLead() {
     name: "",
     email: "",
     department: "",
+    temporaryPassword: "",
   });
 
   const [search, setSearch] = useState("");
@@ -130,6 +131,7 @@ const handleCreateLead = async (e) => {
           name: form.name.trim(),
           email: form.email.trim(),
           department: form.department,
+          temporaryPassword: form.temporaryPassword,
         }),
       }
     );
@@ -147,15 +149,14 @@ const handleCreateLead = async (e) => {
       name: "",
       email: "",
       department: "",
+      temporaryPassword: "",
     });
 
-    setMessage(
-      `Project Lead created successfully! Temporary password: ${data.temporaryPassword}`
-    );
+    setMessage("Project Lead created successfully. Share the temporary password with them securely.");
 
   } catch (error) {
     console.error("Create Project Lead Error:", error);
-    setMessage("Unable to connect to the server.");
+    setMessage(error.message || "Unable to connect to the server.");
   }
 };
 
@@ -292,6 +293,22 @@ const handleCreateLead = async (e) => {
                   Electrical and Electronics
                 </option>
               </select>
+            </div>
+
+            <div className="pl-form-group">
+              <label htmlFor="project-lead-temporary-password">Temporary Password</label>
+              <input
+                id="project-lead-temporary-password"
+                type="password"
+                placeholder="Set a temporary password (at least 8 characters)"
+                value={form.temporaryPassword}
+                onChange={(e) =>
+                  setForm({ ...form, temporaryPassword: e.target.value })
+                }
+                minLength={8}
+                autoComplete="new-password"
+                required
+              />
             </div>
 
           </div>
