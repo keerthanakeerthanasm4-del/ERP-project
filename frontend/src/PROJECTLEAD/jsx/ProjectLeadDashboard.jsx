@@ -76,7 +76,7 @@ export default function ProjectLeadDashboard() {
 
   return (
     <div className="pl-dashboard-content">
-      <section className="pl-landing-hero">
+<section className="pl-landing-hero">
         <div className="pl-landing-backdrop" aria-hidden="true">
           <ProjectLeadHorizon />
         </div>

@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import Particles from "./Particles.jsx";
 import "../css/ProjectLeadLayout.css";
 import "../css/ProjectLeadMotion.css";
 export default function ProjectLeadLayout() {
@@ -15,6 +16,35 @@ export default function ProjectLeadLayout() {
     navigate("/login");
   }
   return <main className="pl-app-shell">
+    <div className="pl-global-particles" aria-hidden="true">
+      <Particles
+        particleColors={["#ffffff", "#d9b8ff", "#8b5cf6"]}
+        particleCount={200}
+        particleSpread={10}
+        speed={0.1}
+        particleBaseSize={36}
+        glow={0.5}
+        twinkle={0.3}
+        moveParticlesOnHover
+        hoverEffect="parallax"
+        sizeRandomness={1}
+        shape="circle"
+        depthOfField={0}
+        connections={false}
+        particleHoverFactor={1}
+        hoverRadius={140}
+        drift="none"
+        driftSpeed={1}
+        alphaParticles={false}
+        disableRotation={false}
+        cameraDistance={20}
+        variation={0}
+        opacity={0.78}
+        clickBurst
+        intro
+        lightMode={false}
+      />
+    </div>
     <aside className="pl-sidebar">
       <div className="pl-brand-lockup"><div className="pl-brand-mark">S</div><div><strong>SVCE</strong><span>Project Portal</span></div></div>
       <div className="pl-sidebar-rule" /><p className="pl-side-label">WORKSPACE</p>

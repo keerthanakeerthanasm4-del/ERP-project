@@ -1,7 +1,7 @@
 .pl-app-shell {
   min-height: 100vh;
   display: flex;
-  background: #f5f7fc;
+  background: #0a0a0a;
   color: #13213d;
   font-family: inherit;
 }
@@ -161,6 +161,8 @@
 }
 
 .pl-main-area {
+  position: relative;
+  z-index: 1;
   width: calc(100% - 256px);
   min-height: 100vh;
   margin-left: 256px;
@@ -253,6 +255,8 @@
     width: 220px;
   }
   .pl-main-area {
+  position: relative;
+  z-index: 1;
     width: calc(100% - 220px);
     margin-left: 220px;
   }
@@ -291,6 +295,8 @@
     font-size: 11px;
   }
   .pl-main-area {
+  position: relative;
+  z-index: 1;
     width: 100%;
     margin: 0;
   }
@@ -304,5 +310,26 @@
   .pl-app-shell * {
     scroll-behavior: auto !important;
     transition: none !important;
+  }
+}
+
+.pl-global-particles {
+  position: fixed;
+  z-index: 0;
+  inset: 0 0 0 256px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 54% 65%, #25132f 0%, #100c18 45%, #0a0a0a 100%);
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .pl-global-particles {
+    left: 220px;
+  }
+}
+
+@media (max-width: 720px) {
+  .pl-global-particles {
+    inset: 180px 0 0;
   }
 }

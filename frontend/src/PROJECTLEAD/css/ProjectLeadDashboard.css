@@ -10,7 +10,7 @@
 .pl-app-shell {
   min-height: 100vh;
   display: flex;
-  background: var(--pl-bg);
+  background: #0a0a0a;
   color: var(--pl-ink);
   font-family: inherit;
 }
@@ -1145,5 +1145,6 @@
     padding: 7px 15px 4px 0;
   }
 }
+
 
 
