@@ -590,7 +590,13 @@ app.get("/api/project-lead/projects/:projectId", requireAuth, async (req, res) =
   try {
     const project = await prisma.project.findFirst({
       where: { project_id: req.params.projectId, projectLeadId: Number(req.auth.user_id) },
-      include: { members: { orderBy: { added_at: "asc" }, include: { user: { select: { user_id: true, name: true, usn: true, email: true } } } } },
+      include: {
+        phases: { orderBy: { phase_order: "asc" } },
+        members: {
+          orderBy: { added_at: "asc" },
+          include: { user: { select: { user_id: true, name: true, usn: true, email: true } } },
+        },
+      },
     });
     if (!project) return res.status(404).json({ message: "Project not found." });
     res.json({ project: { ...project, members: project.members.map(({ user, role }) => ({ ...user, role })) } });

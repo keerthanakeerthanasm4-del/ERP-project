@@ -612,6 +612,7 @@ function RoleDashboard() {
 export default function App() {
   return (
     <Routes>
+      {/* HOME PAGE */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

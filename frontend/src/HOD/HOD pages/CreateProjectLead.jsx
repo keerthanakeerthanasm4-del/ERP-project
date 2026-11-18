@@ -195,10 +195,12 @@ const handleCreateLead = async (e) => {
 
   // SEARCH PROJECT LEADS
   const filteredLeads = leads.filter(
-    (lead) =>
-      lead.name.toLowerCase().includes(search.toLowerCase()) ||
-      lead.email.toLowerCase().includes(search.toLowerCase()) ||
-      lead.department.toLowerCase().includes(search.toLowerCase())
+    (lead) => {
+      const department = (lead.department || lead.dept_name || "").toLowerCase();
+      return lead.name.toLowerCase().includes(search.toLowerCase()) ||
+        lead.email.toLowerCase().includes(search.toLowerCase()) ||
+        department.includes(search.toLowerCase());
+    }
   );
 
   return (
@@ -495,7 +497,7 @@ const handleCreateLead = async (e) => {
 
                   <p>
                     <Building2 size={14} />
-                    {lead.department}
+                    {lead.department || lead.dept_name || "Department not set"}
                   </p>
                 </div>
 

@@ -21,6 +21,7 @@ export default function ProjectDetails() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
   const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
   async function loadProject() {
     try {
@@ -86,6 +87,12 @@ export default function ProjectDetails() {
       setSaving(false);
     }
   }
+  const phases = project?.phases || [];
+  const completedPhases = phases.filter(phase => phase.is_completed).length;
+  const progressPercent = phases.length
+    ? Math.round((completedPhases / phases.length) * 100)
+    : 0;
+
   return <main className="pd-page">
       <div className="pd-content">
         <button className="pd-back" onClick={() => navigate("/project-lead/dashboard")}>← Projects</button>
@@ -96,15 +103,42 @@ export default function ProjectDetails() {
                 <p className="pd-eyebrow">PROJECT DETAILS</p>
                 <h1>{project.project_name}</h1>
               </div>
-              <button className="pd-add-user" onClick={() => {
-              setError("");
-              setMessage("");
-              setShowAddForm(value => !value);
-            }}>
-                {showAddForm ? "Close" : "+ Add User"}
-              </button>
+              <div className="pd-project-actions">
+                <button className="pd-add-user" type="button" onClick={() => {
+                  setError("");
+                  setMessage("");
+                  setShowAddForm(value => !value);
+                }}>
+                  {showAddForm ? "Close" : "+ Add User"}
+                </button>
+                <button
+                  className="pd-progress-button"
+                  type="button"
+                  aria-expanded={showProgress}
+                  onClick={() => setShowProgress(value => !value)}
+                >
+                  {showProgress ? "Hide Progress" : "See Progress"}
+                </button>
+              </div>
             </div>
             <div className="pd-meta"><span><b>Project ID</b>{project.project_id}</span><span><b>Deadline</b>{project.deadline ? new Date(project.deadline).toLocaleDateString() : "Not set"}</span><span><b>Status</b>{project.status}</span></div>
+            {showProgress && <section className="pd-progress-panel" aria-label="Project progress">
+              <div className="pd-progress-heading">
+                <h2>Project Progress</h2>
+                {phases.length > 0 && <strong>{progressPercent}%</strong>}
+              </div>
+              {phases.length === 0 ? <p className="pd-progress-empty">No progress phases have been added yet.</p> : <>
+                <progress className="pd-progress-bar" value={progressPercent} max="100" aria-label={`${progressPercent}% complete`} />
+                <p className="pd-progress-summary">{completedPhases} of {phases.length} phases complete</p>
+                <ol className="pd-phase-list">
+                  {phases.map(phase => <li key={phase.phase_id} className={phase.is_completed ? "is-complete" : ""}>
+                    <span className="pd-phase-indicator" aria-hidden="true">{phase.is_completed ? "✓" : "○"}</span>
+                    <span>{phase.phase_name}</span>
+                    <span className="pd-phase-status">{phase.is_completed ? "Completed" : "In progress"}</span>
+                  </li>)}
+                </ol>
+              </>}
+            </section>}
             {showAddForm && <div className="pd-add-user-panel">
               <p>Add a registered user by matching their USN and email.</p>
               {message && <div className="pd-success" role="status">{message}</div>}
