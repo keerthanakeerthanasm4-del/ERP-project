@@ -588,6 +588,46 @@ app.get("/api/hod/department-assignment", async (req, res) => {
     });
   }
 });
+// GET DEPARTMENT PROJECT LEAD ASSIGNMENT HISTORY - HOD ONLY
+app.get("/api/hod/department-assignment-history", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const history = await prisma.projectLeadAssignmentHistory.findMany({
+      orderBy: {
+        assignedAt: "desc",
+      },
+    });
+
+    res.json(history);
+
+  } catch (error) {
+    console.error("Project Lead History Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch Project Lead assignment history",
+    });
+  }
+});
 // ASSIGN / CHANGE DEPARTMENT PROJECT LEAD - HOD ONLY
 app.put("/api/hod/department-assignment", async (req, res) => {
   try {
@@ -649,7 +689,63 @@ app.put("/api/hod/department-assignment", async (req, res) => {
       });
     }
 
-    const assignment = await prisma.departmentProjectLeadAssignment.upsert({
+    const result = await prisma.$transaction(async (tx) => {
+
+  // Check current department assignment
+  const currentAssignment =
+    await tx.departmentProjectLeadAssignment.findUnique({
+      where: { id: 1 },
+    });
+
+  // Avoid duplicate history if the same student is assigned again
+  if (currentAssignment?.assignedUserId === student.user_id) {
+    const existingAssignment =
+      await tx.departmentProjectLeadAssignment.findUnique({
+        where: { id: 1 },
+        include: {
+          assignedUser: {
+            select: {
+              user_id: true,
+              name: true,
+              email: true,
+              dept_name: true,
+            },
+          },
+        },
+      });
+
+    return {
+      assignment: existingAssignment,
+      unchanged: true,
+    };
+  }
+
+  // Close the previous student's active history record
+  if (currentAssignment?.assignedUserId) {
+    await tx.projectLeadAssignmentHistory.updateMany({
+      where: {
+        assignedUserId: currentAssignment.assignedUserId,
+        relievedAt: null,
+      },
+      data: {
+        relievedAt: new Date(),
+      },
+    });
+  }
+
+  // Create history for the newly assigned student
+  await tx.projectLeadAssignmentHistory.create({
+    data: {
+      assignedUserId: student.user_id,
+      assignedName: student.name,
+      assignedEmail: student.email,
+      department: student.dept_name,
+    },
+  });
+
+  // Update current department assignment
+  const assignment =
+    await tx.departmentProjectLeadAssignment.upsert({
       where: { id: 1 },
 
       update: {
@@ -673,11 +769,19 @@ app.put("/api/hod/department-assignment", async (req, res) => {
       },
     });
 
-    res.json({
-      message: "Department Project Lead assigned successfully",
-      assignment: assignment.assignedUser,
-    });
+  return {
+    assignment,
+    unchanged: false,
+  };
+});
 
+res.json({
+  message: result.unchanged
+    ? "This student is already assigned as Project Lead"
+    : "Department Project Lead assigned successfully",
+
+  assignment: result.assignment?.assignedUser || null,
+});
   } catch (error) {
     console.error("Department Project Lead Assignment Error:", error);
 
@@ -720,13 +824,28 @@ app.delete("/api/hod/department-assignment", async (req, res) => {
       });
     }
 
-    await prisma.departmentProjectLeadAssignment.update({
-      where: { id: 1 },
-      data: {
-        assignedUserId: null,
-      },
-    });
+    await prisma.$transaction(async (tx) => {
 
+  // Close the current Project Lead's history record
+  await tx.projectLeadAssignmentHistory.updateMany({
+    where: {
+      assignedUserId: assignment.assignedUserId,
+      relievedAt: null,
+    },
+    data: {
+      relievedAt: new Date(),
+    },
+  });
+
+  // Remove the current department assignment
+  await tx.departmentProjectLeadAssignment.update({
+    where: { id: 1 },
+    data: {
+      assignedUserId: null,
+    },
+  });
+
+});
     res.json({
       message: "Department Project Lead assignment removed successfully",
     });

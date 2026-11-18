@@ -21,6 +21,7 @@ model User {
 
   leadProjects          Project[]                        @relation("ProjectLead")
   projectLeadAssignment DepartmentProjectLeadAssignment?
+  projectLeadHistory    ProjectLeadAssignmentHistory[]
 }
 
 model Project {
@@ -57,4 +58,18 @@ model DepartmentProjectLeadAssignment {
   assignedUserId Int?     @unique
   assignedUser   User?    @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
   updatedAt      DateTime @updatedAt
+}
+
+model ProjectLeadAssignmentHistory {
+  id             Int       @id @default(autoincrement())
+  assignedUserId Int?
+  assignedUser   User?     @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  assignedName   String
+  assignedEmail  String
+  department     String?
+  assignedAt     DateTime  @default(now())
+  relievedAt     DateTime?
+
+  @@index([assignedUserId])
+  @@index([assignedAt])
 }
