@@ -19,7 +19,8 @@ model User {
 
   role String @default("STUDENT")
 
-  leadProjects Project[] @relation("ProjectLead")
+  leadProjects          Project[]                        @relation("ProjectLead")
+  projectLeadAssignment DepartmentProjectLeadAssignment?
 }
 
 model Project {
@@ -49,4 +50,11 @@ model ProjectPhase {
   updatedAt DateTime @updatedAt
 
   @@index([project_id])
+}
+
+model DepartmentProjectLeadAssignment {
+  id             Int      @id @default(1)
+  assignedUserId Int?     @unique
+  assignedUser   User?    @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  updatedAt      DateTime @updatedAt
 }

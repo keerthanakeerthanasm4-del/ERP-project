@@ -515,8 +515,8 @@ app.get("/api/hod/project-leads", async (req, res) => {
 
     const leads = await prisma.user.findMany({
       where: {
-        role: "PROJECT_LEAD",
-      },
+  role: "STUDENT",
+},
       select: {
         user_id: true,
         name: true,
@@ -535,6 +535,315 @@ app.get("/api/hod/project-leads", async (req, res) => {
 
     res.status(500).json({
       message: "Failed to fetch Project Leads",
+    });
+  }
+});
+// GET CURRENT DEPARTMENT PROJECT LEAD ASSIGNMENT - HOD ONLY
+app.get("/api/hod/department-assignment", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const assignment = await prisma.departmentProjectLeadAssignment.findUnique({
+      where: { id: 1 },
+      include: {
+        assignedUser: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+            dept_name: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      assignment: assignment?.assignedUser || null,
+    });
+
+  } catch (error) {
+    console.error("Fetch Department Assignment Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch department assignment",
+    });
+  }
+});
+// ASSIGN / CHANGE DEPARTMENT PROJECT LEAD - HOD ONLY
+app.put("/api/hod/department-assignment", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const { studentId, email, password } = req.body;
+
+    if (!studentId || !email || !password) {
+      return res.status(400).json({
+        message: "Student ID, email and password are required",
+      });
+    }
+
+    const student = await prisma.user.findUnique({
+      where: {
+        user_id: Number(studentId),
+      },
+    });
+
+    if (!student || student.role !== "STUDENT") {
+      return res.status(404).json({
+        message: "Registered student not found",
+      });
+    }
+
+    if (student.email.toLowerCase() !== email.trim().toLowerCase()) {
+      return res.status(401).json({
+        message: "Email does not match the selected student",
+      });
+    }
+
+    const passwordMatch = await bcrypt.compare(
+      password,
+      student.passwordHash
+    );
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        message: "Incorrect student password",
+      });
+    }
+
+    const assignment = await prisma.departmentProjectLeadAssignment.upsert({
+      where: { id: 1 },
+
+      update: {
+        assignedUserId: student.user_id,
+      },
+
+      create: {
+        id: 1,
+        assignedUserId: student.user_id,
+      },
+
+      include: {
+        assignedUser: {
+          select: {
+            user_id: true,
+            name: true,
+            email: true,
+            dept_name: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      message: "Department Project Lead assigned successfully",
+      assignment: assignment.assignedUser,
+    });
+
+  } catch (error) {
+    console.error("Department Project Lead Assignment Error:", error);
+
+    res.status(500).json({
+      message: "Failed to assign Department Project Lead",
+    });
+  }
+});
+// REMOVE DEPARTMENT PROJECT LEAD ASSIGNMENT - HOD ONLY
+app.delete("/api/hod/department-assignment", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const assignment = await prisma.departmentProjectLeadAssignment.findUnique({
+      where: { id: 1 },
+    });
+
+    if (!assignment || assignment.assignedUserId === null) {
+      return res.status(404).json({
+        message: "No Project Lead is currently assigned",
+      });
+    }
+
+    await prisma.departmentProjectLeadAssignment.update({
+      where: { id: 1 },
+      data: {
+        assignedUserId: null,
+      },
+    });
+
+    res.json({
+      message: "Department Project Lead assignment removed successfully",
+    });
+
+  } catch (error) {
+    console.error("Remove Department Project Lead Error:", error);
+
+    res.status(500).json({
+      message: "Failed to remove department assignment",
+    });
+  }
+});
+// CREATE PERMANENT PROJECT LEAD ACCOUNT - HOD ONLY
+app.post("/api/hod/create-project-lead", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: { user_id: decoded.user_id },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const { name, email, department } = req.body;
+
+    if (!name || !email || !department) {
+      return res.status(400).json({
+        message: "Name, email and department are required",
+      });
+    }
+
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedDepartment = department.trim();
+
+    // Check whether the permanent account already exists
+    const existingProjectLead = await prisma.user.findFirst({
+      where: {
+        role: "PROJECT_LEAD",
+      },
+    });
+
+    if (existingProjectLead) {
+      return res.status(409).json({
+        message: "Permanent Project Lead account already exists",
+      });
+    }
+
+    // Check whether email is already registered
+    const existingEmail = await prisma.user.findUnique({
+      where: {
+        email: normalizedEmail,
+      },
+    });
+
+    if (existingEmail) {
+      return res.status(409).json({
+        message: "This email is already registered",
+      });
+    }
+
+    // Generate temporary password
+    const temporaryPassword = crypto.randomBytes(8).toString("hex");
+
+    const passwordHash = await bcrypt.hash(
+      temporaryPassword,
+      10
+    );
+
+    // Create permanent Project Lead account
+    const projectLead = await prisma.user.create({
+      data: {
+        name: normalizedName,
+        email: normalizedEmail,
+        dept_name: normalizedDepartment,
+        usn: null,
+        passwordHash,
+        role: "PROJECT_LEAD",
+      },
+    });
+
+    res.status(201).json({
+      message: "Permanent Project Lead account created successfully",
+      temporaryPassword,
+      projectLead: {
+        user_id: projectLead.user_id,
+        name: projectLead.name,
+        email: projectLead.email,
+        dept_name: projectLead.dept_name,
+        role: projectLead.role,
+      },
+    });
+
+  } catch (error) {
+    console.error("Create Permanent Project Lead Error:", error);
+
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        message: "This email is already registered",
+      });
+    }
+
+    res.status(500).json({
+      message: "Failed to create permanent Project Lead account",
     });
   }
 });
