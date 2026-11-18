@@ -263,6 +263,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
     });
   };
 
+  // GET TEAM NAME
   const getTeamName = (meeting) =>
     meeting.project ||
     meeting.team ||
@@ -271,16 +272,14 @@ const HODMeetings = ({ initialShowForm = false }) => {
     "Team";
 
   // MEETING TABLE
+  // Shows only team name, meeting time and view details.
   const renderMeetingTable = (meetingList, emptyMessage) => (
     <div className="table-wrapper">
       <table className="hod-meetings-table">
         <thead>
           <tr>
             <th>Team / Project</th>
-            <th>Meeting Title</th>
-            <th>Date</th>
             <th>Meeting Time</th>
-            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -288,7 +287,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
         <tbody>
           {meetingList.length === 0 ? (
             <tr>
-              <td colSpan="6" className="hod-no-meetings">
+              <td colSpan="3" className="hod-no-meetings">
                 {emptyMessage}
               </td>
             </tr>
@@ -301,21 +300,9 @@ const HODMeetings = ({ initialShowForm = false }) => {
                   </strong>
                 </td>
 
-                <td>{meeting.title || "--"}</td>
-
-                <td>
-                  {formatDate(getMeetingDateKey(meeting))}
-                </td>
-
                 <td className="hod-meeting-time">
                   {formatTime(meeting.startTime)} –{" "}
                   {formatTime(meeting.endTime)}
-                </td>
-
-                <td>
-                  <span className="hod-meeting-status">
-                    {meeting.status || "Pending"}
-                  </span>
                 </td>
 
                 <td className="hod-action-cell">
@@ -376,66 +363,92 @@ const HODMeetings = ({ initialShowForm = false }) => {
         )}
       </section>
 
-      {/* MEETING DETAILS */}
+      {/* MEETING DETAILS POPUP */}
       {selectedMeeting && (
-        <section className="hod-inline-details dashboard-card">
-          <div className="hod-details-heading">
-            <div>
-              <span className="hod-details-kicker">
-                MEETING INFORMATION
-              </span>
-              <h3>Meeting Details</h3>
-              <p>Complete meeting information</p>
+        <div
+          className="hod-details-overlay"
+          onClick={() => setSelectedMeeting(null)}
+        >
+          <section
+            className="hod-inline-details"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="hod-details-heading">
+              <div>
+                <span className="hod-details-kicker">
+                  MEETING INFORMATION
+                </span>
+
+                <h3>Meeting Details</h3>
+
+                <p>Complete information about this meeting</p>
+              </div>
+
+              <button
+                type="button"
+                className="hod-form-close"
+                onClick={() => setSelectedMeeting(null)}
+              >
+                ✕
+              </button>
             </div>
 
-            <button
-              type="button"
-              className="hod-form-close"
-              onClick={() => setSelectedMeeting(null)}
-            >
-              ✕
-            </button>
-          </div>
+            <div className="hod-details-grid">
 
-          <div className="hod-details-grid">
-            <div className="hod-detail-item">
-              <span>Team / Project</span>
-              <strong>{getTeamName(selectedMeeting)}</strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>Team / Project</span>
+                <strong>
+                  {getTeamName(selectedMeeting)}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>Meeting Title</span>
-              <strong>{selectedMeeting.title || "--"}</strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>Meeting Title</span>
+                <strong>
+                  {selectedMeeting.title || "--"}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>Date</span>
-              <strong>
-                {formatDate(getMeetingDateKey(selectedMeeting))}
-              </strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>Date</span>
+                <strong>
+                  {formatDate(
+                    getMeetingDateKey(selectedMeeting)
+                  )}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>Start Time</span>
-              <strong>{formatTime(selectedMeeting.startTime)}</strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>Start Time</span>
+                <strong>
+                  {formatTime(selectedMeeting.startTime)}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>End Time</span>
-              <strong>{formatTime(selectedMeeting.endTime)}</strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>End Time</span>
+                <strong>
+                  {formatTime(selectedMeeting.endTime)}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>Venue</span>
-              <strong>{selectedMeeting.venue || "--"}</strong>
-            </div>
+              <div className="hod-detail-item">
+                <span>Venue</span>
+                <strong>
+                  {selectedMeeting.venue || "--"}
+                </strong>
+              </div>
 
-            <div className="hod-detail-item">
-              <span>Status</span>
-              <strong>{selectedMeeting.status || "Pending"}</strong>
+              <div className="hod-detail-item">
+                <span>Status</span>
+                <strong>
+                  {selectedMeeting.status || "Pending"}
+                </strong>
+              </div>
+
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       )}
 
       {/* CREATE MEETING FORM */}
@@ -456,6 +469,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>Meeting Title *</label>
+
               <input
                 name="title"
                 value={formData.title}
@@ -467,6 +481,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>Team / Project Name *</label>
+
               <input
                 name="project"
                 list="hod-project-options"
@@ -483,6 +498,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
                     value={project.project_name}
                   />
                 ))}
+
                 <option value="Development Team" />
                 <option value="Testing Team" />
                 <option value="Design Team" />
@@ -491,6 +507,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>Meeting Date *</label>
+
               <input
                 type="date"
                 name="date"
@@ -503,6 +520,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>Start Time *</label>
+
               <input
                 type="time"
                 name="startTime"
@@ -514,6 +532,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>End Time *</label>
+
               <input
                 type="time"
                 name="endTime"
@@ -525,6 +544,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
             <div className="hod-form-group">
               <label>Meeting Venue *</label>
+
               <input
                 name="venue"
                 value={formData.venue}
