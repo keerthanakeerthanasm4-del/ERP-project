@@ -1,96 +1,60 @@
+import HODDashboard from "./HOD/HOD pages/HODDashboard.jsx";
 import { useState, useEffect, useRef } from "react";
-import {
-  Link,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-
+import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./Dashboard";
-import ProjectLeadDashboard from "./PROJECTLEAD/ProjectLeadDashboard";
-import ProjectLeadProfile from "./PROJECTLEAD/ProjectLeadProfile";
+import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
+import CreateProject from "./PROJECTLEAD/jsx/CreateProject.jsx";
+import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
+import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
+import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
+import { ProjectLeadProjects, ProjectLeadTeam } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 
 /* -------------------------------------------------------
    API CONFIGURATION
 ------------------------------------------------------- */
 
 const API_URL = "http://localhost:5000";
-
-const GOOGLE_CLIENT_ID =
-  "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
 
 /* -------------------------------------------------------
    SHARED ICONS AND BRAND
 ------------------------------------------------------- */
 
 function CapIcon() {
-  return (
-    <svg viewBox="0 0 40 34" className="cap-icon" aria-hidden="true">
+  return <svg viewBox="0 0 40 34" className="cap-icon" aria-hidden="true">
       <path d="M2 11 20 2 38 11 20 20 2 11Z" />
       <path d="M8 15v8c7 6 17 6 24 0v-8" />
       <path d="M36 12v12" />
       <circle cx="36" cy="27" r="2" />
-    </svg>
-  );
+    </svg>;
 }
-
-function Brand({ label = "Campus Project Tracker" }) {
-  return (
-    <Link to="/" className="brand">
+function Brand({
+  label = "Campus Project Tracker"
+}) {
+  return <Link to="/" className="brand">
       <CapIcon />
       <span>{label}</span>
-    </Link>
-  );
+    </Link>;
 }
-
 function UserIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="field-icon"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
+  return <svg viewBox="0 0 24 24" className="field-icon" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <circle cx="12" cy="8" r="4" />
       <path d="M4 21v-2a8 8 0 0 1 16 0v2Z" />
-    </svg>
-  );
+    </svg>;
 }
-
 function LockIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="field-icon"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
+  return <svg viewBox="0 0 24 24" className="field-icon" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <rect x="4" y="10" width="16" height="12" rx="2" />
       <path d="M8 10V7a4 4 0 0 1 8 0v3" />
       <path d="M12 14v4" />
-    </svg>
-  );
+    </svg>;
 }
-
 function ArrowIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <path d="M5 12h14" />
       <path d="m13 5 7 7-7 7" />
-    </svg>
-  );
+    </svg>;
 }
 
 /* -------------------------------------------------------
@@ -100,16 +64,13 @@ function ArrowIcon() {
 function saveLogin(data, rememberMe, navigate) {
   localStorage.removeItem("token");
   sessionStorage.removeItem("token");
-
   if (rememberMe) {
     localStorage.setItem("token", data.token);
   } else {
     sessionStorage.setItem("token", data.token);
   }
-
   localStorage.setItem("user", JSON.stringify(data.user));
-
-  navigate("/dashboard");
+  navigate(data.user?.role === "PROJECT_LEAD" ? "/project-lead/dashboard" : "/dashboard");
 }
 
 /* -------------------------------------------------------
@@ -117,8 +78,7 @@ function saveLogin(data, rememberMe, navigate) {
 ------------------------------------------------------- */
 
 function HomePage() {
-  return (
-    <main className="home-page">
+  return <main className="home-page">
       <div className="home-shade" aria-hidden="true" />
 
       <header className="site-header home-header">
@@ -140,13 +100,7 @@ function HomePage() {
       </div>
 
       <div className="hero-doodle hero-doodle-plane" aria-hidden="true">
-        <svg
-          viewBox="0 0 100 100"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        >
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round">
           <path d="M8 47 88 10 61 91 45 59 8 47Z" />
           <path d="m45 59 43-49" />
         </svg>
@@ -179,8 +133,7 @@ function HomePage() {
         <span className="wave wave-left" />
         <span className="wave wave-right" />
       </div>
-    </main>
-  );
+    </main>;
 }
 
 /* -------------------------------------------------------
@@ -190,177 +143,112 @@ function HomePage() {
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [message, setMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
   const navigate = useNavigate();
-
   const googleTokenClient = useRef(null);
 
   // Load Google Identity Services and prepare account selection.
   useEffect(() => {
-    let script = document.querySelector(
-      'script[src="https://accounts.google.com/gsi/client"]'
-    );
-
+    let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
     let createdScript = false;
-
     const initializeGoogle = () => {
       if (!window.google?.accounts?.oauth2) {
-        setMessage(
-          "Google sign-in could not be initialized. Please refresh the page."
-        );
+        setMessage("Google sign-in could not be initialized. Please refresh the page.");
         return;
       }
-
-      googleTokenClient.current =
-        window.google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
-
-          scope: "openid email profile",
-
-          callback: async (googleResponse) => {
-            if (
-              googleResponse.error ||
-              !googleResponse.access_token
-            ) {
-              setMessage(
-                "Google sign-in was cancelled or could not be completed."
-              );
+      googleTokenClient.current = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "openid email profile",
+        callback: async googleResponse => {
+          if (googleResponse.error || !googleResponse.access_token) {
+            setMessage("Google sign-in was cancelled or could not be completed.");
+            return;
+          }
+          setMessage("");
+          setIsLoggingIn(true);
+          try {
+            const response = await fetch(`${API_URL}/api/auth/google`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                accessToken: googleResponse.access_token
+              })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              setMessage(data.message || "Google login failed.");
               return;
             }
-
-            setMessage("");
-            setIsLoggingIn(true);
-
-            try {
-              const response = await fetch(
-                `${API_URL}/api/auth/google`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    accessToken: googleResponse.access_token,
-                  }),
-                }
-              );
-
-              const data = await response.json();
-
-              if (!response.ok) {
-                setMessage(
-                  data.message || "Google login failed."
-                );
-                return;
-              }
-
-              saveLogin(data, rememberMe, navigate);
-
-            } catch (error) {
-              console.error("Google login error:", error);
-
-              setMessage(
-                "Unable to connect to the backend."
-              );
-
-            } finally {
-              setIsLoggingIn(false);
-            }
-          },
-
-          error_callback: (error) => {
-            console.error("Google popup error:", error);
-
-            setMessage(
-              "Google account selection was cancelled or blocked."
-            );
-          },
-        });
+            saveLogin(data, rememberMe, navigate);
+          } catch (error) {
+            console.error("Google login error:", error);
+            setMessage("Unable to connect to the backend.");
+          } finally {
+            setIsLoggingIn(false);
+          }
+        },
+        error_callback: error => {
+          console.error("Google popup error:", error);
+          setMessage("Google account selection was cancelled or blocked.");
+        }
+      });
     };
-
     if (window.google?.accounts?.oauth2) {
       initializeGoogle();
       return;
     }
-
     if (!script) {
       script = document.createElement("script");
-
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
-
       createdScript = true;
     }
-
     const handleScriptLoad = () => initializeGoogle();
-
     const handleScriptError = () => {
-      setMessage(
-        "Google sign-in could not be loaded. Please refresh the page."
-      );
+      setMessage("Google sign-in could not be loaded. Please refresh the page.");
     };
-
     script.addEventListener("load", handleScriptLoad);
     script.addEventListener("error", handleScriptError);
-
     if (createdScript) {
       document.head.appendChild(script);
     }
-
     return () => {
       script?.removeEventListener("load", handleScriptLoad);
       script?.removeEventListener("error", handleScriptError);
     };
-
   }, [rememberMe, navigate]);
 
   // Email and password login.
   async function handleLogin(event) {
     event.preventDefault();
-
     setMessage("");
     setIsLoggingIn(true);
-
     try {
-      const response = await fetch(
-        `${API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            password,
-          }),
-        }
-      );
-
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password
+        })
+      });
       const data = await response.json();
-
       if (!response.ok) {
-        setMessage(
-          data.message || "Invalid email or password"
-        );
+        setMessage(data.message || "Invalid email or password");
         return;
       }
-
       saveLogin(data, rememberMe, navigate);
-
     } catch (error) {
       console.error("Login error:", error);
-
-      setMessage(
-        "Unable to connect to the backend."
-      );
-
+      setMessage("Unable to connect to the backend.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -369,21 +257,15 @@ function LoginPage() {
   // Open Google's account chooser.
   function handleGoogleLogin() {
     setMessage("");
-
     if (!googleTokenClient.current) {
-      setMessage(
-        "Google sign-in is loading. Please try again in a moment."
-      );
+      setMessage("Google sign-in is loading. Please try again in a moment.");
       return;
     }
-
     googleTokenClient.current.requestAccessToken({
-      prompt: "select_account",
+      prompt: "select_account"
     });
   }
-
-  return (
-    <main className="login-page">
+  return <main className="login-page">
       <div className="page-overlay" aria-hidden="true" />
 
       <header className="site-header login-header">
@@ -434,18 +316,7 @@ function LoginPage() {
               <div className="input-box">
                 <UserIcon />
 
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  placeholder="Enter your email"
-                  autoComplete="username"
-                  required
-                />
+                <input id="email" type="email" name="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="Enter your email" autoComplete="username" required />
               </div>
             </div>
 
@@ -455,29 +326,9 @@ function LoginPage() {
               <div className="input-box">
                 <LockIcon />
 
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  required
-                />
+                <input id="password" type={showPassword ? "text" : "password"} name="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required />
 
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowPassword((current) => !current)
-                  }
-                  aria-label={
-                    showPassword ? "Hide password" : "Show password"
-                  }
-                >
+                <button type="button" className="password-toggle" onClick={() => setShowPassword(current => !current)} aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
@@ -485,35 +336,17 @@ function LoginPage() {
 
             <div className="login-options">
               <label className="remember-option">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(event) =>
-                    setRememberMe(event.target.checked)
-                  }
-                />
+                <input type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)} />
 
                 <span>Remember me</span>
               </label>
 
-              <button
-                type="button"
-                className="text-link"
-                onClick={() =>
-                  setMessage(
-                    "Password recovery is not configured yet."
-                  )
-                }
-              >
+              <button type="button" className="text-link" onClick={() => setMessage("Password recovery is not configured yet.")}>
                 Forgot Password?
               </button>
             </div>
 
-            <button
-              type="submit"
-              className="login-button"
-              disabled={isLoggingIn}
-            >
+            <button type="submit" className="login-button" disabled={isLoggingIn}>
               <span>
                 {isLoggingIn ? "Signing in..." : "Login"}
               </span>
@@ -529,12 +362,7 @@ function LoginPage() {
           </div>
 
           {/* Existing Google button design is unchanged. */}
-          <button
-            type="button"
-            className="google-button"
-            disabled={isLoggingIn}
-            onClick={handleGoogleLogin}
-          >
+          <button type="button" className="google-button" disabled={isLoggingIn} onClick={handleGoogleLogin}>
             <span className="google-letter">G</span>
             <span>Continue with Google</span>
           </button>
@@ -547,15 +375,12 @@ function LoginPage() {
             </Link>
           </div>
 
-          {message && (
-            <p className="login-message" role="status">
+          {message && <p className="login-message" role="status">
               {message}
-            </p>
-          )}
+            </p>}
         </section>
       </section>
-    </main>
-  );
+    </main>;
 }
 
 /* -------------------------------------------------------
@@ -568,53 +393,37 @@ function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [message, setMessage] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
-
   const navigate = useNavigate();
-
   async function handleRegister(event) {
     event.preventDefault();
-
     setMessage("");
-
     if (password !== confirmPassword) {
       setMessage("Passwords do not match.");
       return;
     }
-
     if (password.length < 8) {
       setMessage("Password must contain at least 8 characters.");
       return;
     }
-
     setIsRegistering(true);
-
     try {
-      const response = await fetch(
-        `${API_URL}/api/auth/register`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            name: name.trim(),
-            usn: usn.trim().toUpperCase(),
-            email: email.trim(),
-            password,
-          }),
-        }
-      );
-
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          usn: usn.trim().toUpperCase(),
+          email: email.trim(),
+          password
+        })
+      });
       const data = await response.json();
-
       if (!response.ok) {
         setMessage(data.message || "Registration failed.");
         return;
@@ -622,21 +431,14 @@ function RegisterPage() {
 
       // Automatically log in the newly registered user.
       saveLogin(data, true, navigate);
-
     } catch (error) {
       console.error("Registration error:", error);
-
-      setMessage(
-        "Unable to connect to the backend. Please try again."
-      );
-
+      setMessage("Unable to connect to the backend. Please try again.");
     } finally {
       setIsRegistering(false);
     }
   }
-
-  return (
-    <main className="login-page">
+  return <main className="login-page">
       <div className="page-overlay" aria-hidden="true" />
 
       <header className="site-header login-header">
@@ -688,17 +490,7 @@ function RegisterPage() {
               <div className="input-box">
                 <UserIcon />
 
-                <input
-                  id="registerName"
-                  type="text"
-                  value={name}
-                  onChange={(event) =>
-                    setName(event.target.value)
-                  }
-                  placeholder="Enter your full name"
-                  autoComplete="name"
-                  required
-                />
+                <input id="registerName" type="text" value={name} onChange={event => setName(event.target.value)} placeholder="Enter your full name" autoComplete="name" required />
               </div>
             </div>
 
@@ -709,17 +501,7 @@ function RegisterPage() {
               <div className="input-box">
                 <UserIcon />
 
-                <input
-                  id="registerUsn"
-                  type="text"
-                  value={usn}
-                  onChange={(event) =>
-                    setUsn(event.target.value.toUpperCase())
-                  }
-                  placeholder="Enter your USN"
-                  autoComplete="off"
-                  required
-                />
+                <input id="registerUsn" type="text" value={usn} onChange={event => setUsn(event.target.value.toUpperCase())} placeholder="Enter your USN" autoComplete="off" required />
               </div>
             </div>
 
@@ -730,17 +512,7 @@ function RegisterPage() {
               <div className="input-box">
                 <UserIcon />
 
-                <input
-                  id="registerEmail"
-                  type="email"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  placeholder="Enter your email"
-                  autoComplete="email"
-                  required
-                />
+                <input id="registerEmail" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="Enter your email" autoComplete="email" required />
               </div>
             </div>
 
@@ -751,29 +523,9 @@ function RegisterPage() {
               <div className="input-box">
                 <LockIcon />
 
-                <input
-                  id="registerPassword"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
-                  placeholder="Create a password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
+                <input id="registerPassword" type={showPassword ? "text" : "password"} value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" autoComplete="new-password" minLength={8} required />
 
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowPassword((current) => !current)
-                  }
-                  aria-label={
-                    showPassword ? "Hide password" : "Show password"
-                  }
-                >
+                <button type="button" className="password-toggle" onClick={() => setShowPassword(current => !current)} aria-label={showPassword ? "Hide password" : "Show password"}>
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
@@ -788,56 +540,27 @@ function RegisterPage() {
               <div className="input-box">
                 <LockIcon />
 
-                <input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(event) =>
-                    setConfirmPassword(event.target.value)
-                  }
-                  placeholder="Confirm your password"
-                  autoComplete="new-password"
-                  required
-                />
+                <input id="confirmPassword" type={showConfirmPassword ? "text" : "password"} value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm your password" autoComplete="new-password" required />
 
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowConfirmPassword((current) => !current)
-                  }
-                  aria-label={
-                    showConfirmPassword
-                      ? "Hide confirm password"
-                      : "Show confirm password"
-                  }
-                >
+                <button type="button" className="password-toggle" onClick={() => setShowConfirmPassword(current => !current)} aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}>
                   {showConfirmPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
 
             {/* CREATE ACCOUNT BUTTON */}
-            <button
-              type="submit"
-              className="login-button"
-              disabled={isRegistering}
-            >
+            <button type="submit" className="login-button" disabled={isRegistering}>
               <span>
-                {isRegistering
-                  ? "Creating account..."
-                  : "Create Account"}
+                {isRegistering ? "Creating account..." : "Create Account"}
               </span>
 
               <span className="button-arrow">→</span>
             </button>
           </form>
 
-          {message && (
-            <p className="login-message" role="alert">
+          {message && <p className="login-message" role="alert">
               {message}
-            </p>
-          )}
+            </p>}
 
           <div className="signup-text">
             <span>Already have an account?</span>
@@ -848,14 +571,19 @@ function RegisterPage() {
           </div>
         </section>
       </section>
-    </main>
-  );
+    </main>;
 }
+function RoleDashboard() {
+  const storedUser = JSON.parse(
+    localStorage.getItem("user") ||
+    sessionStorage.getItem("user") ||
+    "null"
+  );
 
-/* -------------------------------------------------------
-   APP ROUTES
-------------------------------------------------------- */
-
+  if (storedUser?.role === "HOD") return <HODDashboard />;
+  if (storedUser?.role === "PROJECT_LEAD") return <Navigate to="/project-lead/dashboard" replace />;
+  return <Dashboard />;
+}
 /* -------------------------------------------------------
    APP ROUTES
 ------------------------------------------------------- */
@@ -865,36 +593,19 @@ export default function App() {
     <Routes>
       {/* HOME PAGE */}
       <Route path="/" element={<HomePage />} />
-
-      {/* LOGIN PAGE */}
       <Route path="/login" element={<LoginPage />} />
-
-      {/* REGISTRATION PAGE */}
       <Route path="/register" element={<RegisterPage />} />
-
-      {/* STUDENT DASHBOARD */}
-      <Route path="/dashboard" element={<Dashboard />} />
-
-      {/* PROJECT LEAD DASHBOARD */}
-      <Route
-        path="/projectlead/dashboard"
-        element={<ProjectLeadDashboard />}
-      />
-
-      {/* PROJECT LEAD PROFILE */}
-      <Route
-        path="/projectlead/profile"
-        element={<ProjectLeadProfile />}
-      />
-
-      {/* INVALID ROUTES */}
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
+      <Route path="/dashboard" element={<RoleDashboard />} />
+      <Route path="/project-lead" element={<ProjectLeadLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ProjectLeadDashboard />} />
+        <Route path="projects" element={<ProjectLeadProjects />} />
+        <Route path="team" element={<ProjectLeadTeam />} />
+        <Route path="profile" element={<ProjectLeadProfile />} />
+        <Route path="create-project" element={<CreateProject />} />
+        <Route path="projects/:projectId" element={<ProjectDetails />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-
-
-    
