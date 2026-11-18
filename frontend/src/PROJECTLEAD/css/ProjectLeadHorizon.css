@@ -1,0 +1,98 @@
+.pl-horizon-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 78%, #40164e 0%, transparent 48%),
+    linear-gradient(180deg, #050509 0%, #090611 58%, #10091a 100%);
+}
+
+.pl-horizon-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.56;
+  background-image:
+    radial-gradient(1px 1px at 8% 18%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 17% 38%, #d6d2ff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 25% 13%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 34% 31%, #f7dfff 98%, transparent),
+    radial-gradient(1px 1px at 43% 11%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 53% 27%, #e9d9ff 98%, transparent),
+    radial-gradient(1.5px 1.5px at 64% 14%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 73% 33%, #e8d5ff 98%, transparent),
+    radial-gradient(1px 1px at 82% 17%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 93% 29%, #f3e8ff 98%, transparent),
+    radial-gradient(1px 1px at 12% 55%, #f4eaff 98%, transparent),
+    radial-gradient(1px 1px at 30% 49%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 47% 43%, #e7d8ff 98%, transparent),
+    radial-gradient(1px 1px at 69% 51%, #fff 98%, transparent),
+    radial-gradient(1px 1px at 88% 45%, #eadfff 98%, transparent);
+  animation: pl-horizon-twinkle 7s ease-in-out infinite alternate;
+}
+
+.pl-horizon-atmosphere {
+  position: absolute;
+  z-index: 1;
+  right: -12%;
+  bottom: 8%;
+  left: -12%;
+  height: 48%;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    #f2b4ffb8 0%,
+    #c15aff88 9%,
+    #7b2fc45c 31%,
+    transparent 72%
+  );
+  filter: blur(18px);
+  transform-origin: 50% 100%;
+  animation: pl-horizon-bloom 8s ease-in-out infinite alternate;
+}
+
+.pl-horizon-sun {
+  position: absolute;
+  z-index: 2;
+  top: 54%;
+  left: 50%;
+  width: clamp(90px, 15vw, 170px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fff 0%,
+    #fff1ff 5%,
+    #f2b5ff 13%,
+    #d470ff78 35%,
+    transparent 70%
+  );
+  filter: blur(2px);
+  transform: translateX(-50%);
+}
+
+.pl-horizon-planet {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background: linear-gradient(180deg, #1a111e 0%, #0b090e 18%, #050507 55%);
+  clip-path: ellipse(85% 120% at 50% 192%);
+  filter: drop-shadow(0 -2px 3px #f5c5ff) drop-shadow(0 -10px 18px #c257ecb0);
+}
+
+@keyframes pl-horizon-twinkle {
+  from { opacity: 0.38; }
+  to { opacity: 0.68; }
+}
+
+@keyframes pl-horizon-bloom {
+  from { opacity: 0.68; transform: scaleX(0.94); }
+  to { opacity: 1; transform: scaleX(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-horizon-stars,
+  .pl-horizon-atmosphere {
+    animation: none;
+  }
+}

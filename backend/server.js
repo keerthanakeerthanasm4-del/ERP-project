@@ -536,13 +536,52 @@ app.post("/api/project-lead/projects", requireAuth, async (req, res) => {
     if (!name?.trim() || !projectId?.trim() || !deadline) return res.status(400).json({ message: "Project name, ID, and deadline are required." });
     const parsedDeadline = new Date(`${deadline}T00:00:00.000Z`);
     if (Number.isNaN(parsedDeadline.getTime())) return res.status(400).json({ message: "Enter a valid deadline." });
+
+    const isCodeAuthenticatedHod =
+      req.auth.role === "HOD" && req.auth.auth_method === "code";
+    let projectLeadId = null;
+
+    if (!isCodeAuthenticatedHod) {
+      const userId = Number(req.auth.user_id);
+      if (!Number.isSafeInteger(userId) || userId <= 0) {
+        return res.status(403).json({
+          message: "Your login is not linked to a Project Lead account. Sign in with a registered Project Lead account or create the project as HOD.",
+        });
+      }
+
+      const projectLead = await prisma.user.findUnique({
+        where: { user_id: userId },
+        select: { user_id: true, role: true },
+      });
+
+      if (!projectLead) {
+        return res.status(403).json({
+          message: "Your Project Lead account was not found in this database. Ask the HOD to create or assign your account, then sign in again.",
+        });
+      }
+
+      if (projectLead.role !== "PROJECT_LEAD") {
+        return res.status(403).json({
+          message: "Your account is not assigned the Project Lead role yet.",
+        });
+      }
+
+      projectLeadId = projectLead.user_id;
+    }
+
     const project = await prisma.project.create({
-      data: { project_id: projectId.trim(), project_name: name.trim(), deadline: parsedDeadline, projectLeadId: Number(req.auth.user_id) },
+      data: {
+        project_id: projectId.trim(),
+        project_name: name.trim(),
+        deadline: parsedDeadline,
+        projectLeadId,
+      },
     });
     res.status(201).json({ message: "Project created successfully.", project });
   } catch (error) {
     console.error("Create project:", error);
     if (error.code === "P2002") return res.status(409).json({ message: "That project ID is already in use." });
+    if (error.code === "P2003") return res.status(400).json({ message: "The selected Project Lead does not exist in this database." });
     res.status(500).json({ message: "Unable to create project." });
   }
 });
@@ -551,7 +590,13 @@ app.get("/api/project-lead/projects/:projectId", requireAuth, async (req, res) =
   try {
     const project = await prisma.project.findFirst({
       where: { project_id: req.params.projectId, projectLeadId: Number(req.auth.user_id) },
-      include: { members: { orderBy: { added_at: "asc" }, include: { user: { select: { user_id: true, name: true, usn: true, email: true } } } } },
+      include: {
+        phases: { orderBy: { phase_order: "asc" } },
+        members: {
+          orderBy: { added_at: "asc" },
+          include: { user: { select: { user_id: true, name: true, usn: true, email: true } } },
+        },
+      },
     });
     if (!project) return res.status(404).json({ message: "Project not found." });
     res.json({ project: { ...project, members: project.members.map(({ user, role }) => ({ ...user, role })) } });
@@ -632,7 +677,17 @@ app.get("/api/hod/project-leads", requireHod, async (req, res) => {
       },
     });
 
-    res.json({ leads });
+    res.json({
+      leads: leads.map((lead) => ({
+        id: lead.user_id,
+        user_id: lead.user_id,
+        name: lead.name,
+        email: lead.email,
+        department: lead.dept_name || "",
+        dept_name: lead.dept_name,
+        status: "Active",
+      })),
+    });
 
   } catch (error) {
     console.error("Fetch Project Leads Error:", error);
@@ -645,39 +700,72 @@ app.get("/api/hod/project-leads", requireHod, async (req, res) => {
 
 app.post("/api/hod/create-project-lead", requireHod, async (req, res) => {
   try {
-    const { name, email, department } = req.body;
-    if (typeof name !== "string" || !name.trim() || typeof email !== "string" || !email.trim() || typeof department !== "string" || !department.trim()) {
-      return res.status(400).json({ message: "Name, email, and department are required." });
+    const { name, email, department, temporaryPassword } = req.body;
+    const normalizedName = typeof name === "string" ? name.trim() : "";
+    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
+    const normalizedDepartment = typeof department === "string" ? department.trim() : "";
+
+    if (
+      !normalizedName ||
+      !normalizedEmail ||
+      !normalizedDepartment ||
+      typeof temporaryPassword !== "string" ||
+      temporaryPassword.length < 8
+    ) {
+      return res.status(400).json({
+        message: "Name, email, department, and a temporary password of at least 8 characters are required.",
+      });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const temporaryPassword = crypto.randomBytes(9).toString("base64url");
-    const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { user_id: true },
+    });
+    if (existingUser) {
+      return res.status(409).json({
+        message: "That email already belongs to an account. Use a different email address.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(temporaryPassword, 12);
     const lead = await prisma.user.create({
       data: {
-        name: name.trim(),
+        name: normalizedName,
         email: normalizedEmail,
-        dept_name: department.trim(),
+        dept_name: normalizedDepartment,
         passwordHash,
         role: "PROJECT_LEAD",
       },
-      select: { user_id: true, name: true, email: true, dept_name: true, role: true },
+      select: {
+        user_id: true,
+        name: true,
+        email: true,
+        dept_name: true,
+      },
     });
 
-    return res.status(201).json({
-      message: "Project Lead created successfully.",
-      temporaryPassword,
-      lead,
+    res.status(201).json({
+      message: "Project Lead account created.",
+      lead: {
+        id: lead.user_id,
+        user_id: lead.user_id,
+        name: lead.name,
+        email: lead.email,
+        department: lead.dept_name || "",
+        dept_name: lead.dept_name,
+        status: "Active",
+      },
     });
   } catch (error) {
     console.error("Create Project Lead Error:", error);
     if (error.code === "P2002") {
-      return res.status(409).json({ message: "That email is already registered." });
+      return res.status(409).json({
+        message: "That email already belongs to an account.",
+      });
     }
-    return res.status(500).json({ message: "Failed to create Project Lead." });
+    res.status(500).json({ message: "Unable to create Project Lead account." });
   }
 });
-
 // ASSIGN / CHANGE / REMOVE PROJECT LEAD - HOD ONLY
 app.patch("/api/hod/projects/:projectId/lead", requireHod, async (req, res) => {
   try {

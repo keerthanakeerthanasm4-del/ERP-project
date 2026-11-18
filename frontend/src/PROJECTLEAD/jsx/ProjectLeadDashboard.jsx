@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ProjectLeadHorizon from "./ProjectLeadHorizon.jsx";
 import "../css/ProjectLeadDashboard.css";
 
 const API_URL =
@@ -75,38 +76,31 @@ export default function ProjectLeadDashboard() {
 
   return (
     <div className="pl-dashboard-content">
-      <section className="pl-page-intro">
-        <div>
-          <span className="pl-kicker">PROJECT WORKSPACE</span>
-          <h1>
-            Welcome
-            {user?.name ? `, ${user.name}` : " to SVCE Project Portal"}
-          </h1>
-          <p>
-            Manage your projects, coordinate your team, and keep work moving.
-          </p>
+      <section className="pl-landing-hero">
+        <div className="pl-landing-backdrop" aria-hidden="true">
+          <ProjectLeadHorizon />
         </div>
-
-        <button
-          className="pl-primary-action"
-          onClick={() => navigate("/project-lead/create-project")}
-        >
-          ＋ Create Project
-        </button>
-      </section>
-
-      <section className="pl-summary-banner">
-        <div className="pl-summary-icon">▤</div>
-        <div className="pl-summary-copy">
-          <span>YOUR WORKSPACE</span>
-          <h2>Project activity at a glance</h2>
-          <p>
-            Review progress across projects and the people assigned to them.
-          </p>
+        <div className="pl-landing-overlay" aria-hidden="true" />
+        <div className="pl-landing-content">
+          <span className="pl-landing-eyebrow">SVCE · PROJECT LEAD WORKSPACE</span>
+          <h1>Welcome back{user?.name ? `, ${user.name}` : ""}</h1>
+          <p>Keep your projects moving. Check progress, support your team, and stay ahead of deadlines.</p>
+          <button
+            className="pl-primary-action"
+            onClick={() => navigate("/project-lead/create-project")}
+          >
+            <span aria-hidden="true">＋</span> Create Project
+          </button>
         </div>
-        <div className="pl-summary-highlight">
-          <strong>{String(projects.length).padStart(2, "0")}</strong>
-          <span>Projects you lead</span>
+        <div className="pl-landing-glance" aria-label="Workspace summary">
+          <div>
+            <strong>{projects.length}</strong>
+            <span>Projects</span>
+          </div>
+          <div>
+            <strong>{members.size}</strong>
+            <span>Team members</span>
+          </div>
         </div>
       </section>
 
@@ -184,3 +178,6 @@ export default function ProjectLeadDashboard() {
     </div>
   );
 }
+
+
+

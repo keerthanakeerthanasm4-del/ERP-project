@@ -7,6 +7,7 @@ import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
 import CreateProject from "./PROJECTLEAD/jsx/CreateProject.jsx";
 import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
 import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
+import ProjectLeadCover from "./PROJECTLEAD/jsx/ProjectLeadCover.jsx";
 import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
 import { ProjectLeadProjects, ProjectLeadTeam } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 
@@ -69,7 +70,27 @@ function saveLogin(data, rememberMe, navigate) {
   } else {
     sessionStorage.setItem("token", data.token);
   }
+
   localStorage.setItem("user", JSON.stringify(data.user));
+
+  if (data.user?.role === "PROJECT_LEAD") {
+    const accountId =
+      data.user.id ?? data.user.user_id ?? data.user.email ?? data.user.usn;
+    const seenKey = accountId
+      ? "projectLeadCoverSeen:" + String(accountId).trim().toLowerCase()
+      : null;
+    const hasSeenCover = seenKey && localStorage.getItem(seenKey) === "true";
+
+    if (seenKey && !hasSeenCover) {
+      localStorage.setItem(seenKey, "true");
+      navigate("/project-lead/welcome", {
+        replace: true,
+        state: { firstLoginCover: true },
+      });
+      return;
+    }
+  }
+
   navigate(data.user?.role === "PROJECT_LEAD" ? "/project-lead/dashboard" : "/dashboard");
 }
 
@@ -596,6 +617,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/dashboard" element={<RoleDashboard />} />
+      <Route path="/project-lead/welcome" element={<ProjectLeadCover />} />
       <Route path="/project-lead" element={<ProjectLeadLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ProjectLeadDashboard />} />

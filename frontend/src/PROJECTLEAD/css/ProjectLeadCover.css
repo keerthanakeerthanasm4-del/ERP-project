@@ -1,0 +1,88 @@
+.pl-cover {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+}
+
+.pl-cover-enter {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  color: white;
+  font: inherit;
+}
+
+.pl-cover-enter:focus-visible {
+  outline: 3px solid white;
+  outline-offset: -5px;
+}
+
+.pl-orbital-dawn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #0a0a0a;
+}
+
+.pl-cover-prompt {
+  position: absolute;
+  bottom: max(5%, env(safe-area-inset-bottom));
+  inset-inline: 0;
+  text-align: center;
+  color: #f8eafa;
+  font-size: .9rem;
+  letter-spacing: .05em;
+}
+
+.pl-signal-heading {
+  position: absolute;
+  inset-inline: 0;
+  top: 35%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  margin: 0;
+  text-align: center;
+  color: #fff;
+  font: inherit;
+  font-size: clamp(1rem, 7.4vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1.16;
+}
+
+.pl-signal-line {
+  display: block;
+  white-space: pre;
+}
+
+.pl-signal-line:first-child {
+  margin-bottom: .45em;
+  font-size: .52em;
+}
+
+.pl-signal-letter {
+  text-shadow: 0 0 .1em #fff8, 0 0 .32em #8b5cf6, 0 0 .65em #8b5cf699;
+  animation: pl-signal-ignite .62s linear backwards;
+}
+
+@keyframes pl-signal-ignite {
+  0%, 18%, 42%, 66% {
+    color: transparent;
+    -webkit-text-stroke: 1px #ffffff47;
+    text-shadow: none;
+  }
+  12%, 35%, 59%, 84% {
+    color: white;
+    text-shadow: 0 0 .12em white, 0 0 .42em #8b5cf6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-signal-letter { animation: none; }
+}
