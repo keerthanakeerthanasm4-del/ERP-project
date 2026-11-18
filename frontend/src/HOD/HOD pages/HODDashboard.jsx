@@ -75,14 +75,12 @@ function HODDashboard() {
 
     const value = String(rawDate).trim();
 
-    // YYYY-MM-DD or ISO date
     const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
     if (isoMatch) {
       return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
     }
 
-    // DD/MM/YYYY or DD-MM-YYYY
     const otherMatch = value.match(
       /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
     );
@@ -97,94 +95,150 @@ function HODDashboard() {
     return "";
   };
 
+  // Supports 24-hour and AM/PM formats
   const getTimeMinutes = (time) => {
     if (!time) return null;
 
-    const match = String(time).match(/^(\d{1,2}):(\d{2})/);
+    const value = String(time).trim();
+
+    const match = value.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+    );
 
     if (!match) return null;
 
-    return Number(match[1]) * 60 + Number(match[2]);
+    let hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const period = match[3]?.toUpperCase();
+
+    if (minutes > 59) return null;
+
+    if (period) {
+      if (hours < 1 || hours > 12) return null;
+
+      if (period === "PM" && hours < 12) {
+        hours += 12;
+      } else if (period === "AM" && hours === 12) {
+        hours = 0;
+      }
+    } else if (hours > 23) {
+      return null;
+    }
+
+    return hours * 60 + minutes;
   };
 
   const normalize = (value) =>
     String(value || "").trim().toLowerCase();
 
   // =====================================
-  // MEETING TIME SLOTS
+  // FORMAT TIME
   // =====================================
 
-  const timeSlots = [
-    {
-      label: "9:00 - 10:00 AM",
-      start: "09:00",
-      end: "10:00",
-    },
-    {
-      label: "10:00 - 11:00 AM",
-      start: "10:00",
-      end: "11:00",
-    },
-    {
-      label: "11:00 - 12:00 PM",
-      start: "11:00",
-      end: "12:00",
-    },
-    {
-      label: "12:00 - 1:00 PM",
-      start: "12:00",
-      end: "13:00",
-    },
-    {
-      label: "2:00 - 3:00 PM",
-      start: "14:00",
-      end: "15:00",
-    },
-    {
-      label: "3:00 - 4:00 PM",
-      start: "15:00",
-      end: "16:00",
-    },
-    {
-      label: "4:00 - 5:00 PM",
-      start: "16:00",
-      end: "17:00",
-    },
-  ];
+  const formatMinutes = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
 
-  // CHECK WHETHER A SLOT IS BOOKED
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHour = hours % 12 || 12;
 
-  const isSlotBooked = (slot) => {
+    return `${displayHour}:${String(mins).padStart(2, "0")} ${period}`;
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "";
+
+    const minutes = getTimeMinutes(time);
+
+    if (minutes === null) return time;
+
+    return formatMinutes(minutes);
+  };
+
+  // =====================================
+  // DYNAMIC MEETING TIME SLOTS
+  // =====================================
+
+  const getTodayTimeBlocks = () => {
     const today = getLocalDate();
 
-    const slotStart = getTimeMinutes(slot.start);
-    const slotEnd = getTimeMinutes(slot.end);
+    const DAY_START = 9 * 60;
+    const DAY_END = 17 * 60;
 
-    return meetings.some((meeting) => {
-      const meetingDate = getMeetingDate(meeting);
+    const todayMeetings = meetings
+      .filter((meeting) => {
+        if (getMeetingDate(meeting) !== today) {
+          return false;
+        }
 
-      if (meetingDate !== today) return false;
+        if (normalize(meeting.status) === "rejected") {
+          return false;
+        }
 
-      if (
-        normalize(meeting.status) === "rejected"
-      ) {
-        return false;
+        return true;
+      })
+      .map((meeting) => {
+        const start = getTimeMinutes(meeting.startTime);
+        const end = getTimeMinutes(meeting.endTime);
+
+        if (
+          start === null ||
+          end === null ||
+          end <= start ||
+          start >= DAY_END ||
+          end <= DAY_START
+        ) {
+          return null;
+        }
+
+        return {
+          start: Math.max(start, DAY_START),
+          end: Math.min(end, DAY_END),
+          title: meeting.title || "Scheduled Meeting"
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.start - b.start);
+
+    const blocks = [];
+    let currentTime = DAY_START;
+
+    todayMeetings.forEach((meeting) => {
+      // Add one continuous available block before the meeting
+      if (meeting.start > currentTime) {
+        blocks.push({
+          type: "available",
+          start: currentTime,
+          end: meeting.start
+        });
       }
 
-      const meetingStart = getTimeMinutes(meeting.startTime);
-      const meetingEnd = getTimeMinutes(meeting.endTime);
+      // Add booked meeting, handling overlapping meetings
+      if (meeting.end > currentTime) {
+        blocks.push({
+          type: "booked",
+          start: Math.max(meeting.start, currentTime),
+          end: meeting.end,
+          title: meeting.title
+        });
 
-      if (meetingStart === null || meetingEnd === null) {
-        return false;
+        currentTime = meeting.end;
       }
-
-      // Highlight slot if meeting overlaps it
-      return (
-        meetingStart < slotEnd &&
-        meetingEnd > slotStart
-      );
     });
+
+    // Add one continuous available block after the last meeting
+    if (currentTime < DAY_END) {
+      blocks.push({
+        type: "available",
+        start: currentTime,
+        end: DAY_END
+      });
+    }
+
+    return blocks;
   };
+
+  const timeBlocks = getTodayTimeBlocks();
 
   // =====================================
   // FETCH PROJECTS
@@ -200,8 +254,8 @@ function HODDashboard() {
         "http://localhost:5000/api/hod/projects",
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
 
@@ -211,25 +265,27 @@ function HODDashboard() {
         throw new Error(data.message || "Failed to fetch projects");
       }
 
-      const formattedProjects = (data.projects || []).map((project) => {
-        const name = project.project_name || "Unnamed Project";
+      const formattedProjects = (data.projects || []).map(
+        (project) => {
+          const name = project.project_name || "Unnamed Project";
 
-        let icon = <Bot />;
+          let icon = <Bot />;
 
-        if (name.toLowerCase().includes("qr")) {
-          icon = <ShieldCheck />;
-        } else if (name.toLowerCase().includes("erp")) {
-          icon = <Cpu />;
+          if (name.toLowerCase().includes("qr")) {
+            icon = <ShieldCheck />;
+          } else if (name.toLowerCase().includes("erp")) {
+            icon = <Cpu />;
+          }
+
+          return {
+            ...project,
+            name,
+            status: project.status || "Not available",
+            phases: project.phases || [],
+            icon
+          };
         }
-
-        return {
-          ...project,
-          name,
-          status: project.status || "Not available",
-          phases: project.phases || [],
-          icon,
-        };
-      });
+      );
 
       setProjects(formattedProjects);
     } catch (error) {
@@ -272,16 +328,12 @@ function HODDashboard() {
     window.addEventListener("storage", syncMeetings);
     window.addEventListener("profileImageUpdated", syncProfileImage);
 
-    // Initial synchronization
     syncMeetings();
 
     return () => {
       window.removeEventListener("hodMeetingsUpdated", syncMeetings);
       window.removeEventListener("storage", syncMeetings);
-      window.removeEventListener(
-        "profileImageUpdated",
-        syncProfileImage
-      );
+      window.removeEventListener("profileImageUpdated", syncProfileImage);
     };
   }, []);
 
@@ -294,7 +346,7 @@ function HODDashboard() {
       if (index === meetingIndex) {
         return {
           ...meeting,
-          status: newStatus,
+          status: newStatus
         };
       }
 
@@ -320,7 +372,7 @@ function HODDashboard() {
     { name: "Profile", icon: <UserRound /> },
     { name: "Meetings", icon: <CalendarDays /> },
     { name: "Projects", icon: <Folder /> },
-    { name: "Create Project Lead", icon: <UserPlus /> },
+    { name: "Create Project Lead", icon: <UserPlus /> }
   ];
 
   const openMeetingsPage = (createForm = false) => {
@@ -339,7 +391,7 @@ function HODDashboard() {
       project.name,
       project.project_name,
       project.project_id,
-      project.project_code,
+      project.project_code
     ]
       .map(normalize)
       .filter(Boolean);
@@ -350,7 +402,7 @@ function HODDashboard() {
         meeting.projectName,
         meeting.project_name,
         meeting.project_id,
-        meeting.projectId,
+        meeting.projectId
       ]
         .map(normalize)
         .filter(Boolean);
@@ -376,7 +428,7 @@ function HODDashboard() {
       .map((meeting, originalIndex) => ({
         ...meeting,
         originalIndex,
-        normalizedDate: getMeetingDate(meeting),
+        normalizedDate: getMeetingDate(meeting)
       }))
       .filter((meeting) => {
         if (!meeting.normalizedDate) return false;
@@ -414,11 +466,7 @@ function HODDashboard() {
   // GET NEXT MEETING
   // =====================================
 
-  const getNextMeeting = () => {
-    return upcomingMeetings[0] || null;
-  };
-
-  const nextMeeting = getNextMeeting();
+  const nextMeeting = upcomingMeetings[0] || null;
 
   // =====================================
   // GET TEAM NAME
@@ -430,24 +478,6 @@ function HODDashboard() {
     meeting.projectName ||
     meeting.project_name ||
     "Team";
-
-  // =====================================
-  // FORMAT TIME
-  // =====================================
-
-  const formatTime = (time) => {
-    if (!time) return "";
-
-    const [hours, minutes] = time.split(":");
-    const date = new Date();
-
-    date.setHours(Number(hours), Number(minutes));
-
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   // =====================================
   // FORMAT MEETING DATE
@@ -766,7 +796,7 @@ function HODDashboard() {
             </button>
           </section>
 
-          {/* TODAY'S MEETING SLOTS */}
+          {/* TODAY'S DYNAMIC MEETING SLOTS */}
 
           <section className="slots-section">
             <div className="section-heading">
@@ -775,30 +805,32 @@ function HODDashboard() {
             </div>
 
             <div className="time-slots">
-              {timeSlots.map((slot, index) => {
-                const booked = isSlotBooked(slot);
+              {timeBlocks.length === 0 ? (
+                <p>No time slots available.</p>
+              ) : (
+                timeBlocks.map((block, index) => {
+                  const booked = block.type === "booked";
 
-                return (
-                  <div
-                    className={`time-slot ${
-                      booked ? "booked" : "available"
-                    }`}
-                    key={index}
-                    title={
-                      booked
-                        ? "A meeting is scheduled during this time"
-                        : "No meeting scheduled"
-                    }
-                  >
-                    {slot.label}
-                    {booked && (
-                      <span className="slot-booked-label">
-                        Booked
+                  return (
+                    <div
+                      className={`time-slot ${
+                        booked ? "booked" : "available"
+                      }`}
+                      key={`${block.start}-${block.end}-${index}`}
+                      title={booked ? block.title : "Available time"}
+                    >
+                      <strong>
+                        {formatMinutes(block.start)} -{" "}
+                        {formatMinutes(block.end)}
+                      </strong>
+
+                      <span>
+                        {booked ? "Booked" : "Available"}
                       </span>
-                    )}
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </section>
 
@@ -842,7 +874,9 @@ function HODDashboard() {
                         const status = meeting.status || "Pending";
 
                         return (
-                          <tr key={meeting.id || meeting.originalIndex}>
+                          <tr
+                            key={meeting.id || meeting.originalIndex}
+                          >
                             <td>{index + 1}</td>
 
                             <td className="meeting-project-name">
@@ -974,7 +1008,9 @@ function HODDashboard() {
     return (
       <div className="placeholder-page">
         <h2>{activePage}</h2>
-        <p>The {activePage} page will be developed in the next step.</p>
+        <p>
+          The {activePage} page will be developed in the next step.
+        </p>
 
         <button onClick={() => setActivePage("Dashboard")}>
           Back to Dashboard
@@ -992,7 +1028,9 @@ function HODDashboard() {
 
       {/* SIDEBAR */}
 
-      <aside className={`hod-sidebar ${sidebarOpen ? "" : "collapsed"}`}>
+      <aside
+        className={`hod-sidebar ${sidebarOpen ? "" : "collapsed"}`}
+      >
         <div className="sidebar-brand">
           <img
             src={projectLogo}
