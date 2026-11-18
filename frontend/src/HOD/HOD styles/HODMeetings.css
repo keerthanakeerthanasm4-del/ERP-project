@@ -766,3 +766,186 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================
+   MEETINGS PAGE - FINAL ALIGNMENT
+========================================= */
+
+/* Keep the page wide */
+.hod-meetings-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 25px 30px 40px !important;
+  align-items: stretch !important;
+  box-sizing: border-box;
+}
+
+/* Keep the three section headings on the left */
+.hod-meetings-heading,
+.hod-meeting-card-heading {
+  width: 100%;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/* Main meeting blocks should extend across the page */
+.hod-meetings-layout,
+.hod-meetings-layout.details-open {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Upcoming Meeting block */
+.hod-meetings-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+/* Create Meeting block */
+.hod-meeting-form-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 300px;
+  box-sizing: border-box;
+}
+
+/* Meeting heading */
+.hod-meetings-page-header {
+  text-align: left !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Form fields use the available width */
+.hod-meeting-form-card .hod-form-grid {
+  width: 100%;
+}
+
+/* Avoid horizontal overflow */
+.hod-meetings-page > *,
+.hod-meetings-card,
+.hod-meeting-form-card {
+  min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .hod-meetings-page {
+    padding: 18px 12px 28px !important;
+  }
+
+  .hod-meetings-card,
+  .hod-meeting-form-card {
+    min-height: auto;
+  }
+}
+
+/* Slightly increase meeting section width */
+
+.hod-meetings-page {
+  padding-left: 36px !important;
+  padding-right: 36px !important;
+}
+
+.hod-meetings-card,
+.hod-meeting-form-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 30px !important;
+}
+
+/* Give the sections a little more breathing space */
+.hod-meetings-page {
+  gap: 26px;
+}
+
+.hod-meetings-heading,
+.hod-meeting-card-heading {
+  text-align: left !important;
+  justify-content: flex-start !important;
+}
+
+@media (max-width: 700px) {
+  .hod-meetings-page {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .hod-meetings-card,
+  .hod-meeting-form-card {
+    padding: 18px !important;
+  }
+}
+
+/* =========================================
+   FORCE MEETINGS SECTIONS TO FULL WIDTH
+========================================= */
+
+.hod-meetings-page {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 25px 24px 40px !important;
+  box-sizing: border-box !important;
+}
+
+/* All three main sections */
+.hod-meetings-page > .hod-meetings-layout,
+.hod-meetings-page > .hod-meetings-card,
+.hod-meetings-page > .hod-meeting-form-card {
+  width: 100% !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Meeting list layout */
+.hod-meetings-layout,
+.hod-meetings-layout.details-open {
+  width: 100% !important;
+  max-width: none !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* Upcoming meeting card */
+.hod-meetings-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 200px;
+}
+
+/* Create meeting card */
+.hod-meeting-form-card {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 320px;
+}
+
+/* Align headings to left */
+.hod-meetings-page-header,
+.hod-meetings-heading,
+.hod-meeting-card-heading {
+  width: 100% !important;
+  text-align: left !important;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .hod-meetings-page {
+    padding: 18px 12px 28px !important;
+  }
+
+  .hod-meetings-card,
+  .hod-meeting-form-card {
+    min-height: auto;
+  }
+}
+
+
