@@ -27,6 +27,7 @@ function CreateProjectLead() {
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [history, setHistory] = useState([]);
   const [message, setMessage] = useState("");
 
   const API_URL = "http://localhost:5000";
@@ -110,12 +111,40 @@ function CreateProjectLead() {
       setMessage(error.message);
     }
   };
+// FETCH PROJECT LEAD ASSIGNMENT HISTORY
+const fetchAssignmentHistory = async () => {
+  try {
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
 
+    const response = await fetch(
+      `${API_URL}/api/hod/department-assignment-history`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await readApiResponse(response);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch assignment history");
+    }
+
+    setHistory(data || []);
+  } catch (error) {
+    console.error("Fetch Assignment History Error:", error);
+    setMessage(error.message);
+  }
+};
   // LOAD DATA WHEN PAGE OPENS
   useEffect(() => {
-    fetchProjectLeads();
-    fetchCurrentAssignment();
-  }, []);
+  fetchProjectLeads();
+  fetchCurrentAssignment();
+  fetchAssignmentHistory();
+}, []);
 
   // CREATE PERMANENT PROJECT LEAD MODULE ACCOUNT
   const handleCreateLead = async (e) => {
@@ -205,6 +234,7 @@ function CreateProjectLead() {
       setStudentPassword("");
 
       await fetchCurrentAssignment();
+      await fetchAssignmentHistory();
     } catch (error) {
       console.error("Assign Project Lead Error:", error);
       setMessage(error.message);
@@ -242,6 +272,7 @@ function CreateProjectLead() {
 
       setCurrentAssignment(null);
       setMessage(data.message);
+      await fetchAssignmentHistory();
     } catch (error) {
       console.error("Remove Project Lead Error:", error);
       setMessage(error.message);
@@ -493,76 +524,67 @@ function CreateProjectLead() {
 
       </div>
 
-      {/* REGISTERED STUDENTS */}
-      <div className="pl-main-card">
+{/* PROJECT LEAD ASSIGNMENT HISTORY */}
+<div className="pl-main-card">
 
-        <div className="pl-section-title">
-          <div className="pl-title-icon">
-            <Users size={22} />
-          </div>
+  <div className="pl-section-title">
+    <div className="pl-title-icon">
+      <Users size={22} />
+    </div>
 
-          <div>
-            <h2>Registered Students</h2>
-            <p>Select an existing student to assign as Project Lead.</p>
-          </div>
-        </div>
+    <div>
+      <h2>Project Lead Assignment History</h2>
+      <p>View previously assigned department Project Leads.</p>
+    </div>
+  </div>
 
-        <div className="pl-search-box">
-          <Search size={19} />
+  <div className="pl-history-table-wrapper">
 
-          <input
-            type="text"
-            placeholder="Search by name, email or department..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+    <table className="pl-history-table">
 
-        <div className="pl-lead-list">
+      <thead>
+        <tr>
+          <th>Sl. No.</th>
+          <th>Project Lead</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Assigned On</th>
+          <th>Relieved On</th>
+        </tr>
+      </thead>
 
-          {loading ? (
-            <p className="pl-empty-message">Loading students...</p>
-          ) : filteredLeads.length > 0 ? (
+      <tbody>
+        {history.length > 0 ? (
+          history.map((item, index) => (
+            <tr key={item.id}>
+              <td>{index + 1}</td>
+              <td>{item.assignedName}</td>
+              <td>{item.assignedEmail}</td>
+              <td>{item.department || "Not specified"}</td>
+              <td>
+                {new Date(item.assignedAt).toLocaleDateString("en-IN")}
+              </td>
+              <td>
+                {item.relievedAt
+                  ? new Date(item.relievedAt).toLocaleDateString("en-IN")
+                  : "Currently Assigned"}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="6" className="pl-history-empty">
+              No Project Lead assignment history available.
+            </td>
+          </tr>
+        )}
+      </tbody>
 
-            filteredLeads.map((lead) => (
-              <div className="pl-lead-row" key={lead.id}>
+    </table>
 
-                <div className="pl-lead-avatar">
-                  <UserRound size={23} />
-                </div>
+  </div>
 
-                <div className="pl-lead-info">
-                  <h3>{lead.name}</h3>
-
-                  <p>
-                    <Mail size={14} />
-                    {lead.email}
-                  </p>
-
-                  <p>
-                    <Building2 size={14} />
-                    {lead.department}
-                  </p>
-                </div>
-
-                <span className="pl-assigned-status">
-                  Registered
-                </span>
-
-              </div>
-            ))
-
-          ) : (
-
-            <p className="pl-empty-message">
-              No registered students found.
-            </p>
-
-          )}
-
-        </div>
-
-      </div>
+</div>
 
     </div>
   );

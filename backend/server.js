@@ -35,7 +35,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -1052,6 +1052,223 @@ app.patch("/api/hod/projects/:projectId/lead", async (req, res) => {
 
     res.status(500).json({
       message: "Failed to update Project Lead assignment",
+    });
+  }
+});
+// GET HOD PROFILE - HOD ONLY
+app.get("/api/hod/profile", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: {
+        user_id: decoded.user_id,
+      },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    let profile = await prisma.hODProfile.findUnique({
+      where: {
+        id: 1,
+      },
+    });
+
+    // Create default profile if it does not exist
+    if (!profile) {
+      profile = await prisma.hODProfile.create({
+        data: {
+          id: 1,
+        },
+      });
+    }
+
+    res.json({
+      profile,
+    });
+
+  } catch (error) {
+    console.error("Fetch HOD Profile Error:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch HOD profile",
+    });
+  }
+});
+// UPDATE HOD PROFILE - HOD ONLY
+app.put("/api/hod/profile", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: {
+        user_id: decoded.user_id,
+      },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const {
+      name,
+      designation,
+      employeeId,
+      joiningDate,
+      email,
+      phone,
+      department,
+      institution,
+      location,
+    } = req.body;
+
+    if (
+      !name?.trim() ||
+      !designation?.trim() ||
+      !employeeId?.trim() ||
+      !joiningDate ||
+      !email?.trim() ||
+      !phone?.trim() ||
+      !department?.trim() ||
+      !institution?.trim() ||
+      !location?.trim()
+    ) {
+      return res.status(400).json({
+        message: "All profile fields are required",
+      });
+    }
+
+    const profile = await prisma.hODProfile.upsert({
+      where: {
+        id: 1,
+      },
+
+      update: {
+        name: name.trim(),
+        designation: designation.trim(),
+        employeeId: employeeId.trim(),
+        joiningDate: new Date(joiningDate),
+        email: email.trim(),
+        phone: phone.trim(),
+        department: department.trim(),
+        institution: institution.trim(),
+        location: location.trim(),
+      },
+
+      create: {
+        id: 1,
+        name: name.trim(),
+        designation: designation.trim(),
+        employeeId: employeeId.trim(),
+        joiningDate: new Date(joiningDate),
+        email: email.trim(),
+        phone: phone.trim(),
+        department: department.trim(),
+        institution: institution.trim(),
+        location: location.trim(),
+      },
+    });
+
+    res.json({
+      message: "HOD profile updated successfully",
+      profile,
+    });
+
+  } catch (error) {
+    console.error("Update HOD Profile Error:", error);
+
+    res.status(500).json({
+      message: "Failed to update HOD profile",
+    });
+  }
+});
+// UPDATE HOD PROFILE IMAGE - HOD ONLY
+app.patch("/api/hod/profile/image", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const hod = await prisma.user.findUnique({
+      where: {
+        user_id: decoded.user_id,
+      },
+    });
+
+    if (!hod || hod.role !== "HOD") {
+      return res.status(403).json({
+        message: "HOD access only",
+      });
+    }
+
+    const { profileImage } = req.body;
+
+    if (
+      profileImage !== null &&
+      (typeof profileImage !== "string" ||
+        !profileImage.startsWith("data:image/"))
+    ) {
+      return res.status(400).json({
+        message: "Invalid profile image",
+      });
+    }
+
+    const profile = await prisma.hODProfile.upsert({
+      where: {
+        id: 1,
+      },
+
+      update: {
+        profileImage,
+      },
+
+      create: {
+        id: 1,
+        profileImage,
+      },
+    });
+
+    res.json({
+      message: "Profile image updated successfully",
+      profileImage: profile.profileImage,
+    });
+
+  } catch (error) {
+    console.error("Update HOD Profile Image Error:", error);
+
+    res.status(500).json({
+      message: "Failed to update profile image",
     });
   }
 });
