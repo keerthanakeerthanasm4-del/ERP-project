@@ -615,29 +615,8 @@ app.get("/api/hod/projects", requireHod, async (req, res) => {
     });
   }
 });
-app.get("/api/hod/project-leads", async (req, res) => {
+app.get("/api/hod/project-leads", requireHod, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Authentication required",
-      });
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    const hod = await prisma.user.findUnique({
-      where: { user_id: decoded.user_id },
-    });
-
-    if (!hod || hod.role !== "HOD") {
-      return res.status(403).json({
-        message: "HOD access only",
-      });
-    }
-
     const leads = await prisma.user.findMany({
       where: {
         role: "PROJECT_LEAD",
@@ -661,6 +640,64 @@ app.get("/api/hod/project-leads", async (req, res) => {
     res.status(500).json({
       message: "Failed to fetch Project Leads",
     });
+  }
+});
+
+// HOD meeting schedule
+app.get("/api/hod/meetings", requireHod, async (req, res) => {
+  try {
+    const meetings = await prisma.meeting.findMany({
+      include: { project: { select: { project_id: true, project_name: true } } },
+      orderBy: [{ date: "asc" }, { startTime: "asc" }],
+    });
+    res.json({ meetings });
+  } catch (error) {
+    console.error("Fetch HOD meetings:", error);
+    res.status(500).json({ message: "Failed to fetch meetings." });
+  }
+});
+
+app.post("/api/hod/meetings", requireHod, async (req, res) => {
+  try {
+    const { title, project, project_id, date, startTime, endTime, venue } = req.body;
+    if (![title, project, date, startTime, endTime, venue].every((value) => typeof value === "string" && value.trim())) {
+      return res.status(400).json({ message: "Complete all meeting fields." });
+    }
+    const meetingDate = new Date(`${date}T00:00:00.000Z`);
+    if (Number.isNaN(meetingDate.getTime()) || endTime <= startTime) {
+      return res.status(400).json({ message: "Enter a valid date and time range." });
+    }
+    if (project_id) {
+      const linkedProject = await prisma.project.findUnique({ where: { project_id } });
+      if (!linkedProject) return res.status(400).json({ message: "Selected project was not found." });
+    }
+    const meeting = await prisma.meeting.create({
+      data: {
+        title: title.trim(), projectName: project.trim(), date: meetingDate,
+        startTime, endTime, venue: venue.trim(), project_id: project_id || null,
+      },
+    });
+    res.status(201).json({ message: "Meeting scheduled.", meeting });
+  } catch (error) {
+    console.error("Create HOD meeting:", error);
+    res.status(500).json({ message: "Failed to schedule meeting." });
+  }
+});
+
+app.patch("/api/hod/meetings/:meetingId/status", requireHod, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!["Approved", "Rejected", "Pending"].includes(status)) {
+      return res.status(400).json({ message: "Invalid meeting status." });
+    }
+    const meetingId = Number(req.params.meetingId);
+    if (!Number.isInteger(meetingId)) return res.status(400).json({ message: "Invalid meeting ID." });
+    const meeting = await prisma.meeting.update({ where: { meeting_id: meetingId }, data: { status } });
+    res.json({ message: "Meeting status updated.", meeting });
+  } catch (error) {
+    console.error("Update HOD meeting status:", error);
+    if (error.code === "P2025") return res.status(404).json({ message: "Meeting not found." });
+    res.status(500).json({ message: "Failed to update meeting status." });
   }
 });
 // ASSIGN / CHANGE / REMOVE PROJECT LEAD - HOD ONLY

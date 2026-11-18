@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import "../HOD styles/HODMeetings.css";
 
 const API_URL = "http://localhost:5000";
@@ -30,30 +30,30 @@ const HODMeetings = ({ initialShowForm = false }) => {
   });
 
   // LOAD MEETINGS
-  const loadMeetings = () => {
+  const loadMeetings = useCallback(async () => {
     try {
-      const saved = JSON.parse(
-        localStorage.getItem("hodMeetings") || "[]"
-      );
-
-      setMeetings(Array.isArray(saved) ? saved : []);
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/meetings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Unable to load meetings.");
+      setMeetings(data.meetings || []);
     } catch (error) {
       console.error("Meeting loading error:", error);
-      setMeetings([]);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadMeetings();
 
-    window.addEventListener("hodMeetingsUpdated", loadMeetings);
-    window.addEventListener("storage", loadMeetings);
-
+    const interval = window.setInterval(loadMeetings, 15000);
+    window.addEventListener("focus", loadMeetings);
     return () => {
-      window.removeEventListener("hodMeetingsUpdated", loadMeetings);
-      window.removeEventListener("storage", loadMeetings);
+      window.clearInterval(interval);
+      window.removeEventListener("focus", loadMeetings);
     };
-  }, []);
+  }, [loadMeetings]);
 
   // FETCH PROJECTS
   useEffect(() => {
@@ -149,7 +149,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
   };
 
   // CREATE MEETING
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
 
     if (formData.endTime <= formData.startTime) {
@@ -163,31 +163,23 @@ const HODMeetings = ({ initialShowForm = false }) => {
         formData.project.trim().toLowerCase()
     );
 
-    const newMeeting = {
-      id: Date.now(),
-      title: formData.title.trim(),
-      project: formData.project.trim(),
-      project_id: selectedProject?.project_id || null,
-      date: formData.date,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      venue: formData.venue.trim(),
-      status: "Pending"
-    };
-
-    const updatedMeetings = [...meetings, newMeeting];
-
     try {
-      localStorage.setItem(
-        "hodMeetings",
-        JSON.stringify(updatedMeetings)
-      );
-
-      setMeetings(updatedMeetings);
-
-      window.dispatchEvent(
-        new Event("hodMeetingsUpdated")
-      );
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/meetings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          ...formData,
+          title: formData.title.trim(),
+          project: formData.project.trim(),
+          project_id: selectedProject?.project_id || null,
+          venue: formData.venue.trim(),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Unable to create meeting.");
+      await loadMeetings();
+      window.dispatchEvent(new Event("hodMeetingsUpdated"));
 
       resetForm();
       setSelectedMeeting(null);
@@ -195,7 +187,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
       alert("Meeting created successfully!");
     } catch (error) {
       console.error("Meeting creation error:", error);
-      alert("Unable to save meeting.");
+      alert(error.message || "Unable to save meeting.");
     }
   };
 
@@ -293,7 +285,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
             </tr>
           ) : (
             meetingList.map((meeting, index) => (
-              <tr key={meeting.id || index}>
+              <tr key={meeting.meeting_id || index}>
                 <td>
                   <strong className="hod-team-name">
                     {getTeamName(meeting)}

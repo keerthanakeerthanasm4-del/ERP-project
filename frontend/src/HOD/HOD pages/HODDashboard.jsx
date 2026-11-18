@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import projectLogo from "../../assets/project-logo.png";
 
 import HODProjects from "./HODProjects";
@@ -27,6 +27,11 @@ import {
 
 import "../HOD styles/HODDashboard.css";
 
+const getHodAuthHeaders = () => {
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  return { Authorization: `Bearer ${token}` };
+};
+
 function HODDashboard() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -36,13 +41,7 @@ function HODDashboard() {
     localStorage.getItem("hodProfileImage") || null
   );
 
-  const [meetings, setMeetings] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("hodMeetings") || "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [meetings, setMeetings] = useState([]);
 
   const [projects, setProjects] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
@@ -244,18 +243,12 @@ function HODDashboard() {
   // FETCH PROJECTS
   // =====================================
 
-  const fetchHODProjects = async () => {
+  const fetchHODProjects = useCallback(async () => {
     try {
-      const token =
-        localStorage.getItem("token") ||
-        sessionStorage.getItem("token");
-
       const response = await fetch(
         "http://localhost:5000/api/hod/projects",
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: getHodAuthHeaders()
         }
       );
 
@@ -293,46 +286,50 @@ function HODDashboard() {
     } finally {
       setProjectsLoading(false);
     }
-  };
+  }, []);
+
+  const fetchHODMeetings = useCallback(async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/hod/meetings", { headers: getHodAuthHeaders() });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to fetch meetings");
+      setMeetings(data.meetings || []);
+    } catch (error) {
+      console.error("HOD meetings error:", error);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchHODProjects();
-  }, []);
+    const refreshDashboardData = () => {
+      fetchHODProjects();
+      fetchHODMeetings();
+    };
+    const refreshMeetings = () => fetchHODMeetings();
+    refreshDashboardData();
+    const interval = window.setInterval(refreshDashboardData, 15000);
+    window.addEventListener("focus", refreshDashboardData);
+    window.addEventListener("hodMeetingsUpdated", refreshMeetings);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshDashboardData);
+      window.removeEventListener("hodMeetingsUpdated", refreshMeetings);
+    };
+  }, [fetchHODMeetings, fetchHODProjects]);
 
   // =====================================
   // SYNCHRONIZE MEETINGS AND PROFILE IMAGE
   // =====================================
 
   useEffect(() => {
-    const syncMeetings = () => {
-      try {
-        const savedMeetings = JSON.parse(
-          localStorage.getItem("hodMeetings") || "[]"
-        );
-
-        setMeetings(
-          Array.isArray(savedMeetings) ? savedMeetings : []
-        );
-      } catch {
-        setMeetings([]);
-      }
-    };
-
     const syncProfileImage = () => {
       setProfileImage(
         localStorage.getItem("hodProfileImage") || null
       );
     };
 
-    window.addEventListener("hodMeetingsUpdated", syncMeetings);
-    window.addEventListener("storage", syncMeetings);
     window.addEventListener("profileImageUpdated", syncProfileImage);
 
-    syncMeetings();
-
     return () => {
-      window.removeEventListener("hodMeetingsUpdated", syncMeetings);
-      window.removeEventListener("storage", syncMeetings);
       window.removeEventListener("profileImageUpdated", syncProfileImage);
     };
   }, []);
@@ -341,26 +338,20 @@ function HODDashboard() {
   // APPROVE OR REJECT MEETING
   // =====================================
 
-  const updateMeetingStatus = (meetingIndex, newStatus) => {
-    const updatedMeetings = meetings.map((meeting, index) => {
-      if (index === meetingIndex) {
-        return {
-          ...meeting,
-          status: newStatus
-        };
-      }
-
-      return meeting;
-    });
-
-    setMeetings(updatedMeetings);
-
-    localStorage.setItem(
-      "hodMeetings",
-      JSON.stringify(updatedMeetings)
-    );
-
-    window.dispatchEvent(new Event("hodMeetingsUpdated"));
+  const updateMeetingStatus = async (meetingId, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/hod/meetings/${meetingId}/status`, {
+        method: "PATCH",
+        headers: { ...getHodAuthHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Unable to update meeting status.");
+      await fetchHODMeetings();
+    } catch (error) {
+      console.error("Update meeting status:", error);
+      window.alert(error.message || "Unable to update meeting status.");
+    }
   };
 
   // =====================================
@@ -425,9 +416,8 @@ function HODDashboard() {
       now.getHours() * 60 + now.getMinutes();
 
     return meetings
-      .map((meeting, originalIndex) => ({
+      .map((meeting) => ({
         ...meeting,
-        originalIndex,
         normalizedDate: getMeetingDate(meeting)
       }))
       .filter((meeting) => {
@@ -490,7 +480,9 @@ function HODDashboard() {
 
     const [year, month, day] = dateKey.split("-");
 
-    return `${year}-${month}-${day}`;
+    return new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString("en-US", {
+      month: "short", day: "numeric", year: "numeric",
+    });
   };
 
   // =====================================
@@ -601,7 +593,7 @@ function HODDashboard() {
               projectMeetings.map((meeting, index) => (
                 <div
                   className="project-meeting-detail"
-                  key={meeting.id || index}
+                  key={meeting.meeting_id || index}
                 >
                   <h3>{meeting.title || "Untitled Meeting"}</h3>
 
@@ -875,7 +867,7 @@ function HODDashboard() {
 
                         return (
                           <tr
-                            key={meeting.id || meeting.originalIndex}
+                            key={meeting.meeting_id}
                           >
                             <td>{index + 1}</td>
 
@@ -903,10 +895,11 @@ function HODDashboard() {
                             <td>
                               <div className="meeting-action-buttons">
                                 <button
-                                  className="approve-btn"
+                                  className="approve-button"
+                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
-                                      meeting.originalIndex,
+                                      meeting.meeting_id,
                                       "Approved"
                                     )
                                   }
@@ -915,10 +908,11 @@ function HODDashboard() {
                                 </button>
 
                                 <button
-                                  className="reject-btn"
+                                  className="reject-button"
+                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
-                                      meeting.originalIndex,
+                                      meeting.meeting_id,
                                       "Rejected"
                                     )
                                   }

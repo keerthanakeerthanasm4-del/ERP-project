@@ -34,6 +34,26 @@ model Project {
   projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
 
   phases ProjectPhase[]
+  meetings Meeting[]
+}
+
+model Meeting {
+  meeting_id  Int      @id @default(autoincrement())
+  title       String
+  projectName String
+  date        DateTime
+  startTime   String
+  endTime     String
+  venue       String
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project_id String?
+  project    Project? @relation(fields: [project_id], references: [project_id], onDelete: SetNull)
+
+  @@index([date, startTime])
+  @@index([project_id])
 }
 
 model ProjectPhase {

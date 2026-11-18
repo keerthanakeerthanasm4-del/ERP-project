@@ -476,6 +476,7 @@
   padding: 25px;
   box-shadow: 0 5px 18px rgba(30, 55, 110, 0.045);
   min-width: 0;
+  min-height: 360px;
 }
 
 /* CARD HEADINGS */
@@ -628,6 +629,31 @@ td,
   cursor: pointer;
 }
 
+.dashboard-bottom .approve-button,
+.dashboard-bottom .reject-button {
+  min-width: 76px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease, opacity 0.18s ease;
+}
+
+.dashboard-bottom .approve-button:hover:not(:disabled) {
+  background: #eaf8f0;
+}
+
+.dashboard-bottom .reject-button:hover:not(:disabled) {
+  background: #fff0f2;
+}
+
+.dashboard-bottom .approve-button:disabled,
+.dashboard-bottom .reject-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
 .approve-button {
   color: #078b50;
   border: 1px solid #12a76b;
@@ -708,6 +734,10 @@ td,
   margin: 0;
   font-size: 13px;
   color: #0b9b68;
+}
+
+.dashboard-bottom .project-info .risk {
+  color: #c47b08;
 }
 
 .dashboard-bottom .project-item .view-details-button {
