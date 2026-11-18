@@ -1593,3 +1593,261 @@ td {
     font-size: 14px;
   }
 }
+/* MEETING DETAILS POPUP */
+
+.meeting-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.meeting-detail-modal {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.meeting-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.meeting-detail-heading h2 {
+  margin: 0 0 5px;
+  color: #14234a;
+}
+
+.meeting-detail-heading p {
+  margin: 0;
+  color: #8490ac;
+}
+
+.detail-close {
+  border: none;
+  background: #f0f3ff;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.meeting-detail-body p {
+  color: #52617f;
+  margin: 14px 0;
+}
+
+.project-meeting-detail {
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #f5f7ff;
+  border-radius: 12px;
+}
+
+.project-meeting-detail h3 {
+  color: #3157f6;
+  margin-top: 0;
+}
+
+/* =========================================
+   BOTTOM DASHBOARD - UPDATED DESIGN ONLY
+========================================= */
+
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+  margin-top: 24px;
+}
+
+/* UPCOMING MEETINGS + PROJECTS CARDS */
+
+.dashboard-bottom > .dashboard-card {
+  background: #ffffff;
+  border: 1px solid #dfe6fb;
+  border-radius: 25px;
+  padding: 25px;
+  box-shadow: 0 5px 18px rgba(30, 55, 110, 0.045);
+  min-width: 0;
+}
+
+/* CARD HEADINGS */
+
+.dashboard-bottom .card-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.dashboard-bottom .card-heading h3 {
+  font-size: 23px;
+  font-weight: 750;
+  color: #101b3b;
+  margin: 0;
+}
+
+.dashboard-bottom .card-heading > svg {
+  width: 27px;
+  height: 27px;
+  color: #0877ef;
+}
+
+.dashboard-bottom .card-heading button {
+  margin-left: auto;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1248ce;
+}
+
+/* MEETINGS TABLE */
+
+.dashboard-bottom .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dashboard-bottom table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  color: #172448;
+  text-align: left;
+}
+
+.dashboard-bottom table th {
+  background: #eef1fc;
+  color: #172448;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 17px 13px;
+  border: none;
+}
+
+.dashboard-bottom table td {
+  padding: 19px 13px;
+  font-size: 15px;
+  color: #243b60;
+  border-bottom: 1px solid #e8ecf7;
+  vertical-align: middle;
+}
+
+/* VIEW DETAILS BUTTON */
+
+.dashboard-bottom .view-details-button {
+  padding: 12px 17px;
+  border: 1px solid #c9d4ff;
+  border-radius: 14px;
+  background: #f7f8ff;
+  color: #173c9c;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.dashboard-bottom .view-details-button:hover {
+  background: #eaf0ff;
+  border-color: #9bb4ff;
+}
+
+/* PROJECTS CARD */
+
+.dashboard-bottom .project-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 17px 0;
+  border-bottom: 1px solid #e9edf8;
+}
+
+.dashboard-bottom .project-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 17px;
+  background: #e0edff;
+  color: #1763db;
+}
+
+.dashboard-bottom .project-info h4 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #101b3b;
+  margin-bottom: 7px;
+}
+
+.dashboard-bottom .project-info p {
+  font-size: 13px;
+  color: #0b9b68;
+}
+
+.dashboard-bottom .project-item .view-details-button {
+  margin-left: auto;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px) {
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-bottom > .dashboard-card {
+    padding: 17px;
+  }
+
+  .dashboard-bottom .card-heading h3 {
+    font-size: 19px;
+  }
+
+  .dashboard-bottom table {
+    font-size: 13px;
+  }
+}
+/* MEETING STATUS BADGES */
+
+.dashboard-bottom .dashboard-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+/* PENDING - ORANGE */
+.dashboard-bottom .dashboard-status.pending {
+  background: #fff1d6;
+  color: #c47b08;
+  border-color: #f5d89d;
+}
+
+/* APPROVED - GREEN */
+.dashboard-bottom .dashboard-status.approved {
+  background: #dcf8e8;
+  color: #12834b;
+  border-color: #a9e8c2;
+}
+
+/* REJECTED - RED */
+.dashboard-bottom .dashboard-status.rejected {
+  background: #ffe3e7;
+  color: #d8324b;
+  border-color: #f5b8c1;
+}
