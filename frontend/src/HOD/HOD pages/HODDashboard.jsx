@@ -26,7 +26,23 @@ import "../HOD styles/HODDashboard.css";
 function HODDashboard() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [profileImage, setProfileImage] = useState(
+  localStorage.getItem("hodProfileImage") || null
+);
 
+useEffect(() => {
+  const syncProfileImage = () => {
+    setProfileImage(localStorage.getItem("hodProfileImage") || null);
+  };
+
+  window.addEventListener("profileImageUpdated", syncProfileImage);
+  window.addEventListener("storage", syncProfileImage);
+
+  return () => {
+    window.removeEventListener("profileImageUpdated", syncProfileImage);
+    window.removeEventListener("storage", syncProfileImage);
+  };
+}, []);
   const [meetings, setMeetings] = useState([
     {
       id: 1,
@@ -146,12 +162,16 @@ setProjects(formattedProjects);
   <span className="notification-count">3</span>
 </button>
 
-              <button
+             <button
   className="hod-avatar"
   onClick={() => setActivePage("Profile")}
   title="View Profile"
 >
-  HOD
+  {profileImage ? (
+    <img src={profileImage} alt="HOD Profile" />
+  ) : (
+    "HOD"
+  )}
 </button>
             </div>
           </header>

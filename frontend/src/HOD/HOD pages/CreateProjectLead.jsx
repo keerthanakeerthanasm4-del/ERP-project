@@ -10,14 +10,14 @@ import {
   Trash2,
   UserRound,
   ArrowRightLeft,
-  CheckCircle,
 } from "lucide-react";
 
 function CreateProjectLead() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
-
- const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedProjectLead, setSelectedProjectLead] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -27,180 +27,334 @@ function CreateProjectLead() {
   });
 
   const [search, setSearch] = useState("");
-  const [selectedProject, setSelectedProject] = useState("");
   const [selectedLead, setSelectedLead] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+  const [studentPassword, setStudentPassword] = useState("");
+  const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [history, setHistory] = useState([]);
   const [message, setMessage] = useState("");
+
   const API_URL = "http://localhost:5000";
-const readApiResponse = async (response) => {
-  const text = await response.text();
 
+  // READ API RESPONSE
+  const readApiResponse = async (response) => {
+    const text = await response.text();
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(
+        `Server returned HTML instead of JSON. HTTP Status: ${response.status}. Check the backend API route.`
+      );
+    }
+  };
+
+  // FETCH PROJECT LEAD ACCOUNTS
+  const fetchProjectLeads = async () => {
+    try {
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/api/hod/project-leads`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch Project Leads");
+      }
+
+      setLeads(
+        (data.leads || []).map((lead) => ({
+          id: lead.user_id,
+          name: lead.name,
+          email: lead.email,
+          department: lead.dept_name || "Not specified",
+        }))
+      );
+    } catch (error) {
+      console.error("Fetch Project Leads Error:", error);
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // FETCH PROJECTS AND THEIR CURRENT LEAD ASSIGNMENTS
+  const fetchProjects = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/projects`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.message || "Failed to fetch projects");
+      setProjects(data.projects || []);
+    } catch (error) {
+      console.error("Fetch Projects Error:", error);
+      setMessage(error.message);
+    }
+  };
+  // FETCH CURRENT DEPARTMENT ASSIGNMENT
+  const fetchCurrentAssignment = async () => {
+    try {
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/api/hod/department-assignment`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch assignment");
+      }
+
+      setCurrentAssignment(data.assignment || null);
+    } catch (error) {
+      console.error("Fetch Assignment Error:", error);
+      setMessage(error.message);
+    }
+  };
+// FETCH PROJECT LEAD ASSIGNMENT HISTORY
+const fetchAssignmentHistory = async () => {
   try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error(
-      `Server returned HTML instead of JSON. HTTP Status: ${response.status}. Check the backend API route.`
+    const token =
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token");
+
+    const response = await fetch(
+      `${API_URL}/api/hod/department-assignment-history`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+
+    const data = await readApiResponse(response);
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to fetch assignment history");
+    }
+
+    setHistory(data || []);
+  } catch (error) {
+    console.error("Fetch Assignment History Error:", error);
+    setMessage(error.message);
   }
 };
-useEffect(() => {
+  // LOAD DATA WHEN PAGE OPENS
+  useEffect(() => {
   fetchProjectLeads();
+  fetchCurrentAssignment();
+  fetchAssignmentHistory();
 }, []);
-useEffect(() => {
-  fetchProjects();
-}, []);
-const fetchProjects = async () => {
-  try {
-    const token =
-      localStorage.getItem("token") ||
-      sessionStorage.getItem("token");
 
-    const response = await fetch(
-      `${API_URL}/api/hod/projects`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  // CREATE PERMANENT PROJECT LEAD MODULE ACCOUNT
+  const handleCreateLead = async (e) => {
+    e.preventDefault();
+
+    try {
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/api/hod/create-project-lead`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            department: form.department,
+            temporaryPassword: form.temporaryPassword,
+          }),
+        }
+      );
+
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create Project Lead");
       }
-    );
 
-    const data = await readApiResponse(response);
+      setForm({
+        name: "",
+        email: "",
+        department: "",
+    temporaryPassword: "",
+      });
 
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch projects");
+      setMessage(
+        `Permanent Project Lead account created successfully! Temporary password: ${data.temporaryPassword}`
+      );
+    } catch (error) {
+      console.error("Create Project Lead Error:", error);
+      setMessage(error.message);
+    }
+  };
+
+  // ASSIGN A PROJECT LEAD TO A PROJECT
+  const handleProjectLeadAssignment = async (leadId) => {
+    if (!selectedProject || !leadId) {
+      setMessage("Select a project and Project Lead first.");
+      return;
     }
 
-    const formattedProjects = (data.projects || []).map((project) => ({
-      id: project.project_id,
-      name: project.project_name,
-      leadEmail: project.projectLead?.email || "",
-    }));
-
-    setProjects(formattedProjects);
-  } catch (error) {
-    console.error("Fetch Projects Error:", error);
-    setMessage(error.message);
-  }
-};
-const fetchProjectLeads = async () => {
-  try {
-    const token =
-      localStorage.getItem("token") ||
-      sessionStorage.getItem("token");
-
-    const response = await fetch(
-      `${API_URL}/api/hod/project-leads`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data = await readApiResponse(response);
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to fetch Project Leads");
-    }
-
-    setLeads(data.leads || []);
-  } catch (error) {
-    console.error("Fetch Project Leads Error:", error);
-    setMessage(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
-  // CREATE PROJECT LEAD
-const handleCreateLead = async (e) => {
-  e.preventDefault();
-
-  try {
-    const token =
-      localStorage.getItem("token") ||
-      sessionStorage.getItem("token");
-
-    const response = await fetch(
-      `${API_URL}/api/hod/create-project-lead`,
-      {
-        method: "POST",
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/projects/${encodeURIComponent(selectedProject)}/lead`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          department: form.department,
-          temporaryPassword: form.temporaryPassword,
-        }),
+        body: JSON.stringify({ leadId }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.message || "Failed to assign Project Lead");
+      setMessage(data.message);
+      setSelectedProject("");
+      setSelectedProjectLead("");
+      await fetchProjects();
+    } catch (error) {
+      console.error("Project Lead Assignment Error:", error);
+      setMessage(error.message);
+    }
+  };
+
+  const handleRemoveProjectLead = async (projectId) => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/projects/${encodeURIComponent(projectId)}/lead`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ leadId: null }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.message || "Failed to remove Project Lead");
+      setMessage(data.message);
+      await fetchProjects();
+    } catch (error) {
+      console.error("Remove Project Lead Error:", error);
+      setMessage(error.message);
+    }
+  };
+  // ASSIGN OR CHANGE DEPARTMENT PROJECT LEAD
+  const handleAssignLead = async () => {
+    if (!selectedLead || !studentEmail.trim() || !studentPassword) {
+      setMessage(
+        "Select a Project Lead account and enter its registered email and password."
+      );
+      return;
+    }
+
+    try {
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/api/hod/department-assignment`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            studentId: selectedLead,
+            email: studentEmail.trim(),
+            password: studentPassword,
+          }),
+        }
+      );
+
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to assign Project Lead");
       }
-    );
 
-    const data = await readApiResponse(response);
+      setMessage(data.message);
+      setSelectedLead("");
+      setStudentEmail("");
+      setStudentPassword("");
 
-    if (!response.ok) {
-      setMessage(data.message || "Failed to create Project Lead.");
-      return;
+      await fetchCurrentAssignment();
+      await fetchAssignmentHistory();
+    } catch (error) {
+      console.error("Assign Project Lead Error:", error);
+      setMessage(error.message);
     }
-
-    await fetchProjectLeads();
-
-    setForm({
-      name: "",
-      email: "",
-      department: "",
-      temporaryPassword: "",
-    });
-
-    setMessage("Project Lead created successfully. Share the temporary password with them securely.");
-
-  } catch (error) {
-    console.error("Create Project Lead Error:", error);
-    setMessage(error.message || "Unable to connect to the server.");
-  }
-};
-
-  // ASSIGN OR CHANGE PROJECT LEAD
-  const handleAssignLead = () => {
-    if (!selectedProject || !selectedLead) {
-      setMessage("Please select both project and project lead.");
-      return;
-    }
-
-    setProjects((previousProjects) =>
-      previousProjects.map((project) =>
-        project.id === Number(selectedProject)
-          ? { ...project, leadEmail: selectedLead }
-          : project
-      )
-    );
-
-    setMessage("Project Lead assigned successfully!");
-    setSelectedProject("");
-    setSelectedLead("");
   };
 
-  // REMOVE PROJECT LEAD FROM PROJECT
-  const handleRemoveAssignment = (projectId) => {
-    setProjects((previousProjects) =>
-      previousProjects.map((project) =>
-        project.id === projectId
-          ? { ...project, leadEmail: "" }
-          : project
-      )
+  // REMOVE DEPARTMENT PROJECT LEAD
+  const handleRemoveAssignment = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to remove the current Project Lead assignment?"
     );
 
-    setMessage("Project Lead assignment removed successfully.");
+    if (!confirmed) return;
+
+    try {
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/api/hod/department-assignment`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to remove assignment");
+      }
+
+      setCurrentAssignment(null);
+      setMessage(data.message);
+      await fetchAssignmentHistory();
+    } catch (error) {
+      console.error("Remove Project Lead Error:", error);
+      setMessage(error.message);
+    }
   };
 
-  // SEARCH PROJECT LEADS
+  // SEARCH PROJECT LEAD ACCOUNTS
   const filteredLeads = leads.filter(
-    (lead) => {
-      const department = (lead.department || lead.dept_name || "").toLowerCase();
-      return lead.name.toLowerCase().includes(search.toLowerCase()) ||
-        lead.email.toLowerCase().includes(search.toLowerCase()) ||
-        department.includes(search.toLowerCase());
-    }
+    (lead) =>
+      lead.name.toLowerCase().includes(search.toLowerCase()) ||
+      lead.email.toLowerCase().includes(search.toLowerCase()) ||
+      lead.department.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -210,7 +364,7 @@ const handleCreateLead = async (e) => {
       <div className="pl-page-header">
         <div>
           <h1>Create Project Lead</h1>
-          <p>Create accounts and manage project lead assignments.</p>
+          <p>Create the permanent account and manage department assignments.</p>
         </div>
 
         <div className="pl-header-badge">
@@ -219,7 +373,6 @@ const handleCreateLead = async (e) => {
         </div>
       </div>
 
-    
       {/* NOTIFICATION */}
       {message && (
         <div className="pl-message">
@@ -228,7 +381,7 @@ const handleCreateLead = async (e) => {
         </div>
       )}
 
-      {/* CREATE ACCOUNT */}
+      {/* CREATE PERMANENT ACCOUNT */}
       <div className="pl-main-card">
 
         <div className="pl-section-title">
@@ -238,7 +391,7 @@ const handleCreateLead = async (e) => {
 
           <div>
             <h2>Create New Project Lead</h2>
-            <p>Enter the details to create a Project Lead account.</p>
+            <p>Create the permanent Project Lead module account.</p>
           </div>
         </div>
 
@@ -273,7 +426,20 @@ const handleCreateLead = async (e) => {
             </div>
 
             <div className="pl-form-group">
-              <label>Department</label>
+              <label htmlFor="project-lead-temporary-password">Temporary Password</label>
+              <input
+                id="project-lead-temporary-password"
+                type="password"
+                placeholder="Set a temporary password (at least 8 characters)"
+                value={form.temporaryPassword}
+                onChange={(e) => setForm({ ...form, temporaryPassword: e.target.value })}
+                minLength={8}
+                autoComplete="new-password"
+                required
+              />
+            </div>
+
+            <div className="pl-form-group">              <label>Department</label>
               <select
                 value={form.department}
                 onChange={(e) =>
@@ -297,22 +463,6 @@ const handleCreateLead = async (e) => {
               </select>
             </div>
 
-            <div className="pl-form-group">
-              <label htmlFor="project-lead-temporary-password">Temporary Password</label>
-              <input
-                id="project-lead-temporary-password"
-                type="password"
-                placeholder="Set a temporary password (at least 8 characters)"
-                value={form.temporaryPassword}
-                onChange={(e) =>
-                  setForm({ ...form, temporaryPassword: e.target.value })
-                }
-                minLength={8}
-                autoComplete="new-password"
-                required
-              />
-            </div>
-
           </div>
 
           <button type="submit" className="pl-create-button">
@@ -324,7 +474,59 @@ const handleCreateLead = async (e) => {
 
       </div>
 
-      {/* ASSIGN PROJECT LEAD */}
+      {/* PROJECT-SPECIFIC LEAD ASSIGNMENTS */}
+      <div className="pl-main-card">
+        <div className="pl-section-title">
+          <div className="pl-title-icon purple"><FolderKanban size={22} /></div>
+          <div>
+            <h2>Assign Leads to Projects</h2>
+            <p>Choose a project and assign one of the Project Lead accounts.</p>
+          </div>
+        </div>
+
+        <div className="pl-assignment-form">
+          <div className="pl-form-group">
+            <label htmlFor="project-select">Project</label>
+            <select id="project-select" value={selectedProject} onChange={(event) => setSelectedProject(event.target.value)}>
+              <option value="">Choose a project</option>
+              {projects.map((project) => (
+                <option key={project.project_id} value={project.project_id}>{project.project_name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="pl-form-group">
+            <label htmlFor="project-lead-select">Project Lead</label>
+            <select id="project-lead-select" value={selectedProjectLead} onChange={(event) => setSelectedProjectLead(event.target.value)}>
+              <option value="">Choose a Project Lead</option>
+              {leads.map((lead) => (
+                <option key={lead.id} value={lead.id}>{lead.name} ({lead.email})</option>
+              ))}
+            </select>
+          </div>
+          <button type="button" className="pl-assign-button" onClick={() => handleProjectLeadAssignment(selectedProjectLead)}>
+            <UserPlus size={17} /> Assign to Project
+          </button>
+        </div>
+
+        <div className="pl-project-list">
+          {projects.map((project) => (
+            <div className="pl-project-row" key={project.project_id}>
+              <div className="pl-project-icon"><FolderKanban size={22} /></div>
+              <div className="pl-project-info">
+                <h3>{project.project_name}</h3>
+                <p>{project.projectLead ? `Project Lead: ${project.projectLead.name} (${project.projectLead.email})` : "No Project Lead assigned"}</p>
+              </div>
+              {project.projectLead && (
+                <button type="button" className="pl-remove-button" onClick={() => handleRemoveProjectLead(project.project_id)} title="Remove Project Lead">
+                  <Trash2 size={17} />
+                </button>
+              )}
+            </div>
+          ))}
+          {projects.length === 0 && <p className="pl-empty-message">No projects available.</p>}
+        </div>
+      </div>
+      {/* DEPARTMENT PROJECT LEAD ASSIGNMENT */}
       <div className="pl-main-card">
 
         <div className="pl-section-title">
@@ -333,48 +535,59 @@ const handleCreateLead = async (e) => {
           </div>
 
           <div>
-            <h2>Assign Project Lead</h2>
-            <p>Assign or change the lead responsible for a project.</p>
+            <h2>Add & Manage Project Leads</h2>
+            <p>Assign, view, change or remove the department Project Lead.</p>
           </div>
         </div>
 
+        {/* ASSIGNMENT FORM */}
         <div className="pl-assignment-form">
-
-          <div className="pl-form-group">
-            <label>Select Project</label>
-
-            <select
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-            >
-              <option value="">Choose Project</option>
-
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div className="pl-form-group">
             <label>Select Project Lead</label>
 
             <select
               value={selectedLead}
-              onChange={(e) => setSelectedLead(e.target.value)}
+              onChange={(e) => {
+                setSelectedLead(e.target.value);
+                setStudentEmail("");
+                setStudentPassword("");
+              }}
             >
               <option value="">Choose Project Lead</option>
 
               {leads.map((lead) => (
-                <option key={lead.id} value={lead.email}>
+                <option key={lead.id} value={lead.id}>
                   {lead.name} ({lead.email})
                 </option>
               ))}
             </select>
           </div>
 
+          <div className="pl-form-group">
+            <label>Project Lead Email</label>
+
+            <input
+              type="email"
+              placeholder="Enter the account email"
+              value={studentEmail}
+              onChange={(e) => setStudentEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="pl-form-group">
+            <label>Project Lead Password</label>
+
+            <input
+              type="password"
+              placeholder="Enter the account password"
+              value={studentPassword}
+              onChange={(e) => setStudentPassword(e.target.value)}
+            />
+          </div>
+
           <button
+            type="button"
             className="pl-assign-button"
             onClick={handleAssignLead}
           >
@@ -384,136 +597,129 @@ const handleCreateLead = async (e) => {
 
         </div>
 
-      </div>
+        <hr className="pl-assignment-divider" />
 
-      {/* PROJECT ASSIGNMENT LIST */}
-      <div className="pl-main-card">
-
-        <div className="pl-section-title">
+        {/* CURRENT ASSIGNMENT */}
+        <div className="pl-section-title pl-existing-heading">
           <div className="pl-title-icon">
             <FolderKanban size={22} />
           </div>
 
           <div>
-            <h2>Project Assignments</h2>
-            <p>View and manage existing project lead assignments.</p>
+            <h2>Current Assignment</h2>
+            <p>Current department-wide Project Lead.</p>
           </div>
         </div>
 
         <div className="pl-project-list">
 
-          {projects.map((project) => {
-            const assignedLead = leads.find(
-              (lead) => lead.email === project.leadEmail
-            );
+          {currentAssignment ? (
 
-            return (
-              <div className="pl-project-row" key={project.id}>
+            <div className="pl-project-row">
 
-                <div className="pl-project-icon">
-                  <FolderKanban size={22} />
-                </div>
-
-                <div className="pl-project-info">
-                  <h3>{project.name}</h3>
-
-                  <p>
-                    {assignedLead
-                      ? `Project Lead: ${assignedLead.name} (${assignedLead.email})`
-                      : "No Project Lead assigned"}
-                  </p>
-                </div>
-
-                <span
-                  className={
-                    assignedLead
-                      ? "pl-assigned-status"
-                      : "pl-unassigned-status"
-                  }
-                >
-                  {assignedLead ? "Assigned" : "Unassigned"}
-                </span>
-
-                {assignedLead && (
-                  <button
-                    className="pl-remove-button"
-                    onClick={() => handleRemoveAssignment(project.id)}
-                    title="Remove assignment"
-                  >
-                    <Trash2 size={17} />
-                  </button>
-                )}
-
+              <div className="pl-project-icon">
+                <UserRound size={22} />
               </div>
-            );
-          })}
 
-        </div>
+              <div className="pl-project-info">
+                <h3>{currentAssignment.name}</h3>
 
-      </div>
+                <p>
+                  Project Lead: {currentAssignment.email}
+                </p>
 
-      {/* PROJECT LEAD ACCOUNTS */}
-      <div className="pl-main-card">
-
-        <div className="pl-section-title">
-          <div className="pl-title-icon">
-            <Users size={22} />
-          </div>
-
-          <div>
-            <h2>Created Project Leads</h2>
-            <p>Manage all Project Lead accounts.</p>
-          </div>
-        </div>
-
-        <div className="pl-search-box">
-          <Search size={19} />
-
-          <input
-            type="text"
-            placeholder="Search by name, email or department..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="pl-lead-list">
-
-          {filteredLeads.length > 0 ? (
-            filteredLeads.map((lead) => (
-              <div className="pl-lead-row" key={lead.id}>
-
-                <div className="pl-lead-avatar">
-                  <UserRound size={23} />
-                </div>
-
-                <div className="pl-lead-info">
-                  <h3>{lead.name}</h3>
-
-                  <p>
-                    <Mail size={14} />
-                    {lead.email}
-                  </p>
-
-                  <p>
-                    <Building2 size={14} />
-                    {lead.department || lead.dept_name || "Department not set"}
-                  </p>
-                </div>
-
-                <span className="pl-assigned-status">
-                  {lead.status}
-                </span>
-
+                <p>
+                  Department: {currentAssignment.dept_name || "Not specified"}
+                </p>
               </div>
-            ))
+
+              <span className="pl-assigned-status">
+                Assigned
+              </span>
+
+              <button
+                className="pl-remove-button"
+                onClick={handleRemoveAssignment}
+                title="Remove department assignment"
+              >
+                <Trash2 size={17} />
+              </button>
+
+            </div>
+
           ) : (
-            <p className="pl-empty-message">No Project Leads found.</p>
+
+            <p className="pl-empty-message">
+              No Project Lead is currently assigned to this department.
+            </p>
+
           )}
 
         </div>
 
       </div>
+
+{/* PROJECT LEAD ASSIGNMENT HISTORY */}
+<div className="pl-main-card">
+
+  <div className="pl-section-title">
+    <div className="pl-title-icon">
+      <Users size={22} />
+    </div>
+
+    <div>
+      <h2>Project Lead Assignment History</h2>
+      <p>View previously assigned department Project Leads.</p>
+    </div>
+  </div>
+
+  <div className="pl-history-table-wrapper">
+
+    <table className="pl-history-table">
+
+      <thead>
+        <tr>
+          <th>Sl. No.</th>
+          <th>Project Lead</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Assigned On</th>
+          <th>Relieved On</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {history.length > 0 ? (
+          history.map((item, index) => (
+            <tr key={item.id}>
+              <td>{index + 1}</td>
+              <td>{item.assignedName}</td>
+              <td>{item.assignedEmail}</td>
+              <td>{item.department || "Not specified"}</td>
+              <td>
+                {new Date(item.assignedAt).toLocaleDateString("en-IN")}
+              </td>
+              <td>
+                {item.relievedAt
+                  ? new Date(item.relievedAt).toLocaleDateString("en-IN")
+                  : "Currently Assigned"}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="6" className="pl-history-empty">
+              No Project Lead assignment history available.
+            </td>
+          </tr>
+        )}
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
 
     </div>
   );

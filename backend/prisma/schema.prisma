@@ -19,7 +19,9 @@ model User {
 
   role String @default("STUDENT")
 
-  leadProjects Project[]       @relation("ProjectLead")
+  leadProjects          Project[]                        @relation("ProjectLead")
+  projectLeadAssignment DepartmentProjectLeadAssignment?
+  projectLeadHistory    ProjectLeadAssignmentHistory[]
   memberships  ProjectMember[]
 }
 
@@ -71,4 +73,40 @@ model ProjectPhase {
   updatedAt DateTime @updatedAt
 
   @@index([project_id])
+}
+
+model DepartmentProjectLeadAssignment {
+  id             Int      @id @default(1)
+  assignedUserId Int?     @unique
+  assignedUser   User?    @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  updatedAt      DateTime @updatedAt
+}
+
+model ProjectLeadAssignmentHistory {
+  id             Int       @id @default(autoincrement())
+  assignedUserId Int?
+  assignedUser   User?     @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  assignedName   String
+  assignedEmail  String
+  department     String?
+  assignedAt     DateTime  @default(now())
+  relievedAt     DateTime?
+
+  @@index([assignedUserId])
+  @@index([assignedAt])
+}
+
+model HODProfile {
+  id           Int      @id @default(1)
+  name         String   @default("HOD Name")
+  designation  String   @default("Head of Department")
+  employeeId   String   @default("SVCE-HOD-001")
+  joiningDate  DateTime @default("2020-07-01T00:00:00.000Z")
+  email        String   @default("hod@svce.ac.in")
+  phone        String   @default("+91 XXXXX XXXXX")
+  department   String   @default("Computer Science and Engineering")
+  institution  String   @default("Sri Venkateshwara College of Engineering")
+  location     String   @default("Bengaluru, Karnataka")
+  profileImage String?  @db.Text
+  updatedAt    DateTime @updatedAt
 }
