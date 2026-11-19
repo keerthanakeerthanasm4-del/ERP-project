@@ -16,7 +16,11 @@ export default function Dashboard() {
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Unable to read stored user:", error);
+      }
     }
 
     fetchAssignedProjects();
@@ -51,7 +55,6 @@ export default function Dashboard() {
       }
 
       setProjects(data.projects || []);
-
     } catch (error) {
       console.error("Dashboard error:", error);
       setError("Unable to connect to the server.");
@@ -68,19 +71,36 @@ export default function Dashboard() {
     navigate("/login");
   }
 
+  function getStatusClass(status) {
+    const value = (status || "").toLowerCase();
+
+    if (value.includes("complete")) {
+      return "status-completed";
+    }
+
+    if (value.includes("progress")) {
+      return "status-progress";
+    }
+
+    if (value.includes("assign")) {
+      return "status-assigned";
+    }
+
+    return "status-default";
+  }
+
   return (
     <main className="dashboard-page">
 
-      {/* NAVIGATION BAR */}
-      <header className="dashboard-header">
+      {/* HEADER */}
 
+      <header className="dashboard-header">
         <div className="dashboard-brand">
           <span className="dashboard-logo">🎓</span>
-          <span>Project Portal</span>
+          <span>ERP Project Management</span>
         </div>
 
         <div className="dashboard-user">
-
           <div className="user-profile-icon">
             {user?.name?.charAt(0).toUpperCase() || "S"}
           </div>
@@ -93,62 +113,207 @@ export default function Dashboard() {
           >
             Logout
           </button>
-
         </div>
-
       </header>
 
-      {/* COLLEGE WELCOME BANNER */}
-      <section className="college-welcome-banner">
+      {/* WELCOME BANNER */}
 
-        <div className="college-banner-content">
+      <section className="college-welcome-banner">
+        <div className="welcome-overlay" />
+
+        <div className="dashboard-stars" />
+
+        <div className="dashboard-light-rays" />
+
+        {/* LEFT CONTENT */}
+
+        <div className="welcome-left-content">
+          <div className="welcome-eyebrow">
+            ✦ YOUR CAMPUS PROJECT JOURNEY STARTS HERE
+          </div>
 
           <h1>
-            Welcome, {user?.name || "Student"}! 👋
+            Welcome,
+            <span className="welcome-user-name">
+              {" "}{user?.name || "Student"}!
+            </span>
           </h1>
 
-          <p>
-            You have successfully logged in.
-          </p>
-
-          <div className="college-banner-accent"></div>
-
+          <button
+            className="welcome-explore-btn"
+            onClick={() => {
+              document
+                .getElementById("my-projects")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            Explore My Projects
+            <span>→</span>
+          </button>
         </div>
 
+        {/* RIGHT SIDE: PROJECT ILLUSTRATION */}
+
+        <div className="dashboard-hero-art">
+          <div className="dashboard-orbit" />
+
+          <div className="dashboard-floating-icon dashboard-icon-team">
+            👥
+          </div>
+
+          <div className="dashboard-floating-icon dashboard-icon-calendar">
+            📅
+          </div>
+
+          <div className="dashboard-floating-icon dashboard-icon-folder">
+            📁
+          </div>
+
+          <div className="dashboard-floating-icon dashboard-icon-checklist">
+            ☑
+          </div>
+
+          <div className="dashboard-laptop">
+            <div className="dashboard-laptop-screen">
+              <div className="dashboard-screen-top">
+                <span>🎓</span>
+                <strong>Project Overview</strong>
+                <span>● ● ●</span>
+              </div>
+
+              <div className="dashboard-screen-content">
+                <div className="dashboard-screen-sidebar">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+
+                <div className="dashboard-screen-main">
+                  <div className="dashboard-chart">
+                    <div style={{ height: "35%" }} />
+                    <div style={{ height: "55%" }} />
+                    <div style={{ height: "45%" }} />
+                    <div style={{ height: "75%" }} />
+                    <div style={{ height: "95%" }} />
+                  </div>
+
+                  <div className="dashboard-screen-lines">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </div>
+
+                <div className="dashboard-donut" />
+              </div>
+            </div>
+
+            <div className="dashboard-laptop-base">
+              <div className="dashboard-laptop-trackpad" />
+            </div>
+          </div>
+
+          <div className="dashboard-platform" />
+        </div>
+
+        <div className="welcome-bottom-shape" />
       </section>
 
       {/* ASSIGNED PROJECTS */}
-      <section className="assigned-projects">
 
-        <h2>My Assigned Projects</h2>
+      <section
+        className="assigned-projects"
+        id="my-projects"
+      >
+        <div className="projects-heading">
+          <div>
+            <span className="projects-subtitle">
+              YOUR WORKSPACE
+            </span>
+
+            <h2>My Assigned Projects</h2>
+
+            <p>
+              Projects assigned by your Project Lead / HOD
+              will appear here.
+            </p>
+          </div>
+
+          <div className="projects-count">
+            <span>{projects.length}</span>
+            <small>Projects</small>
+          </div>
+        </div>
+
+        {/* LOADING */}
 
         {loading && (
-          <p className="dashboard-message">
-            Loading your projects...
-          </p>
+          <div className="dashboard-message">
+            <div className="loading-spinner" />
+            <p>Loading your projects...</p>
+          </div>
         )}
+
+        {/* ERROR */}
 
         {!loading && error && (
-          <p className="dashboard-message dashboard-error">
+          <div className="dashboard-message dashboard-error">
             {error}
-          </p>
+          </div>
         )}
 
+        {/* EMPTY PROJECT STATE */}
+
         {!loading && !error && projects.length === 0 && (
-          <p className="dashboard-message">
-            No projects assigned yet. Please wait for your
-            Project Lead to assign a project.
-          </p>
+          <div className="empty-project-state">
+            <div className="empty-project-illustration">
+              <div className="empty-illustration-circle">
+                📁
+              </div>
+
+              <span className="empty-sparkle">✦</span>
+              <span className="empty-dot" />
+            </div>
+
+            <div className="empty-project-content">
+              <span className="empty-project-label">
+                PROJECT WORKSPACE
+              </span>
+
+              <h3>No Projects Assigned Yet</h3>
+
+              <p>
+                Projects assigned by your Project Lead / HOD
+                will appear here.
+              </p>
+
+              <div className="empty-project-status">
+                <span />
+                Waiting for project assignment
+              </div>
+            </div>
+          </div>
         )}
+
+        {/* ASSIGNED PROJECT CARDS */}
 
         {!loading && !error && projects.length > 0 && (
           <div className="project-list">
-
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <div
                 className="student-project-card"
                 key={project.project_id}
               >
+                <div className="project-card-top">
+                  <div className="project-card-icon">
+                    {["📁", "💡", "🚀", "⚡"][index % 4]}
+                  </div>
+
+                  <span className="project-number">
+                    PROJECT {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
 
                 <h3>{project.project_name}</h3>
 
@@ -157,18 +322,30 @@ export default function Dashboard() {
                     "No description available."}
                 </p>
 
-                <span className="project-status">
-                  {project.status}
-                </span>
+                <div className="project-card-footer">
+                  <span className="project-status-label">
+                    STATUS
+                  </span>
 
+                  <span
+                    className={`project-status ${getStatusClass(
+                      project.status
+                    )}`}
+                  >
+                    {project.status || "Not specified"}
+                  </span>
+                </div>
               </div>
             ))}
-
           </div>
         )}
-
       </section>
 
+      {/* FOOTER */}
+
+      <footer className="dashboard-footer">
+        <p>Your ideas. Your team. Your success.</p>
+      </footer>
     </main>
   );
 }
