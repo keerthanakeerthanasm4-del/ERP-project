@@ -32,6 +32,13 @@ const getHodAuthHeaders = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
+const redirectToLogin = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
+  window.location.replace("/login");
+};
 function HODDashboard() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -127,8 +134,14 @@ function HODDashboard() {
     return hours * 60 + minutes;
   };
 
-  const normalize = (value) =>
-    String(value || "").trim().toLowerCase();
+  const normalize = (value) => {
+    const normalizedValue =
+      value && typeof value === "object"
+        ? value.project_name || value.projectName || value.name || value.project_id || value.id
+        : value;
+
+    return String(normalizedValue || "").trim().toLowerCase();
+  };
 
   // =====================================
   // FORMAT TIME
@@ -254,6 +267,11 @@ function HODDashboard() {
 
       const data = await response.json();
 
+      if (response.status === 401 || response.status === 403) {
+        redirectToLogin();
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to fetch projects");
       }
@@ -270,11 +288,23 @@ function HODDashboard() {
             icon = <Cpu />;
           }
 
+          const status = project.status || "Not available";
+          const projectPhases = project.phases || [];
+          const phases = projectPhases.length > 0
+            ? projectPhases
+            : Array.from({ length: 5 }, (_, index) => ({
+                phase_id: `placeholder-${project.project_id}-${index + 1}`,
+                phase_name: `Phase ${index + 1}`,
+                is_completed: status.toLowerCase() === "completed",
+                is_current: status.toLowerCase() === "active" && index === 0,
+                is_placeholder: true,
+              }));
+
           return {
             ...project,
             name,
-            status: project.status || "Not available",
-            phases: project.phases || [],
+            status,
+            phases,
             icon
           };
         }
@@ -292,6 +322,10 @@ function HODDashboard() {
     try {
       const response = await fetch("http://localhost:5000/api/hod/meetings", { headers: getHodAuthHeaders() });
       const data = await response.json();
+      if (response.status === 401 || response.status === 403) {
+        redirectToLogin();
+        return;
+      }
       if (!response.ok) throw new Error(data.message || "Failed to fetch meetings");
       setMeetings(data.meetings || []);
     } catch (error) {
@@ -462,12 +496,15 @@ function HODDashboard() {
   // GET TEAM NAME
   // =====================================
 
-  const getTeamName = (meeting) =>
-    meeting.team ||
-    meeting.project ||
-    meeting.projectName ||
-    meeting.project_name ||
-    "Team";
+  const getTeamName = (meeting) => {
+    const relatedProject = meeting.project;
+    const project =
+      relatedProject && typeof relatedProject === "object"
+        ? relatedProject.project_name || relatedProject.name || relatedProject.project_id
+        : relatedProject;
+
+    return meeting.team || meeting.projectName || meeting.project_name || project || "Team";
+  };
 
   // =====================================
   // FORMAT MEETING DATE
@@ -976,9 +1013,11 @@ function HODDashboard() {
                             className={`phase-block ${
                               phase.is_completed
                                 ? "completed"
-                                : "pending"
+                                : phase.is_current
+                                  ? "current"
+                                  : "pending"
                             }`}
-                            title={phase.phase_name}
+                            title={`${phase.phase_name}${phase.is_placeholder ? ` • ${phase.is_current ? "In progress" : phase.is_completed ? "Completed" : "Not started"}` : ""}`}
                           />
                         ))}
                       </div>
@@ -986,7 +1025,7 @@ function HODDashboard() {
 
                     <button
                       className="view-details-button"
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => setActivePage("Projects")}
                     >
                       View Details
                     </button>
@@ -1103,3 +1142,4 @@ function HODDashboard() {
 }
 
 export default HODDashboard;
+

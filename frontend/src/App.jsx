@@ -595,14 +595,21 @@ function RegisterPage() {
     </main>;
 }
 function RoleDashboard() {
-  const storedUser = JSON.parse(
-    localStorage.getItem("user") ||
-    sessionStorage.getItem("user") ||
-    "null"
-  );
+  let storedUser;
+
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("user") ||
+      sessionStorage.getItem("user") ||
+      "null"
+    );
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
 
   if (storedUser?.role === "HOD") return <HODDashboard />;
   if (storedUser?.role === "PROJECT_LEAD") return <Navigate to="/project-lead/dashboard" replace />;
+  if (!storedUser) return <Navigate to="/login" replace />;
   return <Dashboard />;
 }
 /* -------------------------------------------------------

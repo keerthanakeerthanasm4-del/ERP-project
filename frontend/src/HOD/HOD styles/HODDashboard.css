@@ -754,9 +754,9 @@ td,
 }
 
 .phase-block {
-  width: 22px;
+  width: 28px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: 3px;
   display: inline-block;
   transition: all 0.3s ease;
 }
@@ -765,7 +765,8 @@ td,
   background: #e2e6ed;
 }
 
-.phase-block.completed {
+.phase-block.completed,
+.phase-block.current {
   background: #19c982;
   box-shadow: 0 0 6px rgba(25, 201, 130, 0.4);
 }

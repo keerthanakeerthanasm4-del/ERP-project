@@ -15,9 +15,6 @@ import {
 function CreateProjectLead() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [selectedProjectLead, setSelectedProjectLead] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -87,21 +84,6 @@ function CreateProjectLead() {
     }
   };
 
-  // FETCH PROJECTS AND THEIR CURRENT LEAD ASSIGNMENTS
-  const fetchProjects = async () => {
-    try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const response = await fetch(`${API_URL}/api/hod/projects`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await readApiResponse(response);
-      if (!response.ok) throw new Error(data.message || "Failed to fetch projects");
-      setProjects(data.projects || []);
-    } catch (error) {
-      console.error("Fetch Projects Error:", error);
-      setMessage(error.message);
-    }
-  };
   // FETCH CURRENT DEPARTMENT ASSIGNMENT
   const fetchCurrentAssignment = async () => {
     try {
@@ -213,55 +195,6 @@ const fetchAssignmentHistory = async () => {
     }
   };
 
-  // ASSIGN A PROJECT LEAD TO A PROJECT
-  const handleProjectLeadAssignment = async (leadId) => {
-    if (!selectedProject || !leadId) {
-      setMessage("Select a project and Project Lead first.");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const response = await fetch(`${API_URL}/api/hod/projects/${encodeURIComponent(selectedProject)}/lead`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ leadId }),
-      });
-      const data = await readApiResponse(response);
-      if (!response.ok) throw new Error(data.message || "Failed to assign Project Lead");
-      setMessage(data.message);
-      setSelectedProject("");
-      setSelectedProjectLead("");
-      await fetchProjects();
-    } catch (error) {
-      console.error("Project Lead Assignment Error:", error);
-      setMessage(error.message);
-    }
-  };
-
-  const handleRemoveProjectLead = async (projectId) => {
-    try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      const response = await fetch(`${API_URL}/api/hod/projects/${encodeURIComponent(projectId)}/lead`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ leadId: null }),
-      });
-      const data = await readApiResponse(response);
-      if (!response.ok) throw new Error(data.message || "Failed to remove Project Lead");
-      setMessage(data.message);
-      await fetchProjects();
-    } catch (error) {
-      console.error("Remove Project Lead Error:", error);
-      setMessage(error.message);
-    }
-  };
   // ASSIGN OR CHANGE DEPARTMENT PROJECT LEAD
   const handleAssignLead = async () => {
     if (!selectedLead || !studentEmail.trim() || !studentPassword) {
@@ -474,58 +407,6 @@ const fetchAssignmentHistory = async () => {
 
       </div>
 
-      {/* PROJECT-SPECIFIC LEAD ASSIGNMENTS */}
-      <div className="pl-main-card">
-        <div className="pl-section-title">
-          <div className="pl-title-icon purple"><FolderKanban size={22} /></div>
-          <div>
-            <h2>Assign Leads to Projects</h2>
-            <p>Choose a project and assign one of the Project Lead accounts.</p>
-          </div>
-        </div>
-
-        <div className="pl-assignment-form">
-          <div className="pl-form-group">
-            <label htmlFor="project-select">Project</label>
-            <select id="project-select" value={selectedProject} onChange={(event) => setSelectedProject(event.target.value)}>
-              <option value="">Choose a project</option>
-              {projects.map((project) => (
-                <option key={project.project_id} value={project.project_id}>{project.project_name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="pl-form-group">
-            <label htmlFor="project-lead-select">Project Lead</label>
-            <select id="project-lead-select" value={selectedProjectLead} onChange={(event) => setSelectedProjectLead(event.target.value)}>
-              <option value="">Choose a Project Lead</option>
-              {leads.map((lead) => (
-                <option key={lead.id} value={lead.id}>{lead.name} ({lead.email})</option>
-              ))}
-            </select>
-          </div>
-          <button type="button" className="pl-assign-button" onClick={() => handleProjectLeadAssignment(selectedProjectLead)}>
-            <UserPlus size={17} /> Assign to Project
-          </button>
-        </div>
-
-        <div className="pl-project-list">
-          {projects.map((project) => (
-            <div className="pl-project-row" key={project.project_id}>
-              <div className="pl-project-icon"><FolderKanban size={22} /></div>
-              <div className="pl-project-info">
-                <h3>{project.project_name}</h3>
-                <p>{project.projectLead ? `Project Lead: ${project.projectLead.name} (${project.projectLead.email})` : "No Project Lead assigned"}</p>
-              </div>
-              {project.projectLead && (
-                <button type="button" className="pl-remove-button" onClick={() => handleRemoveProjectLead(project.project_id)} title="Remove Project Lead">
-                  <Trash2 size={17} />
-                </button>
-              )}
-            </div>
-          ))}
-          {projects.length === 0 && <p className="pl-empty-message">No projects available.</p>}
-        </div>
-      </div>
       {/* DEPARTMENT PROJECT LEAD ASSIGNMENT */}
       <div className="pl-main-card">
 
