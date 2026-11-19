@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "../../api.js";
 import {
   UserPlus,
   Users,
@@ -31,7 +32,6 @@ function CreateProjectLead() {
   const [history, setHistory] = useState([]);
   const [message, setMessage] = useState("");
 
-  const API_URL = "http://localhost:5000";
 
   // READ API RESPONSE
   const readApiResponse = async (response) => {

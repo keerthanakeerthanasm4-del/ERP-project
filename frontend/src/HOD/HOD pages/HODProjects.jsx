@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_URL } from "../../api.js";
 
 function HODProjects() {
   const [projects, setProjects] = useState([]);
@@ -8,7 +9,6 @@ function HODProjects() {
   const [leads, setLeads] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState({});
   const [selectedProject, setSelectedProject] = useState(null);
-  const API_URL = "http://localhost:5000";
 
   useEffect(() => {
     fetchProjects();

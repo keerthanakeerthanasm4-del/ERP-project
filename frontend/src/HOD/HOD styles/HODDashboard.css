@@ -48,13 +48,13 @@
 
 .sidebar-brand h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .sidebar-brand p {
   margin: 2px 0;
   color: #c3d0eb;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .menu-toggle {
@@ -83,7 +83,7 @@
   border: none;
   border-radius: 13px;
   color: #e4eafa;
-  font-size: 15px;
+  font-size: 17px;
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
@@ -127,14 +127,14 @@
 }
 
 .hod-header h1 {
-  font-size: clamp(22px, 2.4vw, 34px);
+  font-size: calc(clamp(22px, 2.4vw, 34px) + 2px);
   margin: 0;
   font-weight: 750;
 }
 
 .hod-header p {
   color: #66739c;
-  font-size: 16px;
+  font-size: 18px;
   margin: 7px 0 0;
 }
 
@@ -166,7 +166,7 @@
   border-radius: 50%;
   background: #f43d64;
   color: white;
-  font-size: 11px;
+  font-size: 13px;
   display: grid;
   place-items: center;
 }
@@ -195,7 +195,7 @@
 /* NEXT MEETING BANNER */
 
 .next-meeting-banner {
-  min-height: 150px;
+  min-height: 170px;
   padding: 24px 35px;
   border: 1px solid #8abaff;
   border-radius: 26px;
@@ -232,14 +232,14 @@
 }
 
 .banner-content h3 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   margin: 0 0 12px;
 }
 
 .banner-content h2 {
   margin: 0;
-  font-size: 23px;
+  font-size: 25px;
 }
 
 .banner-meeting-row {
@@ -250,7 +250,7 @@
 }
 
 .banner-meeting-row h2 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   margin: 0;
 }
@@ -260,7 +260,7 @@
   color: #2445a8;
   padding: 9px 18px;
   border-radius: 25px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -268,10 +268,10 @@
 .banner-button {
   border: none;
   border-radius: 40px;
-  padding: 17px 25px;
+  padding: 20px 30px;
   background: linear-gradient(110deg, #04cde9, #234fe8, #c52be9);
   color: white;
-  font-size: 15px;
+  font-size: 17px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -332,13 +332,13 @@
 
 .quick-action-card h3 {
   margin: 0 0 6px;
-  font-size: 19px;
+  font-size: 21px;
 }
 
 .quick-action-card p {
   margin: 0;
   color: #6b7598;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .quick-arrow {
@@ -376,7 +376,7 @@
 }
 
 .section-heading h3 {
-  font-size: 19px;
+  font-size: 21px;
   margin: 0;
 }
 
@@ -404,7 +404,7 @@
   gap: 5px;
   text-align: center;
   box-sizing: border-box;
-  font-size: 13px;
+  font-size: 15px;
   border: 1px solid transparent;
   transition: all 0.2s ease;
 }
@@ -412,7 +412,7 @@
 /* SLOT TIME */
 
 .time-slot strong {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 750;
   line-height: 1.4;
 }
@@ -420,7 +420,7 @@
 /* SLOT STATUS */
 
 .time-slot span {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   line-height: 1.3;
 }
@@ -455,7 +455,7 @@
 
 .time-slot.booked span:last-child {
   color: #d32f45;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -493,7 +493,7 @@
 }
 
 .dashboard-bottom .card-heading h3 {
-  font-size: 23px;
+  font-size: 25px;
   font-weight: 750;
   color: #101b3b;
   margin: 0;
@@ -517,7 +517,7 @@
   cursor: pointer;
   font-weight: 600;
   white-space: nowrap;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 /* TABLE */
@@ -533,7 +533,7 @@ table,
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 15px;
+  font-size: 17px;
   color: #172448;
 }
 
@@ -542,7 +542,7 @@ th,
   padding: 17px 13px;
   background: #eef1fc;
   color: #172448;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   white-space: nowrap;
   border: none;
@@ -554,14 +554,14 @@ td,
   border-bottom: 1px solid #e8ecf7;
   white-space: nowrap;
   vertical-align: middle;
-  font-size: 15px;
+  font-size: 17px;
   color: #243b60;
 }
 
 .status-badge {
   padding: 6px 10px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -589,7 +589,7 @@ td,
   min-width: 90px;
   padding: 8px 14px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
   border: 1px solid transparent;
@@ -625,7 +625,7 @@ td,
   padding: 7px 9px;
   border-radius: 9px;
   background: white;
-  font-size: 11px;
+  font-size: 13px;
   cursor: pointer;
 }
 
@@ -635,7 +635,7 @@ td,
   padding: 8px 10px;
   border-radius: 12px;
   background: #fff;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   transition: background 0.18s ease, opacity 0.18s ease;
 }
@@ -665,7 +665,7 @@ td,
 }
 
 .action-result {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -676,7 +676,7 @@ td,
   border-radius: 14px;
   background: #f7f8ff;
   color: #173c9c;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -723,7 +723,7 @@ td,
 
 .project-info h4,
 .dashboard-bottom .project-info h4 {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: #101b3b;
   margin: 0 0 7px;
@@ -732,7 +732,7 @@ td,
 .project-info p,
 .dashboard-bottom .project-info p {
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
   color: #0b9b68;
 }
 
@@ -749,14 +749,14 @@ td,
 .project-phases {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin-top: 10px;
 }
 
 .phase-block {
-  width: 28px;
-  height: 10px;
-  border-radius: 3px;
+  width: 34px;
+  height: 12px;
+  border-radius: 4px;
   display: inline-block;
   transition: all 0.3s ease;
 }
@@ -808,7 +808,7 @@ td,
 }
 
 .profile-header h1 {
-  font-size: 30px;
+  font-size: 32px;
   color: #101b3b;
 }
 
@@ -889,7 +889,7 @@ td,
 }
 
 .profile-overview-info h2 {
-  font-size: 25px;
+  font-size: 27px;
   margin-bottom: 8px;
 }
 
@@ -913,7 +913,7 @@ td,
   background: #dcf8e9;
   padding: 10px 15px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -941,7 +941,7 @@ td,
 }
 
 .profile-section-heading h2 {
-  font-size: 19px;
+  font-size: 21px;
   color: #172448;
 }
 
@@ -953,16 +953,43 @@ td,
 
 .profile-detail label {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   color: #8290a5;
   margin-bottom: 9px;
+}
+
+.profile-edit-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #d7e2f2;
+  border-radius: 10px;
+  background: #f8faff;
+  color: #172448;
+  font: inherit;
+  font-size: 17px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-edit-input:hover {
+  border-color: #a9c3e8;
+  background: #fff;
+}
+
+.profile-edit-input:focus {
+  border-color: #2877e8;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(40, 119, 232, 0.14);
 }
 
 .profile-detail p {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: #243b60;
 }
@@ -982,7 +1009,7 @@ td,
 
 .pl-page-header h1 {
   color: #102b59;
-  font-size: 29px;
+  font-size: 31px;
 }
 
 .pl-page-header p {
@@ -1044,12 +1071,12 @@ td,
 
 .pl-summary-card h3 {
   color: #17345f;
-  font-size: 24px;
+  font-size: 26px;
 }
 
 .pl-summary-card p {
   color: #8290a5;
-  font-size: 13px;
+  font-size: 15px;
   margin-top: 5px;
 }
 
@@ -1085,13 +1112,13 @@ td,
 }
 
 .pl-section-title h2 {
-  font-size: 19px;
+  font-size: 21px;
   color: #17345f;
 }
 
 .pl-section-title p {
   color: #8290a5;
-  font-size: 13px;
+  font-size: 15px;
   margin-top: 5px;
 }
 
@@ -1110,7 +1137,7 @@ td,
 
 .pl-form-group label {
   color: #344b6e;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 }
 
@@ -1124,7 +1151,7 @@ td,
   background: #fbfcff;
   color: #344b6e;
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .pl-form-group input:focus,
@@ -1197,7 +1224,7 @@ td,
 
 .pl-project-info h3,
 .pl-lead-info h3 {
-  font-size: 14px;
+  font-size: 16px;
   color: #243b60;
   margin-bottom: 6px;
 }
@@ -1207,7 +1234,7 @@ td,
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: #8290a5;
   margin-top: 5px;
   overflow-wrap: anywhere;
@@ -1217,7 +1244,7 @@ td,
 .pl-unassigned-status {
   padding: 7px 12px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   white-space: nowrap;
 }
@@ -1267,7 +1294,7 @@ td,
   outline: none;
   width: 100%;
   background: transparent;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .pl-message {
@@ -1279,14 +1306,14 @@ td,
   padding: 13px 17px;
   border-radius: 9px;
   margin-bottom: 20px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .pl-message button {
   border: none;
   background: transparent;
   color: inherit;
-  font-size: 22px;
+  font-size: 24px;
 }
 
 .pl-empty-message {
@@ -1321,7 +1348,7 @@ td,
 }
 
 .hod-projects-header h2 {
-  font-size: 29px;
+  font-size: 31px;
   color: #101b3b;
   margin: 0;
 }
@@ -1329,7 +1356,7 @@ td,
 .hod-projects-header p {
   color: #71809e;
   margin-top: 8px;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .hod-projects-message {
@@ -1338,7 +1365,7 @@ td,
   background: #dcf8e9;
   border: 1px solid #b9ebce;
   color: #16834a;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   margin-bottom: 22px;
 }
@@ -1359,14 +1386,14 @@ td,
 }
 
 .hod-project-card h3 {
-  font-size: 20px;
+  font-size: 22px;
   color: #142c59;
   margin: 0 0 12px;
 }
 
 .hod-project-card > p {
   color: #71809e;
-  font-size: 14px;
+  font-size: 16px;
   margin: 12px 0;
   line-height: 1.6;
 }
@@ -1389,7 +1416,7 @@ td,
 
 .hod-project-card h4 {
   color: #17345f;
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 15px;
 }
 
@@ -1401,7 +1428,7 @@ td,
   border-radius: 9px;
   background: #fbfcff;
   color: #344b6e;
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
   cursor: pointer;
 }
@@ -1419,7 +1446,7 @@ td,
   border-radius: 9px;
   background: linear-gradient(105deg, #08cde8, #2455e8, #713cff);
   color: white;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
   cursor: pointer;
   transition: 0.2s ease;
@@ -1441,13 +1468,13 @@ td,
 
 .hod-projects-empty h3 {
   color: #17345f;
-  font-size: 21px;
+  font-size: 23px;
   margin-bottom: 10px;
 }
 
 .hod-projects-empty p {
   color: #8290a5;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* PROJECT DETAILS MODAL */
@@ -1490,7 +1517,7 @@ td,
 .project-modal-header p {
   color: #8290a5;
   margin: 0;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .project-modal-close {
@@ -1500,7 +1527,7 @@ td,
   border-radius: 10px;
   width: 38px;
   height: 38px;
-  font-size: 25px;
+  font-size: 27px;
   cursor: pointer;
 }
 
@@ -1520,7 +1547,7 @@ td,
 
 .project-detail-item label {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   color: #8290a5;
   margin-bottom: 8px;
 }
@@ -1528,7 +1555,7 @@ td,
 .project-detail-item p {
   margin: 0;
   color: #243b60;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -1623,7 +1650,7 @@ td,
 .hod-sidebar.collapsed .svce-logo {
   width: 40px;
   height: 40px;
-  font-size: 10px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
@@ -1648,7 +1675,7 @@ td,
   justify-content: center;
 }
 .banner-content h3 {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 800;
   margin-bottom: 12px;
 }
@@ -1681,7 +1708,7 @@ td,
 }
 
 .banner-meeting-row h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 770;
   margin: 0;
 }
@@ -1727,21 +1754,21 @@ td,
   }
 
   .banner-meeting-row h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .banner-date {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .banner-meeting-row h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .banner-date {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 /* PROJECT LEAD ASSIGNMENT HISTORY */
@@ -1767,7 +1794,7 @@ td,
 .pl-history-table th {
   padding: 16px 14px;
   text-align: left;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #55516f;
   border-bottom: 1px solid #e8e6f0;
@@ -1776,7 +1803,7 @@ td,
 
 .pl-history-table td {
   padding: 17px 14px;
-  font-size: 13px;
+  font-size: 15px;
   color: #444;
   border-bottom: 1px solid #eeeeF2;
 }
@@ -1789,7 +1816,7 @@ td,
   text-align: center !important;
   padding: 30px !important;
   color: #888 !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
 }
 /* ==========================
 
@@ -1816,7 +1843,7 @@ HOD PROFILE EDIT / SAVE BUTTONS
   border-radius: 10px;
   background: linear-gradient(105deg, #087ee8, #3155e8, #713cff);
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
   cursor: pointer;
   box-shadow: 0 5px 14px rgba(49, 85, 232, 0.2);
@@ -1844,7 +1871,7 @@ HOD PROFILE EDIT / SAVE BUTTONS
   border-radius: 10px;
   background: linear-gradient(105deg, #0bbd79, #07965d);
   color: white;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -1867,7 +1894,7 @@ HOD PROFILE EDIT / SAVE BUTTONS
   border-radius: 10px;
   background: #fff0f2;
   color: #d93650;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -1909,7 +1936,7 @@ HOD PROFILE EDIT / SAVE BUTTONS
   }
 
   .hod-projects-header h2 {
-    font-size: 23px;
+    font-size: 25px;
   }
 
   .hod-project-card {
@@ -1957,21 +1984,21 @@ HOD PROFILE EDIT / SAVE BUTTONS
   }
 
   .dashboard-bottom .card-heading h3 {
-    font-size: 19px;
+    font-size: 21px;
   }
 
   .dashboard-bottom table {
-    font-size: 13px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 500px) {
   .hod-header h1 {
-    font-size: 19px;
+    font-size: 21px;
   }
 
   .hod-header p {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .banner-icon,
@@ -1980,7 +2007,7 @@ HOD PROFILE EDIT / SAVE BUTTONS
   }
 
   .banner-content h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .banner-button {

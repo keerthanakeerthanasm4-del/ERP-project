@@ -14,7 +14,7 @@
 
 .pl-feature-heading span {
   color: #3679e7;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   letter-spacing: .14em;
 }
@@ -22,13 +22,13 @@
 .pl-feature-heading h1 {
   margin: 7px 0;
   color: #14213d;
-  font-size: 30px;
+  font-size: 32px;
 }
 
 .pl-feature-heading p {
   margin: 0;
   color: #6e7b94;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .pl-feature-heading button,.pl-section-team-row button {
@@ -90,19 +90,19 @@
   border-radius: 99px;
   background: #eaf7f1;
   color: #188252;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .pl-section-project h2 {
   margin: 15px 0 5px;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .pl-section-id {
   margin: 0 0 13px;
   color: #8b96aa;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .pl-section-id b {
@@ -115,7 +115,7 @@
   padding: 9px 0;
   border-top: 1px solid #eff1f5;
   color: #8290a6;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .pl-section-detail b {
@@ -171,12 +171,12 @@
 }
 
 .pl-section-team-info strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .pl-section-team-info span,.pl-section-team-info small {
   color: #8290a6;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .pl-section-role {
@@ -185,14 +185,14 @@
   border-radius: 99px;
   background: #eef3ff;
   color: #4c69bf;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 750;
   white-space: nowrap;
 }
 
 .pl-section-team-row button {
   padding: 9px 13px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 @media (max-width:640px) {

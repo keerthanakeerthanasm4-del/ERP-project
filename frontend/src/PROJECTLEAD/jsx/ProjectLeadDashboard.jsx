@@ -2,11 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProjectLeadHorizon from "./ProjectLeadHorizon.jsx";
 import "../css/ProjectLeadDashboard.css";
-
-const API_URL =
-  window.location.hostname === "127.0.0.1"
-    ? "http://127.0.0.1:5000"
-    : "http://localhost:5000";
+import { API_URL } from "../../api.js";
 
 export default function ProjectLeadDashboard() {
   const [user, setUser] = useState(null);

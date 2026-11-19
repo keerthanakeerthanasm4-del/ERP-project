@@ -27,7 +27,7 @@
 
 .hod-meetings-page-header h1 {
   color: #17264b;
-  font-size: 25px;
+  font-size: 27px;
   font-weight: 700;
   margin: 0 0 8px;
   letter-spacing: 0.3px;
@@ -35,7 +35,7 @@
 
 .hod-meetings-page-header p {
   color: #7886a3;
-  font-size: 14px;
+  font-size: 16px;
   margin: 0;
 }
 
@@ -84,7 +84,7 @@
 
 .hod-meetings-heading h3 {
   color: #17264b;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   margin: 0;
 }
@@ -95,7 +95,7 @@
   border: none;
   border-radius: 7px;
   padding: 10px 15px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
@@ -126,7 +126,7 @@
   background: #f3f4fc;
   color: #52617f;
   padding: 15px 16px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-align: left;
   white-space: nowrap;
@@ -136,7 +136,7 @@
 .hod-meetings-table tbody td {
   padding: 17px 16px;
   color: #52617f;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   text-align: left;
   border-bottom: 1px solid #edf0f6;
@@ -155,7 +155,7 @@
 
 .hod-meetings-table .hod-team-name {
   color: #17264b;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
   text-align: left;
 }
@@ -164,7 +164,7 @@
 
 .hod-meetings-table .hod-meeting-time {
   color: #65738f;
-  font-size: 13px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -185,7 +185,7 @@
   border: 1px solid #dedfff;
   border-radius: 7px;
   padding: 9px 14px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 650;
   white-space: nowrap;
   cursor: pointer;
@@ -204,7 +204,7 @@
   text-align: center;
   padding: 45px 15px;
   color: #8994aa;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 /* =====================================
@@ -236,7 +236,7 @@
 .hod-details-kicker {
   display: block;
   color: #7770d8;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -244,14 +244,14 @@
 
 .hod-details-heading h3 {
   color: #17264b;
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 700;
   margin: 0 0 6px;
 }
 
 .hod-details-heading p {
   color: #8792a9;
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
   line-height: 1.5;
 }
@@ -266,7 +266,7 @@
   border-radius: 7px;
   background: #f1f2fc;
   color: #59658a;
-  font-size: 16px;
+  font-size: 18px;
   cursor: pointer;
 }
 
@@ -297,7 +297,7 @@
 
 .hod-detail-item span {
   color: #8792a9;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.7px;
   text-transform: uppercase;
@@ -305,7 +305,7 @@
 
 .hod-detail-item strong {
   color: #263657;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -318,7 +318,7 @@
   background: #e8f8f0;
   padding: 5px 11px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 /* =====================================
@@ -346,14 +346,14 @@
 
 .hod-meeting-card-heading h3 {
   color: #17264b;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0 0 6px;
 }
 
 .hod-meeting-card-heading p {
   color: #8792a9;
-  font-size: 13px;
+  font-size: 15px;
   margin: 0;
 }
 
@@ -409,7 +409,7 @@
 
 .hod-form-group label {
   color: #354461;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 }
 
@@ -425,7 +425,7 @@
   outline: none;
   color: #263657;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   box-sizing: border-box;
 }
 
@@ -456,7 +456,7 @@
 .hod-save-button {
   padding: 11px 19px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
   cursor: pointer;
 }
@@ -511,7 +511,7 @@
   }
 
   .hod-meetings-page-header h1 {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .hod-meetings-card,
@@ -524,12 +524,12 @@
   }
 
   .hod-meetings-heading h3 {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .hod-meetings-heading button {
     padding: 9px 10px;
-    font-size: 11px;
+    font-size: 13px;
   }
 
   /* Stack all form fields on small screens */
@@ -605,7 +605,7 @@
 
 .hod-details-kicker {
   color: #6254e8;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
 }
@@ -629,12 +629,12 @@
 
 .hod-detail-item span {
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .hod-detail-item strong {
   color: #172554;
-  font-size: 14px;
+  font-size: 16px;
   overflow-wrap: anywhere;
 }
 
@@ -707,7 +707,7 @@
 
 .hod-details-kicker {
   color: #6254e8;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
 }
@@ -731,12 +731,12 @@
 
 .hod-detail-item span {
   color: #64748b;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .hod-detail-item strong {
   color: #172554;
-  font-size: 14px;
+  font-size: 16px;
   overflow-wrap: anywhere;
 }
 

@@ -1,8 +1,7 @@
 
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import "../HOD styles/HODMeetings.css";
-
-const API_URL = "http://localhost:5000";
+import { API_URL } from "../../api.js";
 
 const getTodayDate = () => {
   const today = new Date();

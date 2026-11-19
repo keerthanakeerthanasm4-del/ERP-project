@@ -35,7 +35,7 @@
 .cp-eyebrow {
   margin: 0 0 8px;
   color: #1769d2;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -43,7 +43,7 @@
 .cp-card h1 {
   margin: 0;
   color: #091b42;
-  font-size: 30px;
+  font-size: 32px;
 }
 
 .cp-intro {
@@ -60,7 +60,7 @@
 .cp-card label {
   margin-top: 10px;
   color: #34415f;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
 }
 
@@ -126,6 +126,6 @@
     padding: 0 16px;
   }
   .cp-card h1 {
-    font-size: 25px;
+    font-size: 27px;
   }
 }

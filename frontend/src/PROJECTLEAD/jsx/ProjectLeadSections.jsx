@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/ProjectLeadSections.css";
-const API = window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:5000" : "http://localhost:5000";
+import { API_URL as API } from "../../api.js";
 function useProjects() {
   const [projects, setProjects] = useState([]),
     [loading, setLoading] = useState(true),

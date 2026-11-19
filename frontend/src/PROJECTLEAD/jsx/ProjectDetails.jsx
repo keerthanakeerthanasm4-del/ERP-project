@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../css/ProjectDetails.css";
-const API_URL = window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:5000" : "http://localhost:5000";
+import { API_URL } from "../../api.js";
 const ROLE_LABELS = {
   TEAM_LEAD: "Team Lead",
   TECH_LEAD: "Tech Lead",

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import Dashboard from "./Dashboard";
+import { API_URL } from "./api.js";
 import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
 import CreateProject from "./PROJECTLEAD/jsx/CreateProject.jsx";
 import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
@@ -16,7 +17,6 @@ import Home from "./pages/LandingPage";
    API CONFIGURATION — UNCHANGED
 ========================================================= */
 
-const API_URL = "http://localhost:5000";
 const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
 
 /* =========================================================

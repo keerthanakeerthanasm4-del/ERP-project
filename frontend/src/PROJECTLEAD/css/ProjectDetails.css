@@ -44,7 +44,7 @@
 
 .pd-eyebrow {
   color: #1769d2;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: .08em;
 }
@@ -67,7 +67,7 @@
 }
 
 .pd-meta b {
-  font-size: 12px;
+  font-size: 14px;
   color: #74809a;
 }
 
@@ -91,7 +91,7 @@
 .pd-form label {
   align-self: end;
   color: #34415f;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 650;
 }
 
@@ -168,13 +168,13 @@
 }
 
 .pd-member span {
-  font-size: 13px;
+  font-size: 15px;
   color: #68758f;
 }
 
 .pd-member>b {
   color: #1769d2;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 @media (max-width:600px) {
@@ -285,7 +285,7 @@
 .pd-progress-heading h2 {
   margin: 0 0 12px;
   color: #091b42;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .pd-progress-heading strong {
@@ -334,7 +334,7 @@
 .pd-phase-status {
   margin-left: auto;
   color: #74809a;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 @media (max-width:600px) {

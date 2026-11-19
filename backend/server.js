@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import os from "node:os";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -29,9 +30,32 @@ if (!JWT_SECRET) {
 }
 
 // Middleware
+const allowedFrontendOrigins = new Set([
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  ...Object.values(os.networkInterfaces()).flatMap((interfaces) =>
+    (interfaces || [])
+      .filter((address) =>
+        (address.family === "IPv4" || address.family === 4) &&
+        !address.internal
+      )
+      .map((address) => `http://${address.address}:5173`)
+  ),
+  ...(process.env.FRONTEND_ORIGINS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+]);
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin(origin, callback) {
+      if (!origin || allowedFrontendOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
   })
 );
 
@@ -1422,7 +1446,7 @@ app.patch("/api/hod/profile/image", async (req, res) => {
    START SERVER
 ------------------------------------------------------- */
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(
     `Backend running at http://localhost:${PORT}`
   );

@@ -1,6 +1,7 @@
 
 import { useCallback, useState, useEffect } from "react";
 import projectLogo from "../../assets/project-logo.png";
+import { API_URL } from "../../api.js";
 
 import HODProjects from "./HODProjects";
 import CreateProjectLead from "./CreateProjectLead.jsx";
@@ -259,7 +260,7 @@ function HODDashboard() {
   const fetchHODProjects = useCallback(async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/hod/projects",
+        `${API_URL}/api/hod/projects`,
         {
           headers: getHodAuthHeaders()
         }
@@ -320,7 +321,7 @@ function HODDashboard() {
 
   const fetchHODMeetings = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/hod/meetings", { headers: getHodAuthHeaders() });
+      const response = await fetch(`${API_URL}/api/hod/meetings`, { headers: getHodAuthHeaders() });
       const data = await response.json();
       if (response.status === 401 || response.status === 403) {
         redirectToLogin();
@@ -374,7 +375,7 @@ function HODDashboard() {
 
   const updateMeetingStatus = async (meetingId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/hod/meetings/${meetingId}/status`, {
+      const response = await fetch(`${API_URL}/api/hod/meetings/${meetingId}/status`, {
         method: "PATCH",
         headers: { ...getHodAuthHeaders(), "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

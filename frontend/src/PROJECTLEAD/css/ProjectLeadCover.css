@@ -37,7 +37,7 @@
   inset-inline: 0;
   text-align: center;
   color: #f8eafa;
-  font-size: .9rem;
+  font-size: calc(.9rem + 2px);
   letter-spacing: .05em;
 }
 
@@ -51,7 +51,7 @@
   text-align: center;
   color: #fff;
   font: inherit;
-  font-size: clamp(1rem, 7.4vw, 5.5rem);
+  font-size: calc(clamp(1rem, 7.4vw, 5.5rem) + 2px);
   font-weight: 600;
   line-height: 1.16;
 }
@@ -63,7 +63,7 @@
 
 .pl-signal-line:first-child {
   margin-bottom: .45em;
-  font-size: .52em;
+  font-size: calc(.52em + 2px);
 }
 
 .pl-signal-letter {

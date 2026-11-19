@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { API_URL } from "../../api.js";
 
 import {
   UserRound,
@@ -13,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 
-const API_URL = "http://localhost:5000";
 
 function HODProfile() {
   const [profileImage, setProfileImage] = useState(null);

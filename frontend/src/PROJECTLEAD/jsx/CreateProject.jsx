@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/CreateProject.css";
-const API_URL = "http://localhost:5000";
+import { API_URL } from "../../api.js";
 export default function CreateProject() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
