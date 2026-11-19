@@ -23,22 +23,6 @@ const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.goo
    EXISTING SHARED ICONS
 ========================================================= */
 
-function CapIcon() {
-  return <svg viewBox="0 0 40 34" className="cap-icon" aria-hidden="true">
-      <path d="M2 11 20 2 38 11 20 20 2 11Z" />
-      <path d="M8 15v8c7 6 17 6 24 0v-8" />
-      <path d="M36 12v12" />
-      <circle cx="36" cy="27" r="2" />
-    </svg>;
-}
-function Brand({
-  label = "Campus Project Tracker"
-}) {
-  return <Link to="/" className="brand">
-      <CapIcon />
-      <span>{label}</span>
-    </Link>;
-}
 function UserIcon() {
   return <svg viewBox="0 0 24 24" className="field-icon" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <circle cx="12" cy="8" r="4" />
