@@ -2,6 +2,7 @@ import HODDashboard from "./HOD/HOD pages/HODDashboard.jsx";
 import { useState, useEffect, useRef } from "react";
 import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
+import portalNebula from "./assets/portal-nebula.webp";
 import Dashboard from "./Dashboard";
 import { API_URL } from "./api.js";
 import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
@@ -10,7 +11,7 @@ import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
 import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
 import ProjectLeadCover from "./PROJECTLEAD/jsx/ProjectLeadCover.jsx";
 import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
-import { ProjectLeadProjects, ProjectLeadTeam } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
+import { ProjectLeadProjects } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 import Home from "./pages/LandingPage";
 
 /* =========================================================
@@ -878,6 +879,188 @@ const AUTH_STYLES = `
   }
 `;
 
+const LOGIN_GALAXY_STYLES = `
+  /* Login-only galaxy palette; registration styles stay untouched. */
+  .erp-auth-scene:not(.erp-register-scene) {
+    background:
+      radial-gradient(ellipse at 85% 4%, rgba(105, 73, 176, .2), transparent 34%),
+      radial-gradient(ellipse at 50% 103%, rgba(54, 75, 169, .24), transparent 42%),
+      #05070d;
+    color: #f3f1f8;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-stars {
+    background-image:
+      radial-gradient(circle, #e8e9ff 1px, transparent 2px),
+      radial-gradient(circle, #7895e8 1px, transparent 2px),
+      radial-gradient(circle, #f2b36e 1px, transparent 2px);
+    background-size: 177px 151px, 263px 213px, 347px 281px;
+    background-position: 22px 29px, 95px 82px, 63px 117px;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-rays {
+    background: repeating-conic-gradient(
+      from 220deg at 77% 17%,
+      transparent 0deg,
+      rgba(77, 102, 206, .04) 4deg,
+      rgba(112, 89, 207, .18) 7deg,
+      rgba(205, 194, 255, .48) 8deg,
+      rgba(76, 113, 224, .12) 10deg,
+      transparent 16deg
+    );
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-rays::after {
+    background: radial-gradient(ellipse at 70% 16%, rgba(192, 174, 255, .56), transparent 37%);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-auth-brand svg {
+    filter: hue-rotate(58deg) saturate(.88) drop-shadow(0 0 14px rgba(126, 104, 236, .72));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel {
+    border-color: #8069c9;
+    background: linear-gradient(150deg, #091221, #060d18);
+    box-shadow:
+      0 0 12px rgba(109, 92, 211, .54),
+      0 0 38px rgba(63, 67, 156, .3),
+      inset 0 0 20px rgba(83, 76, 154, .18);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel::before {
+    box-shadow: inset 0 0 9px rgba(170, 145, 255, .62);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
+    border-color: #edab60;
+    background: linear-gradient(150deg, #171922, #090c14);
+    box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
+    stroke: #ffbb69;
+    filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-title h1 span,
+  .erp-auth-scene:not(.erp-register-scene) .erp-signup a {
+    color: #ebb7f5;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-title p,
+  .erp-auth-scene:not(.erp-register-scene) .erp-signup {
+    color: #c1c4d4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap {
+    border-color: #394568;
+    background: linear-gradient(#0b1427, #091221);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35), 0 0 4px rgba(91, 97, 177, .18);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap:focus-within {
+    border-color: #9a82e4;
+    box-shadow: 0 0 10px rgba(141, 116, 235, .42);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap svg,
+  .erp-auth-scene:not(.erp-register-scene) .erp-eye svg {
+    stroke: #b9a9f4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap input::placeholder {
+    color: #a8aabd;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember {
+    color: #c2b4f2;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember input {
+    accent-color: #f2a65a;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-forgot,
+  .erp-auth-scene:not(.erp-register-scene) .erp-auth-home {
+    color: #b6a2f4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit {
+    border-color: #ffc27e;
+    background: linear-gradient(100deg, #eea25a, #de8b48);
+    box-shadow: 0 0 12px rgba(242, 166, 90, .4), inset 0 0 9px rgba(255, 255, 255, .28);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-or::before,
+  .erp-auth-scene:not(.erp-register-scene) .erp-or::after {
+    background: #41415c;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-google {
+    border-color: #555675;
+    background: linear-gradient(#1d2238, #12182a);
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, .1);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-art {
+    filter: drop-shadow(0 0 8px rgba(111, 103, 213, .22));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-horizon {
+    border-top-color: rgba(151, 135, 255, .98);
+    box-shadow:
+      0 -7px 18px rgba(81, 125, 255, .92),
+      0 -14px 42px rgba(115, 79, 238, .76),
+      0 -2px 9px rgba(242, 166, 90, .54),
+      inset 0 22px 35px rgba(77, 66, 164, .3);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-horizon::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0 0;
+    border-radius: inherit;
+    padding-top: 3px;
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ffc584 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ffc584 74%, #b69fff 76%, #4978df 90%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) {
+    background: #02050c url("${portalNebula}") center / cover no-repeat;
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel {
+    border-color: #8170b7;
+    box-shadow: 0 0 12px rgba(113, 80, 200, .23);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel::before {
+    box-shadow: inset 0 0 5px rgba(172, 145, 255, .16);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
+    border-color: #e3a057;
+    box-shadow: 0 0 9px rgba(226, 151, 74, .2);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
+    filter: none;
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember,
+  .erp-auth-scene:not(.erp-register-scene) .erp-forgot {
+    color: #e4e4ee;
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-google {
+    border-color: #243450;
+    background: linear-gradient(#0b1427, #091221);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit {
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.2);
+  }
+`;
+
 /* =========================================================
    NEW CREATE ACCOUNT STYLES
 
@@ -1442,6 +1625,7 @@ function AuthStyles({ register = false }) {
   return (
     <style>
       {AUTH_STYLES}
+      {register ? "" : LOGIN_GALAXY_STYLES}
       {register ? REGISTER_STYLES : ""}
     </style>
   );
@@ -1529,8 +1713,8 @@ function LaptopIllustration() {
           x2="1"
           y2="1"
         >
-          <stop stopColor="#47dfff" />
-          <stop offset="1" stopColor="#0750d8" />
+          <stop stopColor="#91a6f5" />
+          <stop offset="1" stopColor="#283879" />
         </linearGradient>
       </defs>
 
@@ -1540,7 +1724,7 @@ function LaptopIllustration() {
         rx="169"
         ry="39"
         fill="none"
-        stroke="#21caff"
+        stroke="#acb3f4"
         strokeWidth="3"
         opacity=".9"
       />
@@ -1551,7 +1735,7 @@ function LaptopIllustration() {
         rx="135"
         ry="25"
         fill="none"
-        stroke="#0a6dff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1562,8 +1746,8 @@ function LaptopIllustration() {
           width="246"
           height="158"
           rx="13"
-          fill="#0a2758"
-          stroke="#50dfff"
+          fill="#111a31"
+          stroke="#acb3f4"
           strokeWidth="7"
         />
 
@@ -1573,20 +1757,20 @@ function LaptopIllustration() {
           width="214"
           height="124"
           rx="5"
-          fill="#071b44"
+          fill="#070e1c"
         />
 
         <path
           d="M93 194l39-32 31 13 49-59 41-12"
           fill="none"
-          stroke="#71ecff"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M237 105l18-2-1 18"
           fill="none"
-          stroke="#71ecff"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
@@ -1625,13 +1809,13 @@ function LaptopIllustration() {
         <path
           d="M47 248h261l38 25q6 8-8 10H34q-12-3-6-10z"
           fill="url(#erpLaptop)"
-          stroke="#a0f6ff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
 
         <path
           d="M123 269h100"
-          stroke="#b1faff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
       </g>
@@ -1641,8 +1825,8 @@ function LaptopIllustration() {
           width="86"
           height="78"
           rx="12"
-          fill="#123f96"
-          stroke="#4cbcff"
+          fill="#111527"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
 
@@ -1660,21 +1844,21 @@ function LaptopIllustration() {
       <g transform="translate(300 191)">
         <circle
           r="31"
-          fill="#2787ff"
-          stroke="#91f2ff"
+          fill="#44439b"
+          stroke="#acb3f4"
           strokeWidth="6"
         />
 
         <circle
           r="13"
-          fill="#0b2e66"
-          stroke="#d5faff"
+          fill="#eea25a"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M-37 0h74M0-37v74M-26-26l52 52M26-26l-52 52"
-          stroke="#57caff"
+          stroke="#acb3f4"
           strokeWidth="8"
           strokeDasharray="10 13"
         />
@@ -1700,7 +1884,7 @@ function TargetIllustration() {
         rx="171"
         ry="39"
         fill="none"
-        stroke="#21caff"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1710,7 +1894,7 @@ function TargetIllustration() {
         rx="135"
         ry="25"
         fill="none"
-        stroke="#0a6dff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1718,8 +1902,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="91"
-        fill="#063274"
-        stroke="#5ad7ff"
+        fill="#0b1226"
+        stroke="#acb3f4"
         strokeWidth="6"
       />
 
@@ -1727,8 +1911,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="68"
-        fill="#1264d5"
-        stroke="#b4f6ff"
+        fill="#25234d"
+        stroke="#acb3f4"
         strokeWidth="5"
       />
 
@@ -1736,8 +1920,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="47"
-        fill="#082d77"
-        stroke="#5bb9ff"
+        fill="#10142b"
+        stroke="#acb3f4"
         strokeWidth="6"
       />
 
@@ -1745,14 +1929,14 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="23"
-        fill="#58b9ff"
-        stroke="#d3faff"
+        fill="#6257a1"
+        stroke="#acb3f4"
         strokeWidth="5"
       />
 
       <path
         d="M189 178l95-65"
-        stroke="#b8faff"
+        stroke="#acb3f4"
         strokeWidth="9"
         strokeLinecap="round"
       />
@@ -1760,7 +1944,7 @@ function TargetIllustration() {
       <path
         d="M274 119l30-19-4 24-23 14"
         fill="#6ad7ff"
-        stroke="#c7faff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1769,14 +1953,14 @@ function TargetIllustration() {
           width="87"
           height="73"
           rx="9"
-          fill="#1250b8"
-          stroke="#54dcff"
+          fill="#111527"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M12 21h63M12 38h63M12 55h63M26 10v52M48 10v52"
-          stroke="#9df5ff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
       </g>
@@ -1787,8 +1971,8 @@ function TargetIllustration() {
         width="26"
         height="49"
         rx="3"
-        fill="#19baff"
-        stroke="#b1f9ff"
+        fill="#262b54"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1798,8 +1982,8 @@ function TargetIllustration() {
         width="26"
         height="69"
         rx="3"
-        fill="#2186f8"
-        stroke="#b1f9ff"
+        fill="#3b3569"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1809,8 +1993,8 @@ function TargetIllustration() {
         width="26"
         height="90"
         rx="3"
-        fill="#1266df"
-        stroke="#b1f9ff"
+        fill="#242847"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
     </svg>
@@ -3042,7 +3226,6 @@ export default function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ProjectLeadDashboard />} />
         <Route path="projects" element={<ProjectLeadProjects />} />
-        <Route path="team" element={<ProjectLeadTeam />} />
         <Route path="profile" element={<ProjectLeadProfile />} />
         <Route path="create-project" element={<CreateProject />} />
         <Route path="projects/:projectId" element={<ProjectDetails />} />

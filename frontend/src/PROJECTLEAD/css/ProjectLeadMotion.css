@@ -98,7 +98,6 @@
 .pl-stat-card,
 .pl-action-card,
 .pl-section-project,
-.pl-section-team-list,
 .pl-profile-content > *,
 .cp-card,
 .pd-project-card,
@@ -129,7 +128,6 @@
 
 .pl-primary-action,
 .pl-feature-heading button,
-.pl-section-team-row button,
 .pd-add-user,
 .cp-submit {
   transition:
@@ -140,7 +138,6 @@
 
 .pl-primary-action:hover,
 .pl-feature-heading button:hover,
-.pl-section-team-row button:hover,
 .pd-add-user:hover,
 .cp-submit:hover {
   transform: translateY(-2px);

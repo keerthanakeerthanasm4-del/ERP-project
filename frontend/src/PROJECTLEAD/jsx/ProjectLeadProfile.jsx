@@ -223,34 +223,6 @@ export default function ProjectLeadProfile() {
 
           </section>
 
-          <div className="pl-profile-divider"></div>
-
-          {/* PROFESSIONAL INFORMATION */}
-          <section className="pl-profile-section">
-
-            <h3>Professional Information</h3>
-
-            <div className="pl-profile-grid">
-
-              <div className="pl-profile-field">
-                <label>Designation</label>
-                <input type="text" value="Project Lead" disabled />
-              </div>
-
-              <div className="pl-profile-field">
-                <label>Department</label>
-                <input type="text" name="department" value={profile.department} onChange={handleChange} disabled={!editMode} placeholder="Enter department" />
-              </div>
-
-              <div className="pl-profile-field">
-                <label>Employee ID</label>
-                <input type="text" value={profile.employee_id} disabled placeholder="Not available" />
-              </div>
-
-            </div>
-
-          </section>
-
           {/* EDIT ACTIONS */}
           {editMode && <div className="pl-profile-actions">
 

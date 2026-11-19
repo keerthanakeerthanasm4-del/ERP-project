@@ -1,4 +1,3 @@
-
 import { useCallback, useState, useEffect } from "react";
 import projectLogo from "../../assets/project-logo.png";
 import { API_URL } from "../../api.js";
@@ -29,8 +28,13 @@ import {
 import "../HOD styles/HODDashboard.css";
 
 const getHodAuthHeaders = () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  return { Authorization: `Bearer ${token}` };
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
+  return {
+    Authorization: `Bearer ${token}`
+  };
 };
 
 const redirectToLogin = () => {
@@ -38,8 +42,10 @@ const redirectToLogin = () => {
   localStorage.removeItem("user");
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("user");
+
   window.location.replace("/login");
 };
+
 function HODDashboard() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -50,10 +56,11 @@ function HODDashboard() {
   );
 
   const [meetings, setMeetings] = useState([]);
-
   const [projects, setProjects] = useState([]);
+
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+
   const [projectsLoading, setProjectsLoading] = useState(true);
 
   // =====================================
@@ -76,6 +83,7 @@ function HODDashboard() {
       meeting.meetingDate ||
       meeting.meeting_date ||
       meeting.scheduledDate ||
+      meeting.scheduled_date ||
       "";
 
     if (!rawDate) return "";
@@ -138,7 +146,11 @@ function HODDashboard() {
   const normalize = (value) => {
     const normalizedValue =
       value && typeof value === "object"
-        ? value.project_name || value.projectName || value.name || value.project_id || value.id
+        ? value.project_name ||
+          value.projectName ||
+          value.name ||
+          value.project_id ||
+          value.id
         : value;
 
     return String(normalizedValue || "").trim().toLowerCase();
@@ -217,7 +229,6 @@ function HODDashboard() {
     let currentTime = DAY_START;
 
     todayMeetings.forEach((meeting) => {
-      // Add one continuous available block before the meeting
       if (meeting.start > currentTime) {
         blocks.push({
           type: "available",
@@ -226,7 +237,6 @@ function HODDashboard() {
         });
       }
 
-      // Add booked meeting, handling overlapping meetings
       if (meeting.end > currentTime) {
         blocks.push({
           type: "booked",
@@ -239,7 +249,6 @@ function HODDashboard() {
       }
     });
 
-    // Add one continuous available block after the last meeting
     if (currentTime < DAY_END) {
       blocks.push({
         type: "available",
@@ -291,15 +300,18 @@ function HODDashboard() {
 
           const status = project.status || "Not available";
           const projectPhases = project.phases || [];
-          const phases = projectPhases.length > 0
-            ? projectPhases
-            : Array.from({ length: 5 }, (_, index) => ({
-                phase_id: `placeholder-${project.project_id}-${index + 1}`,
-                phase_name: `Phase ${index + 1}`,
-                is_completed: status.toLowerCase() === "completed",
-                is_current: status.toLowerCase() === "active" && index === 0,
-                is_placeholder: true,
-              }));
+
+          const phases =
+            projectPhases.length > 0
+              ? projectPhases
+              : Array.from({ length: 5 }, (_, index) => ({
+                  phase_id: `placeholder-${project.project_id}-${index + 1}`,
+                  phase_name: `Phase ${index + 1}`,
+                  is_completed: status.toLowerCase() === "completed",
+                  is_current:
+                    status.toLowerCase() === "active" && index === 0,
+                  is_placeholder: true
+                }));
 
           return {
             ...project,
@@ -319,40 +331,62 @@ function HODDashboard() {
     }
   }, []);
 
+  // =====================================
+  // FETCH MEETINGS
+  // =====================================
+
   const fetchHODMeetings = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/api/hod/meetings`, { headers: getHodAuthHeaders() });
       const data = await response.json();
+
       if (response.status === 401 || response.status === 403) {
         redirectToLogin();
         return;
       }
-      if (!response.ok) throw new Error(data.message || "Failed to fetch meetings");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch meetings");
+      }
+
       setMeetings(data.meetings || []);
     } catch (error) {
       console.error("HOD meetings error:", error);
     }
   }, []);
 
+  // =====================================
+  // REFRESH DASHBOARD DATA
+  // =====================================
+
   useEffect(() => {
     const refreshDashboardData = () => {
       fetchHODProjects();
       fetchHODMeetings();
     };
+
     const refreshMeetings = () => fetchHODMeetings();
+
     refreshDashboardData();
-    const interval = window.setInterval(refreshDashboardData, 15000);
+
+    const interval = window.setInterval(
+      refreshDashboardData,
+      15000
+    );
+
     window.addEventListener("focus", refreshDashboardData);
     window.addEventListener("hodMeetingsUpdated", refreshMeetings);
+
     return () => {
       window.clearInterval(interval);
+
       window.removeEventListener("focus", refreshDashboardData);
       window.removeEventListener("hodMeetingsUpdated", refreshMeetings);
     };
   }, [fetchHODMeetings, fetchHODProjects]);
 
   // =====================================
-  // SYNCHRONIZE MEETINGS AND PROFILE IMAGE
+  // SYNCHRONIZE PROFILE IMAGE
   // =====================================
 
   useEffect(() => {
@@ -365,7 +399,10 @@ function HODDashboard() {
     window.addEventListener("profileImageUpdated", syncProfileImage);
 
     return () => {
-      window.removeEventListener("profileImageUpdated", syncProfileImage);
+      window.removeEventListener(
+        "profileImageUpdated",
+        syncProfileImage
+      );
     };
   }, []);
 
@@ -381,11 +418,20 @@ function HODDashboard() {
         body: JSON.stringify({ status: newStatus }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Unable to update meeting status.");
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to update meeting status."
+        );
+      }
+
       await fetchHODMeetings();
     } catch (error) {
       console.error("Update meeting status:", error);
-      window.alert(error.message || "Unable to update meeting status.");
+
+      window.alert(
+        error.message || "Unable to update meeting status."
+      );
     }
   };
 
@@ -440,7 +486,7 @@ function HODDashboard() {
   };
 
   // =====================================
-  // GET UPCOMING MEETINGS
+  // GET UPCOMING AND ONGOING MEETINGS
   // =====================================
 
   const getUpcomingMeetings = () => {
@@ -462,14 +508,16 @@ function HODDashboard() {
           return false;
         }
 
+        // Include all meetings scheduled for future dates.
         if (meeting.normalizedDate > today) {
           return true;
         }
 
+        // Include today's meetings only if they have not finished.
         if (meeting.normalizedDate === today) {
-          const start = getTimeMinutes(meeting.startTime);
+          const end = getTimeMinutes(meeting.endTime);
 
-          return start !== null && start >= currentMinutes;
+          return end !== null && end > currentMinutes;
         }
 
         return false;
@@ -488,10 +536,49 @@ function HODDashboard() {
   const upcomingMeetings = getUpcomingMeetings();
 
   // =====================================
-  // GET NEXT MEETING
+  // CHECK WHETHER A MEETING IS ONGOING
   // =====================================
 
-  const nextMeeting = upcomingMeetings[0] || null;
+  const isMeetingOngoing = (meeting) => {
+    if (!meeting) return false;
+
+    const today = getLocalDate();
+
+    if (getMeetingDate(meeting) !== today) {
+      return false;
+    }
+
+    if (normalize(meeting.status) === "rejected") {
+      return false;
+    }
+
+    const now = new Date();
+
+    const currentMinutes =
+      now.getHours() * 60 + now.getMinutes();
+
+    const start = getTimeMinutes(meeting.startTime);
+    const end = getTimeMinutes(meeting.endTime);
+
+    if (start === null || end === null) {
+      return false;
+    }
+
+    return currentMinutes >= start && currentMinutes < end;
+  };
+
+  // =====================================
+  // GET ONGOING MEETING FIRST
+  // =====================================
+
+  const ongoingMeeting =
+    upcomingMeetings.find((meeting) =>
+      isMeetingOngoing(meeting)
+    ) || null;
+
+  // Show ongoing meeting first; otherwise show next upcoming meeting.
+  const nextMeeting =
+    ongoingMeeting || upcomingMeetings[0] || null;
 
   // =====================================
   // GET TEAM NAME
@@ -499,12 +586,21 @@ function HODDashboard() {
 
   const getTeamName = (meeting) => {
     const relatedProject = meeting.project;
+
     const project =
       relatedProject && typeof relatedProject === "object"
-        ? relatedProject.project_name || relatedProject.name || relatedProject.project_id
+        ? relatedProject.project_name ||
+          relatedProject.name ||
+          relatedProject.project_id
         : relatedProject;
 
-    return meeting.team || meeting.projectName || meeting.project_name || project || "Team";
+    return (
+      meeting.team ||
+      meeting.projectName ||
+      meeting.project_name ||
+      project ||
+      "Team"
+    );
   };
 
   // =====================================
@@ -518,8 +614,12 @@ function HODDashboard() {
 
     const [year, month, day] = dateKey.split("-");
 
-    return new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString("en-US", {
-      month: "short", day: "numeric", year: "numeric",
+    return new Date(
+      `${year}-${month}-${day}T00:00:00`
+    ).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
     });
   };
 
@@ -754,7 +854,11 @@ function HODDashboard() {
             <div className="banner-divider"></div>
 
             <div className="banner-content">
-              <h3>Next Meeting</h3>
+              <h3>
+                {ongoingMeeting
+                  ? "Ongoing Meeting"
+                  : "Next Meeting"}
+              </h3>
 
               <div className="banner-meeting-row">
                 <h2>
@@ -772,6 +876,23 @@ function HODDashboard() {
                   </span>
                 )}
               </div>
+
+              {ongoingMeeting && (
+                <span
+                  style={{
+                    display: "inline-block",
+                    marginTop: "8px",
+                    padding: "5px 12px",
+                    borderRadius: "20px",
+                    backgroundColor: "#dcfce7",
+                    color: "#15803d",
+                    fontWeight: "700",
+                    fontSize: "12px"
+                  }}
+                >
+                  ONGOING
+                </span>
+              )}
             </div>
 
             <button
@@ -904,9 +1025,7 @@ function HODDashboard() {
                         const status = meeting.status || "Pending";
 
                         return (
-                          <tr
-                            key={meeting.meeting_id}
-                          >
+                          <tr key={meeting.meeting_id || index}>
                             <td>{index + 1}</td>
 
                             <td className="meeting-project-name">
@@ -1018,7 +1137,17 @@ function HODDashboard() {
                                   ? "current"
                                   : "pending"
                             }`}
-                            title={`${phase.phase_name}${phase.is_placeholder ? ` • ${phase.is_current ? "In progress" : phase.is_completed ? "Completed" : "Not started"}` : ""}`}
+                            title={`${phase.phase_name}${
+                              phase.is_placeholder
+                                ? ` • ${
+                                    phase.is_current
+                                      ? "In progress"
+                                      : phase.is_completed
+                                        ? "Completed"
+                                        : "Not started"
+                                  }`
+                                : ""
+                            }`}
                           />
                         ))}
                       </div>
@@ -1116,6 +1245,7 @@ function HODDashboard() {
             localStorage.removeItem("user");
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("user");
+
             window.location.href = "/";
           }}
         >
@@ -1143,4 +1273,3 @@ function HODDashboard() {
 }
 
 export default HODDashboard;
-

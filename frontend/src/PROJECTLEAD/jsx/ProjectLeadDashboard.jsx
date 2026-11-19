@@ -56,13 +56,6 @@ export default function ProjectLeadDashboard() {
     loadProjects();
   }, [navigate]);
 
-  const members = new Set();
-  projects.forEach((project) => {
-    (project.members || []).forEach((member) => {
-      members.add(member.user_id);
-    });
-  });
-
   const activeProjects = projects.filter(
     (project) => String(project.status).toLowerCase() === "active"
   ).length;
@@ -92,10 +85,6 @@ export default function ProjectLeadDashboard() {
           <div>
             <strong>{projects.length}</strong>
             <span>Projects</span>
-          </div>
-          <div>
-            <strong>{members.size}</strong>
-            <span>Team members</span>
           </div>
         </div>
       </section>
@@ -134,17 +123,9 @@ export default function ProjectLeadDashboard() {
               </div>
             </article>
 
-            <article className="pl-stat-card">
-              <span className="pl-stat-icon indigo">♧</span>
-              <div>
-                <span>Team members</span>
-                <strong>{members.size}</strong>
-                <small>Across your projects</small>
-              </div>
-            </article>
           </section>
 
-          <section className="pl-dashboard-actions">
+          <section className="pl-quick-actions">
             <button
               className="pl-action-card"
               onClick={() => navigate("/project-lead/projects")}
@@ -157,17 +138,6 @@ export default function ProjectLeadDashboard() {
               <b>→</b>
             </button>
 
-            <button
-              className="pl-action-card"
-              onClick={() => navigate("/project-lead/team")}
-            >
-              <span className="pl-action-icon purple">♧</span>
-              <span className="pl-action-copy">
-                <strong>Manage your team</strong>
-                <small>See assigned users and roles</small>
-              </span>
-              <b>→</b>
-            </button>
           </section>
         </>
       )}

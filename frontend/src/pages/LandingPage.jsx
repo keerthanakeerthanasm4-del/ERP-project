@@ -307,10 +307,39 @@ function OriginalArc({ arcRef }) {
       className="vision-planet-system vision-arc-front-layer"
       aria-hidden="true"
     >
-      <div
+      <svg
         ref={arcRef}
         className="vision-planet-edge"
-      />
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="visionHorizonSpectrum" x1="0" y1="0" x2="1000" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#183483" />
+            <stop offset="28%" stopColor="#447dff" />
+            <stop offset="35%" stopColor="#83acff" />
+            <stop offset="36%" stopColor="#ffc18a" />
+            <stop offset="37%" stopColor="#abb1ff" />
+            <stop offset="50%" stopColor="#ddccff" />
+            <stop offset="63%" stopColor="#d4a4ff" />
+            <stop offset="64%" stopColor="#ffb98d" />
+            <stop offset="65%" stopColor="#cf99ff" />
+            <stop offset="76%" stopColor="#8268cc" />
+            <stop offset="100%" stopColor="#252348" />
+          </linearGradient>
+          <filter id="visionHorizonBloom" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" />
+          </filter>
+        </defs>
+        <path
+          className="vision-horizon-halo"
+          d="M 0 500 A 500 500 0 0 1 1000 500"
+        />
+        <path
+          className="vision-horizon-line"
+          d="M 0 500 A 500 500 0 0 1 1000 500"
+        />
+      </svg>
     </div>
   );
 }
@@ -389,10 +418,8 @@ export default function Home() {
     ----------------------------------------- */
 
     gsap.set(arc, {
-      WebkitMaskImage:
-        "linear-gradient(to right, black, black)",
-      maskImage:
-        "linear-gradient(to right, black, black)",
+      WebkitMaskImage: "none",
+      maskImage: "none",
 
       WebkitMaskSize: "100% 100%",
       maskSize: "100% 100%",
@@ -400,7 +427,7 @@ export default function Home() {
       WebkitMaskRepeat: "no-repeat",
       maskRepeat: "no-repeat",
 
-      clipPath: "inset(0 100% 0 0)",
+      clipPath: "inset(-6% 100% 0 0)",
     });
 
     /* -----------------------------------------
@@ -429,7 +456,7 @@ export default function Home() {
     timeline.to(
       arc,
       {
-        clipPath: "inset(0 0% 0 0)",
+        clipPath: "inset(-6% 0% 0 0)",
         duration: 6,
         ease: "power1.inOut",
       },

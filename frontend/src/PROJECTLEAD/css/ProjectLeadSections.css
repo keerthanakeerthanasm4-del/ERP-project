@@ -31,7 +31,7 @@
   font-size: 15px;
 }
 
-.pl-feature-heading button,.pl-section-team-row button {
+.pl-feature-heading button {
   padding: 11px 16px;
   border: 0;
   border-radius: 9px;
@@ -134,80 +134,9 @@
   cursor: pointer;
 }
 
-.pl-section-team-list {
-  display: grid;
-  border: 1px solid #e7eaf2;
-  border-radius: 14px;
-  background: #fff;
-}
-
-.pl-section-team-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 20px;
-  border-top: 1px solid #edf0f5;
-}
-
-.pl-section-team-row:first-child {
-  border-top: 0;
-}
-
-.pl-section-avatar {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(145deg,#d9f4ff,#ece1ff);
-  color: #4469c9;
-  font-weight: 800;
-}
-
-.pl-section-team-info {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.pl-section-team-info strong {
-  font-size: 14px;
-}
-
-.pl-section-team-info span,.pl-section-team-info small {
-  color: #8290a6;
-  font-size: 12px;
-}
-
-.pl-section-role {
-  margin-left: auto;
-  padding: 6px 10px;
-  border-radius: 99px;
-  background: #eef3ff;
-  color: #4c69bf;
-  font-size: 12px;
-  font-weight: 750;
-  white-space: nowrap;
-}
-
-.pl-section-team-row button {
-  padding: 9px 13px;
-  font-size: 12px;
-}
-
 @media (max-width:640px) {
   .pl-feature-heading {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .pl-section-team-row {
-    flex-wrap: wrap;
-    padding: 13px;
-  }
-  .pl-section-role {
-    margin-left: 54px;
-  }
-  .pl-section-team-row button {
-    margin-left: auto;
   }
 }

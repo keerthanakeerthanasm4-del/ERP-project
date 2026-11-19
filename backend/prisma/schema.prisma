@@ -23,6 +23,7 @@ model User {
   projectLeadAssignment DepartmentProjectLeadAssignment?
   projectLeadHistory    ProjectLeadAssignmentHistory[]
   memberships  ProjectMember[]
+  projectMemberHistory ProjectMemberHistory[]
 }
 
 model Project {
@@ -39,6 +40,7 @@ model Project {
 
   phases   ProjectPhase[]
   members  ProjectMember[]
+  memberHistory ProjectMemberHistory[]
   meetings Meeting[]
 }
 
@@ -59,6 +61,20 @@ model ProjectMember {
   user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([project_id, user_id])
+}
+
+model ProjectMemberHistory {
+  id         Int               @id @default(autoincrement())
+  project_id String
+  user_id    Int
+  role       ProjectMemberRole
+  added_at   DateTime          @default(now())
+  removed_at DateTime          @default(now())
+
+  project Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([project_id, removed_at])
 }
 
 model Meeting {

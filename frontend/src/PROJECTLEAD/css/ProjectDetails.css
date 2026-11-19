@@ -177,6 +177,52 @@
   font-size: 15px;
 }
 
+.pd-member-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-member-actions>b {
+  color: #1769d2;
+  font-size: 15px;
+}
+
+.pd-remove-user {
+  padding: 8px 12px;
+  border: 1px solid #f0c9ce;
+  border-radius: 7px;
+  background: #fff;
+  color: #b42335;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-remove-user:hover:not(:disabled) {
+  background: #fff1f2;
+  border-color: #df8792;
+}
+
+.pd-remove-user:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.pd-previous-members-card {
+  background: #fbfcff;
+}
+
+.pd-previous-member {
+  background: #fff;
+}
+
+.pd-previous-member small {
+  color: #8290a9;
+  font-size: 13px;
+}
+
 @media (max-width:600px) {
   .pd-form {
     grid-template-columns: 1fr;
@@ -194,6 +240,10 @@
   .pd-member {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .pd-member-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 

@@ -3,8 +3,10 @@ import React, { useCallback, useState, useEffect, useRef } from "react";
 import "../HOD styles/HODMeetings.css";
 import { API_URL } from "../../api.js";
 
+// GET TODAY'S DATE
 const getTodayDate = () => {
   const today = new Date();
+
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
@@ -12,11 +14,24 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+// GET CURRENT TIME
+const getCurrentTimeString = () => {
+  const now = new Date();
+
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+
+  return `${hours}:${minutes}`;
+};
+
+// GET MEETING DATE
 const getMeetingDateKey = (meeting) => {
   const value =
     meeting.date ||
     meeting.meetingDate ||
-    meeting.meeting_date;
+    meeting.meeting_date ||
+    meeting.scheduledDate ||
+    meeting.scheduled_date;
 
   if (!value) return "";
 
@@ -24,40 +39,78 @@ const getMeetingDateKey = (meeting) => {
     const year = value.getFullYear();
     const month = String(value.getMonth() + 1).padStart(2, "0");
     const day = String(value.getDate()).padStart(2, "0");
+
     return `${year}-${month}-${day}`;
   }
 
   const dateString = String(value).trim();
-  const match = dateString.match(/^(\d{4}-\d{2}-\d{2})/);
 
-  if (match) return match[1];
+  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
-  const parsed = new Date(dateString);
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
 
-  if (Number.isNaN(parsed.getTime())) return "";
+  const otherMatch = dateString.match(
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
+  );
 
-  return [
-    parsed.getFullYear(),
-    String(parsed.getMonth() + 1).padStart(2, "0"),
-    String(parsed.getDate()).padStart(2, "0")
-  ].join("-");
+  if (otherMatch) {
+    return `${otherMatch[3]}-${String(otherMatch[2]).padStart(
+      2,
+      "0"
+    )}-${String(otherMatch[1]).padStart(2, "0")}`;
+  }
+
+  return "";
 };
 
+// GET MEETING START TIME
 const getMeetingStartTime = (meeting) =>
-  meeting.startTime || meeting.start_time || "";
+  meeting.startTime ||
+  meeting.start_time ||
+  "";
 
+// GET MEETING END TIME
 const getMeetingEndTime = (meeting) =>
-  meeting.endTime || meeting.end_time || "";
+  meeting.endTime ||
+  meeting.end_time ||
+  "";
 
+// CONVERT TIME INTO MINUTES
 const getTimeMinutes = (time) => {
-  if (!time) return 0;
+  if (!time) return null;
 
-  const match = String(time).match(/^(\d{1,2}):(\d{2})/);
+  const match = String(time)
+    .trim()
+    .match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
 
-  if (!match) return 0;
+  if (!match) return null;
 
-  return Number(match[1]) * 60 + Number(match[2]);
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const period = match[3]?.toUpperCase();
+
+  if (minutes > 59) return null;
+
+  if (period) {
+    if (hours < 1 || hours > 12) return null;
+
+    if (period === "PM" && hours < 12) {
+      hours += 12;
+    } else if (period === "AM" && hours === 12) {
+      hours = 0;
+    }
+  } else if (hours > 23) {
+    return null;
+  }
+
+  return hours * 60 + minutes;
 };
+
+// CHECK REJECTED MEETINGS
+const isRejectedMeeting = (meeting) =>
+  String(meeting.status || "").trim().toLowerCase() === "rejected";
 
 const HODMeetings = ({ initialShowForm = false }) => {
   const formRef = useRef(null);
@@ -65,6 +118,8 @@ const HODMeetings = ({ initialShowForm = false }) => {
   const [meetings, setMeetings] = useState([]);
   const [projects, setProjects] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
+
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const [formData, setFormData] = useState({
     title: "",
@@ -75,7 +130,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
     venue: ""
   });
 
-  // LOAD MEETINGS FROM BACKEND
+  // LOAD MEETINGS
   const loadMeetings = useCallback(async () => {
     try {
       const token =
@@ -97,19 +152,17 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
       const data = await response.json();
 
-      console.log("Meetings API status:", response.status);
-      console.log("Meetings API response:", data);
-
       if (!response.ok) {
         throw new Error(data.message || "Unable to load meetings.");
       }
 
       if (!Array.isArray(data.meetings)) {
-        throw new Error("The backend response does not contain a meetings array.");
+        throw new Error("Meetings array not found in backend response.");
       }
 
       setMeetings(data.meetings);
 
+      console.log("HOD meetings loaded:", data.meetings);
     } catch (error) {
       console.error("Meeting loading error:", error);
     }
@@ -129,14 +182,32 @@ const HODMeetings = ({ initialShowForm = false }) => {
       loadMeetings();
     };
 
-    window.addEventListener("hodMeetingsUpdated", handleMeetingsUpdated);
+    window.addEventListener(
+      "hodMeetingsUpdated",
+      handleMeetingsUpdated
+    );
 
     return () => {
       window.clearInterval(interval);
       window.removeEventListener("focus", loadMeetings);
-      window.removeEventListener("hodMeetingsUpdated", handleMeetingsUpdated);
+
+      window.removeEventListener(
+        "hodMeetingsUpdated",
+        handleMeetingsUpdated
+      );
     };
   }, [loadMeetings]);
+
+  // UPDATE CURRENT TIME EVERY 5 SECONDS
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 5000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, []);
 
   // FETCH PROJECTS
   useEffect(() => {
@@ -161,7 +232,6 @@ const HODMeetings = ({ initialShowForm = false }) => {
         }
 
         setProjects(data.projects || []);
-
       } catch (error) {
         console.error("Projects fetch error:", error);
       }
@@ -170,7 +240,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
     fetchProjects();
   }, []);
 
-  // SCROLL TO CREATE MEETING
+  // SCROLL TO FORM WHEN REQUESTED
   useEffect(() => {
     if (initialShowForm) {
       const timer = setTimeout(() => {
@@ -208,8 +278,29 @@ const HODMeetings = ({ initialShowForm = false }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
 
+    if (!formData.date || !formData.startTime || !formData.endTime) {
+      alert("Please select the meeting date, start time and end time.");
+      return;
+    }
+
+    if (formData.date < getTodayDate()) {
+      alert("You cannot create a meeting for a past date.");
+      return;
+    }
+
     if (formData.endTime <= formData.startTime) {
       alert("End time must be after start time.");
+      return;
+    }
+
+    const selectedStartDateTime = new Date(
+      `${formData.date}T${formData.startTime}:00`
+    );
+
+    if (selectedStartDateTime <= new Date()) {
+      alert(
+        "You cannot create a meeting for a time that has already passed."
+      );
       return;
     }
 
@@ -259,27 +350,93 @@ const HODMeetings = ({ initialShowForm = false }) => {
       setSelectedMeeting(null);
 
       alert("Meeting created successfully!");
-
     } catch (error) {
       console.error("Meeting creation error:", error);
       alert(error.message || "Unable to save meeting.");
     }
   };
 
-  // TODAY AND UPCOMING MEETINGS
+  // CURRENT DATE AND TIME
   const today = getTodayDate();
 
-  const todaysMeetings = meetings
-    .filter((meeting) => getMeetingDateKey(meeting) === today)
-    .sort((a, b) =>
-      getTimeMinutes(getMeetingStartTime(a)) -
-      getTimeMinutes(getMeetingStartTime(b))
+  const now = new Date(currentTime);
+
+  const currentMinutes =
+    now.getHours() * 60 + now.getMinutes();
+
+  // GET DISPLAY STATUS
+  const getMeetingDisplayStatus = (meeting) => {
+    const meetingDate = getMeetingDateKey(meeting);
+
+    if (!meetingDate) return "Unknown";
+
+    if (meetingDate < today) return "Completed";
+
+    if (meetingDate > today) return "Upcoming";
+
+    const start = getTimeMinutes(
+      getMeetingStartTime(meeting)
     );
 
+    const end = getTimeMinutes(
+      getMeetingEndTime(meeting)
+    );
+
+    if (start === null || end === null) {
+      return "Upcoming";
+    }
+
+    if (currentMinutes >= end) {
+      return "Completed";
+    }
+
+    if (currentMinutes >= start && currentMinutes < end) {
+      return "Ongoing";
+    }
+
+    return "Upcoming";
+  };
+
+  // TODAY'S MEETINGS
+  // SHOWS UPCOMING, ONGOING AND COMPLETED
+  const todaysMeetings = meetings
+    .filter((meeting) => {
+      if (isRejectedMeeting(meeting)) return false;
+
+      return getMeetingDateKey(meeting) === today;
+    })
+    .sort((a, b) => {
+      const firstStart =
+        getTimeMinutes(getMeetingStartTime(a)) ?? 0;
+
+      const secondStart =
+        getTimeMinutes(getMeetingStartTime(b)) ?? 0;
+
+      return firstStart - secondStart;
+    });
+
+  // UPCOMING MEETINGS
+  // TODAY'S NOT-STARTED AND ALL FUTURE MEETINGS
   const upcomingMeetings = meetings
     .filter((meeting) => {
+      if (isRejectedMeeting(meeting)) return false;
+
       const meetingDate = getMeetingDateKey(meeting);
-      return meetingDate && meetingDate > today;
+
+      if (!meetingDate) return false;
+
+      if (meetingDate > today) return true;
+
+      if (meetingDate < today) return false;
+
+      const meetingStart = getTimeMinutes(
+        getMeetingStartTime(meeting)
+      );
+
+      return (
+        meetingStart !== null &&
+        meetingStart > currentMinutes
+      );
     })
     .sort((a, b) => {
       const dateDifference = getMeetingDateKey(a).localeCompare(
@@ -288,10 +445,13 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
       if (dateDifference !== 0) return dateDifference;
 
-      return (
-        getTimeMinutes(getMeetingStartTime(a)) -
-        getTimeMinutes(getMeetingStartTime(b))
-      );
+      const firstStart =
+        getTimeMinutes(getMeetingStartTime(a)) ?? 0;
+
+      const secondStart =
+        getTimeMinutes(getMeetingStartTime(b)) ?? 0;
+
+      return firstStart - secondStart;
     });
 
   // FORMAT DATE
@@ -303,9 +463,12 @@ const HODMeetings = ({ initialShowForm = false }) => {
     );
 
     const normalized = dateKey ? dateKey[1] : dateValue;
+
     const date = new Date(`${normalized}T00:00:00`);
 
-    if (Number.isNaN(date.getTime())) return String(dateValue);
+    if (Number.isNaN(date.getTime())) {
+      return String(dateValue);
+    }
 
     return date.toLocaleDateString("en-IN", {
       day: "numeric",
@@ -318,15 +481,16 @@ const HODMeetings = ({ initialShowForm = false }) => {
   const formatTime = (time) => {
     if (!time) return "--";
 
-    const match = String(time).match(/^(\d{1,2}):(\d{2})/);
+    const minutes = getTimeMinutes(time);
 
-    if (!match) return String(time);
+    if (minutes === null) return String(time);
 
-    const hours = Number(match[1]);
-    const minutes = Number(match[2]);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
 
     const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
+
+    date.setHours(hours, remainingMinutes, 0, 0);
 
     return date.toLocaleTimeString("en-IN", {
       hour: "2-digit",
@@ -351,6 +515,8 @@ const HODMeetings = ({ initialShowForm = false }) => {
   };
 
   // MEETING TABLE
+  // VIEW DETAILS IS ON THE RIGHT AFTER STATUS
+  // ACTION HEADING REMOVED
   const renderMeetingTable = (meetingList, emptyMessage) => (
     <div className="table-wrapper">
       <table className="hod-meetings-table">
@@ -358,42 +524,65 @@ const HODMeetings = ({ initialShowForm = false }) => {
           <tr>
             <th>Team / Project</th>
             <th>Meeting Time</th>
-            <th>Action</th>
+            <th>Status</th>
+            <th></th>
           </tr>
         </thead>
 
         <tbody>
           {meetingList.length === 0 ? (
             <tr>
-              <td colSpan="3" className="hod-no-meetings">
+              <td colSpan="4" className="hod-no-meetings">
                 {emptyMessage}
               </td>
             </tr>
           ) : (
-            meetingList.map((meeting, index) => (
-              <tr key={meeting.meeting_id || index}>
-                <td>
-                  <strong className="hod-team-name">
-                    {getTeamName(meeting)}
-                  </strong>
-                </td>
+            meetingList.map((meeting, index) => {
+              const status = getMeetingDisplayStatus(meeting);
 
-                <td className="hod-meeting-time">
-                  {formatTime(getMeetingStartTime(meeting))} –{" "}
-                  {formatTime(getMeetingEndTime(meeting))}
-                </td>
+              return (
+                <tr key={meeting.meeting_id || index}>
+                  <td>
+                    <strong className="hod-team-name">
+                      {getTeamName(meeting)}
+                    </strong>
+                  </td>
 
-                <td className="hod-action-cell">
-                  <button
-                    type="button"
-                    className="view-details-button"
-                    onClick={() => setSelectedMeeting(meeting)}
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            ))
+                  <td className="hod-meeting-time">
+                    {formatTime(getMeetingStartTime(meeting))} –{" "}
+                    {formatTime(getMeetingEndTime(meeting))}
+                  </td>
+
+                  <td>
+                    <strong
+                      style={{
+                        color:
+                          status === "Completed"
+                            ? "#16a34a"
+                            : status === "Ongoing"
+                            ? "#2563eb"
+                            : status === "Upcoming"
+                            ? "#64748b"
+                            : "#dc2626",
+                        fontWeight: 700
+                      }}
+                    >
+                      {status.toUpperCase()}
+                    </strong>
+                  </td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="view-details-button"
+                      onClick={() => setSelectedMeeting(meeting)}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
@@ -510,7 +699,18 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
               <div className="hod-detail-item">
                 <span>Status</span>
-                <strong>{selectedMeeting.status || "Pending"}</strong>
+                <strong
+                  style={{
+                    color:
+                      getMeetingDisplayStatus(selectedMeeting) === "Completed"
+                        ? "#16a34a"
+                        : getMeetingDisplayStatus(selectedMeeting) === "Ongoing"
+                        ? "#2563eb"
+                        : "#64748b"
+                  }}
+                >
+                  {getMeetingDisplayStatus(selectedMeeting).toUpperCase()}
+                </strong>
               </div>
             </div>
           </section>
@@ -592,6 +792,11 @@ const HODMeetings = ({ initialShowForm = false }) => {
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
+                min={
+                  formData.date === getTodayDate()
+                    ? getCurrentTimeString()
+                    : undefined
+                }
                 required
               />
             </div>

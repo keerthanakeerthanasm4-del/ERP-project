@@ -22,6 +22,9 @@ export default function ProjectDetails() {
   const [message, setMessage] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
+  const [removingUserId, setRemovingUserId] = useState(null);
+  const [memberActionMessage, setMemberActionMessage] = useState("");
+  const [memberActionError, setMemberActionError] = useState("");
   const token = () => localStorage.getItem("token") || sessionStorage.getItem("token");
   async function loadProject() {
     try {
@@ -37,6 +40,7 @@ export default function ProjectDetails() {
         return;
       }
       setProject(data.project);
+      setError("");
     } catch (err) {
       console.error("Load project details:", err);
       setError("Unable to connect to the backend.");
@@ -85,6 +89,37 @@ export default function ProjectDetails() {
       setError("Unable to connect to the backend.");
     } finally {
       setSaving(false);
+    }
+  }
+  async function removeUser(member) {
+    const confirmed = window.confirm(
+      `Remove ${member.name} from this project? They will remain in Previous users.`
+    );
+    if (!confirmed) return;
+
+    setRemovingUserId(member.user_id);
+    setMemberActionMessage("");
+    setMemberActionError("");
+    try {
+      const response = await fetch(
+        `${API_URL}/api/project-lead/projects/${encodeURIComponent(projectId)}/members/${member.user_id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token()}` },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to remove user.");
+      }
+
+      setMemberActionMessage(data.message);
+      await loadProject();
+    } catch (err) {
+      console.error("Remove project member:", err);
+      setMemberActionError(err.message || "Unable to connect to the backend.");
+    } finally {
+      setRemovingUserId(null);
     }
   }
   const phases = project?.phases || [];
@@ -153,7 +188,13 @@ export default function ProjectDetails() {
           </section>
           <section className="pd-members-card">
             <h2>Assigned users ({project.members.length})</h2>
-            {project.members.length === 0 ? <p className="pd-empty">No users have been assigned yet.</p> : <div className="pd-member-list">{project.members.map(member => <article className="pd-member" key={member.user_id}><div><strong>{member.name}</strong><span>{member.usn || "No USN"} · {member.email}</span></div><b>{ROLE_LABELS[member.role]}</b></article>)}</div>}
+            {memberActionMessage && <p className="pd-success" role="status">{memberActionMessage}</p>}
+            {memberActionError && <p className="pd-error" role="alert">{memberActionError}</p>}
+            {project.members.length === 0 ? <p className="pd-empty">No users have been assigned yet.</p> : <div className="pd-member-list">{project.members.map(member => <article className="pd-member" key={member.user_id}><div><strong>{member.name}</strong><span>{member.usn || "No USN"} · {member.email}</span></div><div className="pd-member-actions"><b>{ROLE_LABELS[member.role]}</b><button className="pd-remove-user" type="button" onClick={() => removeUser(member)} disabled={removingUserId !== null}>{removingUserId === member.user_id ? "Removing…" : "Remove"}</button></div></article>)}</div>}
+          </section>
+          <section className="pd-members-card pd-previous-members-card">
+            <h2>Previous users ({project.previousMembers?.length || 0})</h2>
+            {!project.previousMembers?.length ? <p className="pd-empty">Users removed from this project will appear here.</p> : <div className="pd-member-list">{project.previousMembers.map((member, index) => <article className="pd-member pd-previous-member" key={`${member.user_id}-${member.removed_at}-${index}`}><div><strong>{member.name}</strong><span>{member.usn || "No USN"} · {member.email}</span><small>Added {new Date(member.added_at).toLocaleDateString()} · Removed {new Date(member.removed_at).toLocaleDateString()}</small></div><b>{ROLE_LABELS[member.role]}</b></article>)}</div>}
           </section>
         </>}
       </div>
