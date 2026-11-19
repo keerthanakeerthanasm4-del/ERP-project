@@ -31,6 +31,9 @@ export default function ProjectLeadLayout() {
         <NavLink to="/project-lead/profile" end className={({
           isActive
         }) => `pl-side-link${isActive ? " is-active" : ""}`}><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg><span>Profile</span></NavLink>
+        <NavLink to="/project-lead/meetings" end className={({
+          isActive
+        }) => `pl-side-link${isActive ? " is-active" : ""}`}><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /><path d="m9 15 2 2 4-4" /></svg><span>Meeting</span></NavLink>
       </nav>
       <div className="pl-sidebar-bottom"><div className="pl-sidebar-note"><span className="pl-note-dot" /><div><strong>Project Lead</strong><small>Manage your workspace</small></div></div><button className="pl-sidebar-logout" onClick={logout}>Log out</button></div>
     </aside>

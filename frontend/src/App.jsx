@@ -9,7 +9,7 @@ import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
 import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
 import ProjectLeadCover from "./PROJECTLEAD/jsx/ProjectLeadCover.jsx";
 import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
-import { ProjectLeadProjects, ProjectLeadTeam } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
+import { ProjectLeadMeetings, ProjectLeadProjects, ProjectLeadTeam } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 
 /* -------------------------------------------------------
    API CONFIGURATION
@@ -623,6 +623,7 @@ export default function App() {
         <Route path="dashboard" element={<ProjectLeadDashboard />} />
         <Route path="projects" element={<ProjectLeadProjects />} />
         <Route path="team" element={<ProjectLeadTeam />} />
+        <Route path="meetings" element={<ProjectLeadMeetings />} />
         <Route path="profile" element={<ProjectLeadProfile />} />
         <Route path="create-project" element={<CreateProject />} />
         <Route path="projects/:projectId" element={<ProjectDetails />} />
