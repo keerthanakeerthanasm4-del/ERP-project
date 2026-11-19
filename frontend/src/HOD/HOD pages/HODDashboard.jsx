@@ -50,6 +50,10 @@ function HODDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [openCreateMeeting, setOpenCreateMeeting] = useState(false);
 
+  // NEW: remembers which Meetings section should be opened
+  const [meetingInitialSection, setMeetingInitialSection] =
+    useState("today");
+
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("hodProfileImage") || null
   );
@@ -461,8 +465,13 @@ function HODDashboard() {
     { name: "Create Project Lead", icon: <UserPlus /> }
   ];
 
-  const openMeetingsPage = (createForm = false) => {
+  // UPDATED: accepts the section to open in Meetings
+  const openMeetingsPage = (
+    createForm = false,
+    section = "today"
+  ) => {
     setOpenCreateMeeting(createForm);
+    setMeetingInitialSection(section);
     setActivePage("Meetings");
   };
 
@@ -522,12 +531,10 @@ function HODDashboard() {
           return false;
         }
 
-        // Include all meetings scheduled for future dates.
         if (meeting.normalizedDate > today) {
           return true;
         }
 
-        // Include today's meetings only if they have not finished.
         if (meeting.normalizedDate === today) {
           const end = getTimeMinutes(meeting.endTime);
 
@@ -590,7 +597,6 @@ function HODDashboard() {
       isMeetingOngoing(meeting)
     ) || null;
 
-  // Show ongoing meeting first; otherwise show next upcoming meeting.
   const nextMeeting =
     ongoingMeeting || upcomingMeetings[0] || null;
 
@@ -808,6 +814,7 @@ function HODDashboard() {
         <HODMeetings
           key={openCreateMeeting ? "create-meeting" : "meetings-list"}
           initialShowForm={openCreateMeeting}
+          initialSection={meetingInitialSection}
         />
       );
     }
@@ -1010,7 +1017,12 @@ function HODDashboard() {
                 <CalendarDays />
                 <h3>Upcoming Meetings</h3>
 
-                <button onClick={() => openMeetingsPage(false)}>
+                {/* UPDATED: opens Upcoming Meetings section */}
+                <button
+                  onClick={() =>
+                    openMeetingsPage(false, "upcoming")
+                  }
+                >
                   View All <ArrowRight size={16} />
                 </button>
               </div>

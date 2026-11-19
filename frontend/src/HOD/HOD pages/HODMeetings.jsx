@@ -4,7 +4,7 @@ import "../HOD styles/HODMeetings.css";
 
 const API_URL = "http://localhost:5000";
 
-// GET TODAY'S DATE
+// GET TODAY'S DATE USING LOCAL TIME
 const getTodayDate = () => {
   const today = new Date();
 
@@ -13,16 +13,6 @@ const getTodayDate = () => {
   const day = String(today.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
-};
-
-// GET CURRENT TIME
-const getCurrentTimeString = () => {
-  const now = new Date();
-
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-
-  return `${hours}:${minutes}`;
 };
 
 // GET MEETING DATE
@@ -52,15 +42,11 @@ const getMeetingDateKey = (meeting) => {
     return `${match[1]}-${match[2]}-${match[3]}`;
   }
 
-  const otherMatch = dateString.match(
-    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
-  );
+  // Supports DD/MM/YYYY and DD-MM-YYYY
+  const otherMatch = dateString.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
 
   if (otherMatch) {
-    return `${otherMatch[3]}-${String(otherMatch[2]).padStart(
-      2,
-      "0"
-    )}-${String(otherMatch[1]).padStart(2, "0")}`;
+    return `${otherMatch[3]}-${String(otherMatch[2]).padStart(2, "0")}-${String(otherMatch[1]).padStart(2, "0")}`;
   }
 
   return "";
@@ -68,15 +54,11 @@ const getMeetingDateKey = (meeting) => {
 
 // GET MEETING START TIME
 const getMeetingStartTime = (meeting) =>
-  meeting.startTime ||
-  meeting.start_time ||
-  "";
+  meeting.startTime || meeting.start_time || "";
 
 // GET MEETING END TIME
 const getMeetingEndTime = (meeting) =>
-  meeting.endTime ||
-  meeting.end_time ||
-  "";
+  meeting.endTime || meeting.end_time || "";
 
 // CONVERT TIME INTO MINUTES
 const getTimeMinutes = (time) => {
@@ -113,13 +95,16 @@ const getTimeMinutes = (time) => {
 const isRejectedMeeting = (meeting) =>
   String(meeting.status || "").trim().toLowerCase() === "rejected";
 
-const HODMeetings = ({ initialShowForm = false }) => {
+const HODMeetings = ({
+  initialShowForm = false,
+  initialSection = "today"
+}) => {
   const formRef = useRef(null);
+  const upcomingSectionRef = useRef(null);
 
   const [meetings, setMeetings] = useState([]);
   const [projects, setProjects] = useState([]);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
-
   const [currentTime, setCurrentTime] = useState(Date.now());
 
   const [formData, setFormData] = useState({
@@ -162,7 +147,6 @@ const HODMeetings = ({ initialShowForm = false }) => {
       }
 
       setMeetings(data.meetings);
-
       console.log("HOD meetings loaded:", data.meetings);
     } catch (error) {
       console.error("Meeting loading error:", error);
@@ -183,15 +167,11 @@ const HODMeetings = ({ initialShowForm = false }) => {
       loadMeetings();
     };
 
-    window.addEventListener(
-      "hodMeetingsUpdated",
-      handleMeetingsUpdated
-    );
+    window.addEventListener("hodMeetingsUpdated", handleMeetingsUpdated);
 
     return () => {
       window.clearInterval(interval);
       window.removeEventListener("focus", loadMeetings);
-
       window.removeEventListener(
         "hodMeetingsUpdated",
         handleMeetingsUpdated
@@ -255,6 +235,20 @@ const HODMeetings = ({ initialShowForm = false }) => {
     }
   }, [initialShowForm]);
 
+  // SCROLL TO UPCOMING MEETINGS WHEN REQUESTED
+  useEffect(() => {
+    if (initialSection === "upcoming") {
+      const timer = setTimeout(() => {
+        upcomingSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [initialSection]);
+
   // HANDLE FORM INPUT
   const handleChange = (e) => {
     setFormData((previous) => ({
@@ -275,32 +269,127 @@ const HODMeetings = ({ initialShowForm = false }) => {
     });
   };
 
+  // FORMAT TIME
+  const formatTime = (time) => {
+    if (!time) return "--";
+
+    const minutes = getTimeMinutes(time);
+
+    if (minutes === null) return String(time);
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    const date = new Date();
+    date.setHours(hours, remainingMinutes, 0, 0);
+
+    return date.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+  };
+
+  // GET TEAM / PROJECT NAME
+  const getTeamName = (meeting) => {
+    if (typeof meeting.project === "string") {
+      return meeting.project;
+    }
+
+    return (
+      meeting.projectName ||
+      meeting.project_name ||
+      meeting.project?.project_name ||
+      meeting.team ||
+      "Team"
+    );
+  };
+
   // CREATE MEETING
   const handleCreate = async (e) => {
     e.preventDefault();
 
-    if (!formData.date || !formData.startTime || !formData.endTime) {
-      alert("Please select the meeting date, start time and end time.");
+    // CHECK REQUIRED FIELDS
+    if (
+      !formData.title.trim() ||
+      !formData.project.trim() ||
+      !formData.date ||
+      !formData.startTime ||
+      !formData.endTime ||
+      !formData.venue.trim()
+    ) {
+      alert("Please fill in all meeting details.");
       return;
     }
 
-    if (formData.date < getTodayDate()) {
-      alert("You cannot create a meeting for a past date.");
-      return;
-    }
+    const newStart = getTimeMinutes(formData.startTime);
+    const newEnd = getTimeMinutes(formData.endTime);
 
-    if (formData.endTime <= formData.startTime) {
+    // CHECK VALID TIME
+    if (
+      newStart === null ||
+      newEnd === null ||
+      newEnd <= newStart
+    ) {
       alert("End time must be after start time.");
       return;
     }
 
-    const selectedStartDateTime = new Date(
-      `${formData.date}T${formData.startTime}:00`
-    );
+    // CHECK CURRENT LOCAL DATE AND TIME AT SUBMISSION
+    const now = new Date();
+    const currentDate = getTodayDate();
 
-    if (selectedStartDateTime <= new Date()) {
+    const currentMinutesPrecise =
+      now.getHours() * 60 +
+      now.getMinutes() +
+      now.getSeconds() / 60;
+
+    // PAST DATE CHECK
+    if (formData.date < currentDate) {
+      alert("You cannot create a meeting for a past date.");
+      return;
+    }
+
+    // PAST TIME CHECK
+    if (
+      formData.date === currentDate &&
+      newStart <= currentMinutesPrecise
+    ) {
       alert(
         "You cannot create a meeting for a time that has already passed."
+      );
+      return;
+    }
+
+    // CHECK OVERLAPPING MEETINGS ON THE SAME DATE
+    const conflictingMeeting = meetings.find((meeting) => {
+      if (isRejectedMeeting(meeting)) return false;
+
+      if (getMeetingDateKey(meeting) !== formData.date) return false;
+
+      const existingStart = getTimeMinutes(
+        getMeetingStartTime(meeting)
+      );
+
+      const existingEnd = getTimeMinutes(
+        getMeetingEndTime(meeting)
+      );
+
+      if (
+        existingStart === null ||
+        existingEnd === null ||
+        existingEnd <= existingStart
+      ) {
+        return false;
+      }
+
+      // Touching endpoints are allowed
+      return newStart < existingEnd && newEnd > existingStart;
+    });
+
+    if (conflictingMeeting) {
+      alert(
+        "Another meeting is already scheduled at this time. Please choose a different time slot."
       );
       return;
     }
@@ -359,7 +448,6 @@ const HODMeetings = ({ initialShowForm = false }) => {
 
   // CURRENT DATE AND TIME
   const today = getTodayDate();
-
   const now = new Date(currentTime);
 
   const currentMinutes =
@@ -478,46 +566,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
     });
   };
 
-  // FORMAT TIME
-  const formatTime = (time) => {
-    if (!time) return "--";
-
-    const minutes = getTimeMinutes(time);
-
-    if (minutes === null) return String(time);
-
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-
-    const date = new Date();
-
-    date.setHours(hours, remainingMinutes, 0, 0);
-
-    return date.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
-    });
-  };
-
-  // GET TEAM / PROJECT NAME
-  const getTeamName = (meeting) => {
-    if (typeof meeting.project === "string") {
-      return meeting.project;
-    }
-
-    return (
-      meeting.projectName ||
-      meeting.project_name ||
-      meeting.project?.project_name ||
-      meeting.team ||
-      "Team"
-    );
-  };
-
   // MEETING TABLE
-  // VIEW DETAILS IS ON THE RIGHT AFTER STATUS
-  // ACTION HEADING REMOVED
   const renderMeetingTable = (meetingList, emptyMessage) => (
     <div className="table-wrapper">
       <table className="hod-meetings-table">
@@ -617,7 +666,10 @@ const HODMeetings = ({ initialShowForm = false }) => {
       </section>
 
       {/* UPCOMING MEETINGS */}
-      <section className="dashboard-card upcoming-card hod-meetings-card">
+      <section
+        ref={upcomingSectionRef}
+        className="dashboard-card upcoming-card hod-meetings-card"
+      >
         <div className="section-heading card-heading hod-meetings-heading">
           <div>
             <h3>Upcoming Meetings</h3>
@@ -731,7 +783,7 @@ const HODMeetings = ({ initialShowForm = false }) => {
           </div>
         </div>
 
-        <form onSubmit={handleCreate}>
+        <form onSubmit={handleCreate} noValidate>
           <div className="hod-form-grid">
 
             <div className="hod-form-group">
@@ -793,11 +845,6 @@ const HODMeetings = ({ initialShowForm = false }) => {
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                min={
-                  formData.date === getTodayDate()
-                    ? getCurrentTimeString()
-                    : undefined
-                }
                 required
               />
             </div>
