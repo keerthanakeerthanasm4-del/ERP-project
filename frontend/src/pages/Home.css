@@ -1,0 +1,1169 @@
+/* =====================================================
+   HOME.CSS
+   ERP PROJECT TRACKING LANDING PAGE
+   Original design preserved
+===================================================== */
+
+/* PAGE BACKGROUND */
+
+.vision-home {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: 14px 8px 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 50% -20%,
+      #172f86 0%,
+      #09163e 38%,
+      #030817 85%
+    );
+
+  color: #ffffff;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+/* MAIN ROUNDED WINDOW */
+
+.vision-window {
+  position: relative;
+  isolation: isolate;
+
+  width: 100%;
+  max-width: 1600px;
+  height: min(860px, calc(100svh - 34px));
+  min-height: 590px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(143, 169, 242, 0.36);
+  border-radius: 17px;
+
+  background:
+    radial-gradient(
+      ellipse at 85% 32%,
+      rgba(15, 53, 173, 0.25),
+      transparent 47%
+    ),
+    linear-gradient(
+      145deg,
+      #020714 0%,
+      #030919 50%,
+      #07123a 100%
+    );
+
+  box-shadow:
+    0 0 0 1px rgba(29, 54, 111, 0.2),
+    0 22px 65px rgba(0, 0, 0, 0.32);
+}
+
+/* BACKGROUND BLUE GLOW */
+
+.vision-background-glow {
+  position: absolute;
+  z-index: 0;
+
+  top: -18%;
+  right: -16%;
+
+  width: 74%;
+  height: 92%;
+
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse at 70% 30%,
+    rgba(41, 94, 255, 0.46),
+    rgba(13, 50, 171, 0.24) 32%,
+    transparent 69%
+  );
+
+  filter: blur(36px);
+}
+
+/* =====================================================
+   SMALL STARS
+===================================================== */
+
+.vision-stars {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vision-stars span {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+
+  border-radius: 50%;
+  background: #3b79ff;
+
+  box-shadow: 0 0 9px #4285ff;
+
+  animation: vision-star-twinkle 3s ease-in-out infinite;
+}
+
+.vision-stars span:nth-child(1) {
+  top: 4%;
+  left: 18%;
+}
+
+.vision-stars span:nth-child(2) {
+  top: 12%;
+  left: 77%;
+  animation-delay: 0.6s;
+}
+
+.vision-stars span:nth-child(3) {
+  top: 36%;
+  left: 14%;
+  animation-delay: 1.2s;
+}
+
+.vision-stars span:nth-child(4) {
+  top: 52%;
+  left: 6%;
+  animation-delay: 0.4s;
+}
+
+.vision-stars span:nth-child(5) {
+  top: 51%;
+  left: 29%;
+  animation-delay: 1.7s;
+}
+
+.vision-stars span:nth-child(6) {
+  top: 46%;
+  left: 65%;
+  animation-delay: 0.9s;
+}
+
+.vision-stars span:nth-child(7) {
+  top: 69%;
+  left: 36%;
+  animation-delay: 1.4s;
+}
+
+.vision-stars span:nth-child(8) {
+  top: 77%;
+  left: 89%;
+  animation-delay: 2s;
+}
+
+@keyframes vision-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+/* =====================================================
+   ROTATING WHITE-BLUE LIGHT RAY
+   ORIGINAL ANIMATION UNCHANGED
+===================================================== */
+
+.vision-light-system {
+  position: absolute;
+  z-index: 1;
+
+  top: -13%;
+  right: -8%;
+
+  width: 62%;
+  height: 74%;
+
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vision-light-glow {
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: radial-gradient(
+    ellipse at 85% 20%,
+    rgba(190, 246, 255, 0.9) 0%,
+    rgba(59, 134, 255, 0.75) 12%,
+    rgba(26, 78, 238, 0.4) 30%,
+    transparent 67%
+  );
+
+  filter: blur(42px);
+
+  animation: vision-light-pulse 5s ease-in-out infinite;
+}
+
+.vision-light-rotation {
+  position: absolute;
+
+  top: -8%;
+  right: -9%;
+
+  width: 110%;
+  height: 110%;
+
+  transform-origin: 88% 12%;
+
+  animation: vision-light-sweep 11s ease-in-out infinite alternate;
+}
+
+.vision-light-ray {
+  position: absolute;
+
+  right: -9%;
+  top: 10%;
+
+  width: 105%;
+  height: 23%;
+
+  border-radius: 50%;
+
+  transform-origin: 95% 15%;
+
+  pointer-events: none;
+}
+
+/* MAIN BRIGHT RAY */
+
+.vision-light-ray-one {
+  transform: rotate(-34deg);
+
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(47, 127, 255, 0.14) 23%,
+    rgba(104, 206, 255, 0.35) 43%,
+    rgba(222, 255, 255, 0.95) 51%,
+    rgba(83, 166, 255, 0.5) 59%,
+    transparent 84%
+  );
+
+  filter: blur(7px);
+
+  box-shadow: 0 0 60px rgba(49, 122, 255, 0.45);
+}
+
+/* SECOND CURVED RAY */
+
+.vision-light-ray-two {
+  top: 20%;
+
+  transform: rotate(-48deg);
+
+  border-top: 7px solid rgba(159, 221, 255, 0.8);
+
+  background: linear-gradient(
+    180deg,
+    rgba(95, 171, 255, 0.12),
+    transparent 70%
+  );
+
+  filter: blur(4px);
+}
+
+/* THIRD THIN RAY */
+
+.vision-light-ray-three {
+  top: 29%;
+
+  transform: rotate(-23deg);
+
+  border-top: 4px solid rgba(104, 170, 255, 0.55);
+
+  filter: blur(5px);
+}
+
+.vision-light-core {
+  position: absolute;
+
+  top: 0;
+  right: -2%;
+
+  width: 38%;
+  height: 35%;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    ellipse,
+    rgba(230, 255, 255, 0.92),
+    rgba(98, 197, 255, 0.55) 28%,
+    transparent 75%
+  );
+
+  filter: blur(22px);
+
+  animation: vision-light-pulse 5s ease-in-out infinite;
+}
+
+@keyframes vision-light-sweep {
+  0% {
+    transform: rotate(-7deg);
+  }
+
+  50% {
+    transform: rotate(5deg);
+  }
+
+  100% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes vision-light-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* =====================================================
+   HERO CONTENT
+===================================================== */
+
+.vision-hero {
+  position: absolute;
+  z-index: 6;
+
+  top: 13.5%;
+  left: 50%;
+
+  width: 95%;
+
+  transform: translateX(-50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+/* =====================================================
+   GHOST TEXT TYPEWRITER
+   ORIGINAL ANIMATION UNCHANGED
+===================================================== */
+
+.vision-heading {
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: #ffffff;
+
+  font-size: clamp(29px, 4.25vw, 65px);
+  font-weight: 400;
+
+  line-height: 1.12;
+  letter-spacing: -1.5px;
+}
+
+.vision-heading-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.vision-letter {
+  position: relative;
+  display: inline-block;
+
+  transition:
+    color 0.25s ease,
+    text-shadow 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.vision-letter-ghost {
+  color: rgba(202, 210, 231, 0.19);
+  text-shadow: none;
+}
+
+.vision-letter-visible {
+  color: #f9faff;
+
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.07);
+}
+
+.vision-typing-cursor {
+  position: absolute;
+
+  top: 7%;
+  right: -4px;
+
+  width: 4px;
+  height: 88%;
+
+  background: #793bff;
+
+  box-shadow: 0 0 11px rgba(119, 64, 255, 0.55);
+
+  animation: vision-cursor-blink 0.7s steps(1) infinite;
+}
+
+@keyframes vision-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* DESCRIPTION */
+
+.vision-description {
+  margin: 22px 0 0;
+
+  max-width: 760px;
+
+  color: rgba(222, 225, 235, 0.83);
+
+  font-size: clamp(13px, 1.42vw, 19px);
+  font-weight: 400;
+
+  line-height: 1.45;
+  letter-spacing: -0.15px;
+}
+
+/* GET STARTED BUTTON */
+
+.vision-start-button {
+  position: relative;
+  z-index: 10;
+
+  margin-top: 24px;
+
+  width: 180px;
+  height: 49px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 999px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    105deg,
+    #0754ff,
+    #1465ff
+  );
+
+  box-shadow: 0 6px 24px rgba(0, 72, 255, 0.14);
+
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vision-start-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 9px 28px rgba(0, 80, 255, 0.35);
+}
+
+.vision-start-button:focus-visible {
+  outline: 3px solid #a5d9ff;
+  outline-offset: 4px;
+}
+
+/* =====================================================
+   FOUR FLOATING CARDS
+
+   Entrance motion is controlled by GSAP
+   in LandingPage.jsx.
+
+   Original final positions are preserved.
+===================================================== */
+
+.vision-cards-layer {
+  position: absolute;
+  z-index: 4;
+
+  inset: 0;
+
+  pointer-events: none;
+}
+
+.vision-floating-card {
+  position: absolute;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(154, 181, 250, 0.13);
+  border-radius: 23px;
+
+  background: linear-gradient(
+    140deg,
+    rgba(124, 147, 210, 0.29),
+    rgba(67, 87, 151, 0.34)
+  );
+
+  box-shadow:
+    inset 0 1px 1px rgba(221, 234, 255, 0.12),
+    0 16px 36px rgba(0, 0, 0, 0.16);
+
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+
+  will-change: transform, opacity;
+
+  transform-origin: center center;
+
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* =====================================================
+   CARD 1: JOINT BOARD
+   ORIGINAL POSITION UNCHANGED
+===================================================== */
+
+.vision-joint-card {
+  left: 3.6%;
+  bottom: -3%;
+
+  width: 24.4%;
+  height: 38%;
+
+  padding: 10px;
+}
+
+.vision-joint-inner {
+  position: relative;
+
+  width: 100%;
+  height: 83%;
+
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(116, 153, 255, 0.14) 1px,
+      transparent 1.4px
+    ) 0 0 / 18px 18px,
+    rgba(32, 46, 93, 0.2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vision-signature {
+  width: 82%;
+  height: 78%;
+
+  filter: drop-shadow(
+    0 0 3px rgba(255, 255, 255, 0.15)
+  );
+}
+
+.vision-joint-label {
+  display: block;
+
+  margin: 9px 0 0 10px;
+
+  color: #ffffff;
+  font-size: clamp(12px, 1.2vw, 17px);
+  font-weight: 600;
+}
+
+/* =====================================================
+   CARD 2: NEW BRIEF
+   ORIGINAL POSITION UNCHANGED
+===================================================== */
+
+.vision-brief-card {
+  left: 32.5%;
+  bottom: 22.5%;
+
+  width: 13.3%;
+  height: 18%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 16px;
+}
+
+.vision-brief-icon {
+  width: 31px;
+  height: 35px;
+
+  color: #f5f8ff;
+
+  filter: drop-shadow(
+    0 4px 5px rgba(0, 0, 0, 0.15)
+  );
+}
+
+.vision-brief-label {
+  color: #ffffff;
+
+  font-size: clamp(12px, 1.28vw, 17px);
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.vision-pink-star {
+  display: inline-block;
+
+  margin-left: 2px;
+
+  color: #ff508b;
+  font-size: 16px;
+}
+
+/* =====================================================
+   CARD 3: MEETING
+   ORIGINAL POSITION UNCHANGED
+===================================================== */
+
+.vision-meeting-card {
+  left: 49.3%;
+  bottom: 25.2%;
+
+  width: 18.6%;
+  height: 18%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 17px;
+
+  font-size: clamp(12px, 1.27vw, 17px);
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.vision-video-icon {
+  width: 29px;
+  height: 29px;
+
+  color: #ffffff;
+}
+
+/* =====================================================
+   CARD 4: WORKFLOW
+   ORIGINAL POSITION UNCHANGED
+===================================================== */
+
+.vision-workflow-card {
+  right: 3.5%;
+  bottom: -2%;
+
+  width: 24.6%;
+  height: 37%;
+
+  padding: 18px;
+
+  border-radius: 27px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(116, 145, 225, 0.32),
+    rgba(53, 74, 139, 0.3)
+  );
+}
+
+.vision-workflow-top {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  height: 57%;
+}
+
+.vision-workflow-small-box {
+  width: 11%;
+  height: 86%;
+
+  border-radius: 15px;
+
+  background: rgba(114, 137, 200, 0.1);
+}
+
+.vision-workflow-save-area {
+  position: relative;
+
+  width: 40%;
+  height: 86%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 17px;
+
+  background: rgba(126, 147, 214, 0.12);
+}
+
+.vision-workflow-star {
+  position: absolute;
+
+  left: -9px;
+  top: 37%;
+
+  color: #ff657d;
+  font-size: 21px;
+}
+
+.vision-save-pill {
+  padding: 6px 13px;
+
+  border-radius: 999px;
+
+  color: white;
+  background: #ff657a;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vision-workflow-lines {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.vision-workflow-lines span {
+  display: block;
+
+  width: 100%;
+  height: 8px;
+
+  border-radius: 999px;
+
+  background: rgba(137, 159, 218, 0.19);
+}
+
+.vision-workflow-lines span:first-child {
+  width: 60%;
+}
+
+.vision-workflow-lines span:last-child {
+  width: 68%;
+}
+
+.vision-workflow-bottom {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  height: 29%;
+}
+
+.vision-workflow-placeholder {
+  width: 26%;
+  height: 72%;
+
+  border-radius: 13px;
+
+  background: rgba(131, 151, 212, 0.11);
+}
+
+.vision-send-pill {
+  position: absolute;
+
+  right: 6%;
+  top: 20%;
+
+  padding: 6px 13px;
+
+  border-radius: 999px;
+
+  color: white;
+  background: #1261ff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.vision-send-pill span {
+  margin-left: 4px;
+}
+
+.vision-workflow-footer {
+  height: 11%;
+
+  margin-top: 2%;
+
+  border-radius: 999px;
+
+  background: rgba(129, 151, 214, 0.12);
+}
+
+/* =====================================================
+   ORIGINAL GLOWING BLUE PLANET
+
+   Planet remains behind the cards.
+   Original shape, colors, and glow preserved.
+===================================================== */
+
+.vision-planet-system {
+  position: absolute;
+  z-index: 3;
+
+  left: 50%;
+  bottom: -87%;
+
+  width: 116%;
+  height: 105%;
+
+  transform: translateX(-50%);
+
+  pointer-events: none;
+}
+
+.vision-planet {
+  position: absolute;
+  z-index: 1;
+
+  inset: 0;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      rgba(38, 99, 255, 0.96) 0%,
+      rgba(11, 42, 137, 0.97) 21%,
+      #020d35 47%,
+      #01051a 76%
+    );
+
+  box-shadow:
+    0 -9px 45px rgba(26, 92, 255, 0.6),
+    0 -1px 10px rgba(107, 175, 255, 0.8);
+}
+
+/* =====================================================
+   ORIGINAL BLUE ARC
+
+   This is the SAME existing arc.
+   No additional arc or stroke is created.
+
+   GSAP reveals this element progressively.
+===================================================== */
+
+.vision-planet-edge {
+  position: absolute;
+  z-index: 2;
+
+  inset: 0;
+
+  border-top: 3px solid rgba(91, 147, 255, 0.95);
+  border-radius: 50%;
+
+  box-shadow:
+    0 -5px 17px rgba(29, 104, 255, 0.95),
+    0 -12px 43px rgba(15, 76, 255, 0.6),
+    inset 0 7px 25px rgba(19, 90, 255, 0.4);
+}
+
+.vision-planet-glow {
+  position: absolute;
+  z-index: 0;
+
+  top: -6%;
+  left: 15%;
+
+  width: 70%;
+  height: 20%;
+
+  border-radius: 50%;
+
+  background: rgba(26, 86, 255, 0.56);
+
+  filter: blur(46px);
+}
+
+/* =====================================================
+   NEW: ORIGINAL ARC IN FRONT OF CARDS
+
+   The original arc element is placed in a
+   separate higher stacking layer by JSX.
+
+   This does NOT create a second arc.
+
+   The arc retains its original coordinates.
+===================================================== */
+
+.vision-planet-system.vision-arc-front-layer {
+  position: absolute;
+  z-index: 5;
+
+  pointer-events: none;
+
+  overflow: visible;
+}
+
+.vision-arc-front-layer .vision-planet-edge {
+  position: absolute;
+  z-index: 2;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  will-change: clip-path;
+}
+
+/* =====================================================
+   KEEP CARDS BELOW THE ARC
+===================================================== */
+
+.vision-cards-layer {
+  z-index: 4;
+}
+
+/* =====================================================
+   KEEP HEADING AND BUTTON ABOVE THE ARC
+===================================================== */
+
+.vision-hero {
+  z-index: 6;
+}
+
+.vision-start-button {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* =====================================================
+   ARC MUST NOT BLOCK MOUSE INTERACTIONS
+===================================================== */
+
+.vision-arc-front-layer,
+.vision-arc-front-layer * {
+  pointer-events: none;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ORIGINAL POSITIONS PRESERVED
+===================================================== */
+
+@media (min-width: 1400px) {
+  .vision-hero {
+    top: 14%;
+  }
+
+  .vision-description {
+    margin-top: 24px;
+  }
+
+  .vision-start-button {
+    margin-top: 28px;
+    width: 220px;
+    height: 55px;
+  }
+}
+
+@media (max-width: 900px) {
+  .vision-window {
+    min-height: 570px;
+  }
+
+  .vision-hero {
+    top: 16%;
+  }
+
+  .vision-heading {
+    font-size: clamp(24px, 4.5vw, 42px);
+    letter-spacing: -0.7px;
+  }
+
+  .vision-description {
+    max-width: 80%;
+    font-size: 13px;
+  }
+
+  .vision-joint-card {
+    width: 27%;
+  }
+
+  .vision-brief-card {
+    left: 33%;
+    width: 15%;
+  }
+
+  .vision-meeting-card {
+    left: 50%;
+    width: 20%;
+  }
+
+  .vision-workflow-card {
+    width: 27%;
+  }
+
+  .vision-planet-system {
+    bottom: -85%;
+  }
+}
+
+@media (max-width: 600px) {
+  .vision-home {
+    padding: 8px;
+  }
+
+  .vision-window {
+    height: calc(100svh - 16px);
+    min-height: 650px;
+    border-radius: 14px;
+  }
+
+  .vision-hero {
+    top: 18%;
+    width: 100%;
+    padding: 0 8px;
+  }
+
+  .vision-heading {
+    font-size: clamp(15px, 4.1vw, 25px);
+    letter-spacing: -0.5px;
+  }
+
+  .vision-description {
+    max-width: 95%;
+    margin-top: 22px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .vision-description br {
+    display: none;
+  }
+
+  .vision-start-button {
+    width: 160px;
+    height: 45px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+
+  .vision-light-system {
+    top: -4%;
+    right: -25%;
+    width: 95%;
+    height: 52%;
+  }
+
+  .vision-joint-card {
+    left: 3%;
+    bottom: 8%;
+    width: 40%;
+    height: 24%;
+  }
+
+  .vision-brief-card {
+    left: 9%;
+    bottom: 38%;
+    width: 35%;
+    height: 13%;
+    gap: 8px;
+  }
+
+  .vision-meeting-card {
+    left: 51%;
+    bottom: 38%;
+    width: 45%;
+    height: 13%;
+    gap: 8px;
+  }
+
+  .vision-workflow-card {
+    right: 3%;
+    bottom: 8%;
+    width: 45%;
+    height: 24%;
+    padding: 10px;
+  }
+
+  .vision-joint-label,
+  .vision-brief-label,
+  .vision-meeting-card {
+    font-size: 11px;
+  }
+
+  .vision-planet-system {
+    width: 160%;
+    height: 78%;
+    bottom: -62%;
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .vision-stars span,
+  .vision-light-rotation,
+  .vision-light-glow,
+  .vision-light-core,
+  .vision-typing-cursor {
+    animation: none;
+  }
+
+  .vision-letter {
+    transition: none;
+  }
+}
