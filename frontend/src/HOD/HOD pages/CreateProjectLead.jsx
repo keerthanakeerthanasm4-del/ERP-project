@@ -15,6 +15,7 @@ import {
 
 function CreateProjectLead() {
   const [leads, setLeads] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
@@ -31,6 +32,8 @@ function CreateProjectLead() {
   const [currentAssignment, setCurrentAssignment] = useState(null);
   const [history, setHistory] = useState([]);
   const [message, setMessage] = useState("");
+  const [resetLeadId, setResetLeadId] = useState("");
+  const [resetPassword, setResetPassword] = useState("");
 
 
   // READ API RESPONSE
@@ -74,6 +77,7 @@ function CreateProjectLead() {
           name: lead.name,
           email: lead.email,
           department: lead.dept_name || "Not specified",
+          usn: lead.usn,
         }))
       );
     } catch (error) {
@@ -81,6 +85,27 @@ function CreateProjectLead() {
       setMessage(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRegisteredStudents = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/registered-students`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.message || "Failed to fetch registered users.");
+      setStudents((data.students || []).map((student) => ({
+        id: student.user_id,
+        name: student.name,
+        email: student.email,
+        department: student.dept_name || "Not specified",
+        usn: student.usn,
+      })));
+    } catch (error) {
+      console.error("Fetch Registered Students Error:", error);
+      setMessage(error.message);
     }
   };
 
@@ -143,6 +168,7 @@ const fetchAssignmentHistory = async () => {
   // LOAD DATA WHEN PAGE OPENS
   useEffect(() => {
   fetchProjectLeads();
+  fetchRegisteredStudents();
   fetchCurrentAssignment();
   fetchAssignmentHistory();
 }, []);
@@ -192,6 +218,28 @@ const fetchAssignmentHistory = async () => {
     } catch (error) {
       console.error("Create Project Lead Error:", error);
       setMessage(error.message);
+    }
+  };
+
+  const handleResetLeadPassword = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/hod/project-lead/reset-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: resetLeadId, temporaryPassword: resetPassword }),
+      });
+      const data = await readApiResponse(response);
+      if (!response.ok) throw new Error(data.message || "Failed to reset Project Lead password.");
+      setResetPassword("");
+      setMessage(data.message);
+    } catch (error) {
+      setMessage(error.message || "Failed to reset Project Lead password.");
     }
   };
 
@@ -289,6 +337,8 @@ const fetchAssignmentHistory = async () => {
       lead.email.toLowerCase().includes(search.toLowerCase()) ||
       lead.department.toLowerCase().includes(search.toLowerCase())
   );
+  const permanentLeads = leads.filter((lead) => !lead.usn);
+  const registeredLeads = students;
 
   return (
     <div className="project-lead-page">
@@ -313,6 +363,29 @@ const fetchAssignmentHistory = async () => {
           <button onClick={() => setMessage("")}>×</button>
         </div>
       )}
+
+      <div className="pl-main-card">
+        <div className="pl-section-title">
+          <div className="pl-title-icon purple"><UserRound size={22} /></div>
+          <div>
+            <h2>Permanent Project Lead Account</h2>
+            <p>Account created for the Project Lead module.</p>
+          </div>
+        </div>
+        {loading ? (
+          <p>Loading account details…</p>
+        ) : permanentLeads.length ? (
+          permanentLeads.map((lead) => (
+            <div className="pl-permanent-lead-details" key={lead.id}>
+              <div><span>Name</span><strong>{lead.name}</strong></div>
+              <div><span>Email</span><strong>{lead.email}</strong></div>
+              <div><span>Department</span><strong>{lead.department}</strong></div>
+            </div>
+          ))
+        ) : (
+          <p>No permanent Project Lead account with a blank USN was found.</p>
+        )}
+      </div>
 
       {/* CREATE PERMANENT ACCOUNT */}
       <div className="pl-main-card">
@@ -407,6 +480,35 @@ const fetchAssignmentHistory = async () => {
 
       </div>
 
+      {/* RESET EXISTING PROJECT LEAD PASSWORD */}
+      <div className="pl-main-card">
+        <div className="pl-section-title">
+          <div className="pl-title-icon purple"><UserRound size={22} /></div>
+          <div>
+            <h2>Reset Project Lead Password</h2>
+            <p>Set a new temporary password for the existing account. Project assignments remain unchanged.</p>
+          </div>
+        </div>
+        <form onSubmit={handleResetLeadPassword}>
+          <div className="pl-form-grid">
+            <div className="pl-form-group">
+              <label htmlFor="reset-project-lead-account">Project Lead account</label>
+              <select id="reset-project-lead-account" value={resetLeadId} onChange={(e) => setResetLeadId(e.target.value)} required>
+                <option value="">Select existing Project Lead</option>
+                {permanentLeads.map((lead) => <option key={lead.id} value={lead.id}>{lead.name} ({lead.email})</option>)}
+              </select>
+            </div>
+            <div className="pl-form-group">
+              <label htmlFor="reset-project-lead-password">New temporary password</label>
+              <input id="reset-project-lead-password" type="password" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} minLength={8} autoComplete="new-password" placeholder="At least 8 characters" required />
+            </div>
+          </div>
+          <button type="submit" className="pl-create-button" disabled={loading || permanentLeads.length === 0}>
+            Reset Password
+          </button>
+        </form>
+      </div>
+
       {/* DEPARTMENT PROJECT LEAD ASSIGNMENT */}
       <div className="pl-main-card">
 
@@ -435,14 +537,17 @@ const fetchAssignmentHistory = async () => {
                 setStudentPassword("");
               }}
             >
-              <option value="">Choose Project Lead</option>
+                <option value="">Choose a registered student</option>
 
-              {leads.map((lead) => (
+              {registeredLeads.map((lead) => (
                 <option key={lead.id} value={lead.id}>
                   {lead.name} ({lead.email})
                 </option>
               ))}
             </select>
+            {registeredLeads.length === 0 && !loading && (
+              <small>No registered student accounts are available to assign.</small>
+            )}
           </div>
 
           <div className="pl-form-group">

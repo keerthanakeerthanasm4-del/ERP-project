@@ -18,7 +18,7 @@ import Home from "./pages/LandingPage";
    API CONFIGURATION — UNCHANGED
 ========================================================= */
 
-const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
+// const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
 
 /* =========================================================
    EXISTING SHARED ICONS
@@ -1034,6 +1034,18 @@ const LOGIN_GALAXY_STYLES = `
   .erp-auth-scene:not(.erp-register-scene) {
     background: #02050c url("${portalNebula}") center / cover no-repeat;
   }
+  .erp-shooting-star {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .erp-shooting-star { display: none; }
+  }
   .erp-auth-scene:not(.erp-register-scene) .erp-login-panel {
     border-color: #8170b7;
     box-shadow: 0 0 12px rgba(113, 80, 200, .23);
@@ -1612,6 +1624,101 @@ const REGISTER_STYLES = `
     .erp-register-art {
       animation: none;
     }
+  }
+
+  /* Carry the login and landing page galaxy palette through registration. */
+  .erp-register-scene {
+    background: #02050c url("${portalNebula}") center / cover no-repeat;
+    color: #f3f1f8;
+  }
+
+  .erp-register-scene .erp-stars {
+    background-image:
+      radial-gradient(circle, #e8e9ff 1px, transparent 2px),
+      radial-gradient(circle, #7895e8 1px, transparent 2px),
+      radial-gradient(circle, #f2b36e 1px, transparent 2px);
+    background-size: 177px 151px, 263px 213px, 347px 281px;
+    background-position: 22px 29px, 95px 82px, 63px 117px;
+  }
+
+  .erp-register-scene .erp-rays {
+    background: repeating-conic-gradient(
+      from 220deg at 77% 17%,
+      transparent 0deg,
+      rgba(77, 102, 206, .04) 4deg,
+      rgba(112, 89, 207, .18) 7deg,
+      rgba(205, 194, 255, .48) 8deg,
+      rgba(76, 113, 224, .12) 10deg,
+      transparent 16deg
+    );
+  }
+
+  .erp-register-scene .erp-rays::after {
+    background: radial-gradient(ellipse at 70% 16%, rgba(192, 174, 255, .56), transparent 37%);
+  }
+
+  .erp-register-panel {
+    border-color: #8069c9;
+    background: linear-gradient(150deg, #091221, #060d18);
+    box-shadow: 0 0 12px rgba(109, 92, 211, .54), 0 0 38px rgba(63, 67, 156, .3), inset 0 0 20px rgba(83, 76, 154, .18);
+  }
+
+  .erp-register-panel::before {
+    box-shadow: inset 0 0 9px rgba(170, 145, 255, .62);
+  }
+
+  .erp-register-avatar {
+    border-color: #edab60;
+    background: linear-gradient(150deg, #171922, #090c14);
+    box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
+  }
+
+  .erp-register-avatar svg {
+    stroke: #ffbb69;
+    filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
+  }
+
+  .erp-register-panel .erp-input-wrap {
+    border-color: #394568;
+    background: linear-gradient(#0b1427, #091221);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35), 0 0 4px rgba(91, 97, 177, .18);
+  }
+
+  .erp-register-panel .erp-input-wrap:focus-within {
+    border-color: #9a82e4;
+    box-shadow: 0 0 10px rgba(141, 116, 235, .42);
+  }
+
+  .erp-register-panel .erp-input-wrap svg,
+  .erp-register-panel .erp-eye svg {
+    stroke: #b9a9f4;
+  }
+
+  .erp-register-submit {
+    border-color: #ffc27e;
+    background: linear-gradient(100deg, #eea25a, #de8b48);
+    box-shadow: 0 0 12px rgba(242, 166, 90, .4), inset 0 0 9px rgba(255, 255, 255, .28);
+  }
+
+  .erp-register-login a {
+    color: #ebb7f5;
+  }
+
+  .erp-register-scene .erp-horizon {
+    border-top-color: rgba(151, 135, 255, .98);
+    box-shadow: 0 -7px 18px rgba(81, 125, 255, .92), 0 -14px 42px rgba(115, 79, 238, .76), 0 -2px 9px rgba(242, 166, 90, .54), inset 0 22px 35px rgba(77, 66, 164, .3);
+  }
+
+  .erp-register-scene .erp-horizon::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0 0;
+    border-radius: inherit;
+    padding-top: 3px;
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ffc584 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ffc584 74%, #b69fff 76%, #4978df 90%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
   }
 `;
 
@@ -2649,6 +2756,31 @@ function LoginPage() {
         aria-hidden="true"
       />
 
+      <svg className="erp-shooting-star" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="erpShootingStarTrail" x1="-150" y1="0" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#777cff" stopOpacity="0" />
+            <stop offset="72%" stopColor="#9a8dff" stopOpacity=".5" />
+            <stop offset="100%" stopColor="#fff4dc" />
+          </linearGradient>
+          <filter id="erpShootingStarGlow" x="-100%" y="-300%" width="300%" height="700%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+        </defs>
+        <g>
+          <animateMotion
+            path="M 1000 30 C 690 20 320 180 10 800"
+            dur="5.5s"
+            begin="1.5s"
+            repeatCount="indefinite"
+            rotate="auto"
+          />
+          <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.12;.17;.86;.94;1" dur="5.5s" begin="1.5s" repeatCount="indefinite" />
+          <path d="M -150 0 L 0 0" fill="none" stroke="url(#erpShootingStarTrail)" strokeWidth="3" strokeLinecap="round" />
+          <path d="M -150 0 L 0 0" fill="none" stroke="#b5a7ff" strokeWidth="9" strokeLinecap="round" opacity=".7" filter="url(#erpShootingStarGlow)" />
+        </g>
+      </svg>
+
       {/* HOME LINK */}
 
       <Link
@@ -2703,7 +2835,7 @@ function LoginPage() {
 
             <div className="erp-field">
               <label htmlFor="email">
-                Email or Roll Number
+                Email 
               </label>
 
               <div className="erp-input-wrap">

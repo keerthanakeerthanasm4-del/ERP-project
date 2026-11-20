@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import "./Home.css";
 
-const LINE_ONE = "Your Vision. Your Team. One";
-const LINE_TWO = "Powerful Platform.";
+const LINE_ONE = "One Vision, One Team";
+const LINE_TWO = "One Powerful Platform";
 
 /* =====================================================
    EXISTING HEADING ANIMATION — UNCHANGED
