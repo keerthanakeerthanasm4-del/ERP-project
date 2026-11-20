@@ -125,7 +125,7 @@ export default function ProjectLeadProfile() {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/login", { replace: true });
   }
   if (loading) {
     return <main className="pl-profile-page">
