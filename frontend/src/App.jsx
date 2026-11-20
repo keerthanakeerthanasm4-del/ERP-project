@@ -10,6 +10,7 @@ import {
 import "./App.css";
 import Dashboard from "./Dashboard";
 import Home from "./pages/LandingPage";
+import TeamMemberDashboard from "./TEAMMEMB/pages/TeamMemberDashboard";
 
 /* =========================================================
    API CONFIGURATION — UNCHANGED
@@ -3219,6 +3220,16 @@ export default function App() {
           />
         }
       />
+      {/* TEAM MEMBER DASHBOARD */}
+
+<Route
+  path="/team-member"
+  element={
+    <TeamMemberDashboard />
+  }
+/>
+{/* 3D ASTRONAUT */}
+
 
     </Routes>
   );
