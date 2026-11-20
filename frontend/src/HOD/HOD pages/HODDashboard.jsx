@@ -1,4 +1,6 @@
+
 import { useCallback, useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import projectLogo from "../../assets/project-logo.png";
 import { API_URL } from "../../api.js";
 
@@ -27,15 +29,25 @@ import {
 
 import "../HOD styles/HODDashboard.css";
 
+const API_URL = "http://localhost:5000";
+
+// =====================================
+// AUTH HEADERS
+// =====================================
+
 const getHodAuthHeaders = () => {
   const token =
     localStorage.getItem("token") ||
     sessionStorage.getItem("token");
 
-  return {
-    Authorization: `Bearer ${token}`
-  };
+  return token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
 };
+
+// =====================================
+// LOGIN REDIRECT
+// =====================================
 
 const redirectToLogin = () => {
   localStorage.removeItem("token");
@@ -46,10 +58,100 @@ const redirectToLogin = () => {
   window.location.replace("/login");
 };
 
+// =====================================
+// COMMON HELPERS
+// =====================================
+
+const normalize = (value) => {
+  const normalizedValue =
+    value && typeof value === "object"
+      ? value.project_name ||
+        value.projectName ||
+        value.name ||
+        value.project_id ||
+        value.id
+      : value;
+
+  return String(normalizedValue || "")
+    .trim()
+    .toLowerCase();
+};
+
+const getMeetingId = (meeting) =>
+  meeting.meeting_id ||
+  meeting.meetingId ||
+  meeting.id;
+
+const getProjectLeadApproval = (meeting) =>
+  meeting.project_lead_approval_status ||
+  meeting.projectLeadApprovalStatus ||
+  meeting.project_lead_status ||
+  meeting.projectLeadStatus ||
+  meeting.project_lead_approval ||
+  meeting.projectLeadApproval ||
+  "";
+
+const hasProjectLeadApproved = (meeting) => {
+  const leadStatus = normalize(getProjectLeadApproval(meeting)).replace(/[\s-]+/g, "_");
+  if (leadStatus) return ["approved", "accepted", "project_lead_approved"].includes(leadStatus);
+  const status = normalize(meeting.status).replace(/[\s-]+/g, "_");
+  return ["approved", "fixed", "confirmed", "pending_hod", "awaiting_hod", "project_lead_approved", "approved_by_project_lead"].includes(status);
+};
+
+const isAwaitingHodDecision = (meeting) => {
+  const status = normalize(meeting.status).replace(/[\s-]+/g, "_");
+  if (!hasProjectLeadApproved(meeting)) return false;
+  const hodStatus = normalize(
+    meeting.hod_approval_status || meeting.hodApprovalStatus || meeting.hod_status
+  ).replace(/[\s-]+/g, "_");
+
+  if (hodStatus) return ["pending", "pending_hod", "awaiting_hod"].includes(hodStatus);
+  return ["pending", "pending_hod", "awaiting_hod", "project_lead_approved", "approved_by_project_lead"].includes(status);
+};
+
+const getHodStatusLabel = (meeting) => {
+  const status = normalize(meeting.status);
+  if (!hasProjectLeadApproved(meeting)) return "Awaiting Project Lead";
+  if (isAwaitingHodDecision(meeting)) return "Pending";
+  if (["approved", "fixed", "confirmed"].includes(status)) return "Fixed";
+  if (status === "rejected") return "Rejected";
+  return meeting.status || "Pending";
+};
+
+const getMeetingStartTime = (meeting) =>
+  meeting.startTime ||
+  meeting.start_time ||
+  meeting.meeting_start_time ||
+  meeting.from_time ||
+  "";
+
+const getMeetingEndTime = (meeting) =>
+  meeting.endTime ||
+  meeting.end_time ||
+  meeting.meeting_end_time ||
+  meeting.to_time ||
+  "";
+
+const getMeetingRawDate = (meeting) =>
+  meeting.date ||
+  meeting.meetingDate ||
+  meeting.meeting_date ||
+  meeting.scheduledDate ||
+  meeting.scheduled_date ||
+  meeting.meeting_datetime ||
+  "";
+
+// =====================================
+// DASHBOARD
+// =====================================
+
 function HODDashboard() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
   const [openCreateMeeting, setOpenCreateMeeting] = useState(false);
+  const [meetingInitialSection, setMeetingInitialSection] =
+    useState("today");
 
   const [profileImage, setProfileImage] = useState(
     localStorage.getItem("hodProfileImage") || null
@@ -64,7 +166,7 @@ function HODDashboard() {
   const [projectsLoading, setProjectsLoading] = useState(true);
 
   // =====================================
-  // DATE AND TIME HELPERS
+  // DATE HELPERS
   // =====================================
 
   const getLocalDate = () => {
@@ -78,39 +180,50 @@ function HODDashboard() {
   };
 
   const getMeetingDate = (meeting) => {
-    const rawDate =
-      meeting.date ||
-      meeting.meetingDate ||
-      meeting.meeting_date ||
-      meeting.scheduledDate ||
-      meeting.scheduled_date ||
-      "";
+    const rawDate = getMeetingRawDate(meeting);
 
     if (!rawDate) return "";
 
     const value = String(rawDate).trim();
 
+    // ISO date: YYYY-MM-DD
     const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
     if (isoMatch) {
       return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
     }
 
+    // DD/MM/YYYY or DD-MM-YYYY
     const otherMatch = value.match(
       /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
     );
 
     if (otherMatch) {
-      return `${otherMatch[3]}-${String(otherMatch[2]).padStart(
-        2,
-        "0"
-      )}-${String(otherMatch[1]).padStart(2, "0")}`;
+      const day = String(otherMatch[1]).padStart(2, "0");
+      const month = String(otherMatch[2]).padStart(2, "0");
+      const year = otherMatch[3];
+
+      return `${year}-${month}-${day}`;
+    }
+
+    // Fallback for valid date strings
+    const parsedDate = new Date(value);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      const year = parsedDate.getFullYear();
+      const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(parsedDate.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
     }
 
     return "";
   };
 
-  // Supports 24-hour and AM/PM formats
+  // =====================================
+  // TIME HELPERS
+  // =====================================
+
   const getTimeMinutes = (time) => {
     if (!time) return null;
 
@@ -143,23 +256,6 @@ function HODDashboard() {
     return hours * 60 + minutes;
   };
 
-  const normalize = (value) => {
-    const normalizedValue =
-      value && typeof value === "object"
-        ? value.project_name ||
-          value.projectName ||
-          value.name ||
-          value.project_id ||
-          value.id
-        : value;
-
-    return String(normalizedValue || "").trim().toLowerCase();
-  };
-
-  // =====================================
-  // FORMAT TIME
-  // =====================================
-
   const formatMinutes = (minutes) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -175,13 +271,45 @@ function HODDashboard() {
 
     const minutes = getTimeMinutes(time);
 
-    if (minutes === null) return time;
+    if (minutes === null) return String(time);
 
     return formatMinutes(minutes);
   };
 
   // =====================================
-  // DYNAMIC MEETING TIME SLOTS
+  // GET TEAM / PROJECT NAME
+  // =====================================
+
+  const getTeamName = (meeting) => {
+    if (!meeting) return "Team";
+
+    const relatedProject =
+      meeting.project ||
+      meeting.projectName ||
+      meeting.project_name ||
+      meeting.project_id ||
+      meeting.projectId;
+
+    const project =
+      relatedProject && typeof relatedProject === "object"
+        ? relatedProject.project_name ||
+          relatedProject.projectName ||
+          relatedProject.name ||
+          relatedProject.project_id
+        : relatedProject;
+
+    return (
+      meeting.team ||
+      meeting.team_name ||
+      meeting.projectName ||
+      meeting.project_name ||
+      project ||
+      "Team"
+    );
+  };
+
+  // =====================================
+  // GET TODAY'S MEETING TIME SLOTS
   // =====================================
 
   const getTodayTimeBlocks = () => {
@@ -203,8 +331,8 @@ function HODDashboard() {
         return true;
       })
       .map((meeting) => {
-        const start = getTimeMinutes(meeting.startTime);
-        const end = getTimeMinutes(meeting.endTime);
+        const start = getTimeMinutes(getMeetingStartTime(meeting));
+        const end = getTimeMinutes(getMeetingEndTime(meeting));
 
         if (
           start === null ||
@@ -286,42 +414,48 @@ function HODDashboard() {
         throw new Error(data.message || "Failed to fetch projects");
       }
 
-      const formattedProjects = (data.projects || []).map(
-        (project) => {
-          const name = project.project_name || "Unnamed Project";
+      const projectList = Array.isArray(data)
+        ? data
+        : data.projects || [];
 
-          let icon = <Bot />;
+      const formattedProjects = projectList.map((project) => {
+        const name =
+          project.project_name ||
+          project.projectName ||
+          project.name ||
+          "Unnamed Project";
 
-          if (name.toLowerCase().includes("qr")) {
-            icon = <ShieldCheck />;
-          } else if (name.toLowerCase().includes("erp")) {
-            icon = <Cpu />;
-          }
+        let icon = <Bot />;
 
-          const status = project.status || "Not available";
-          const projectPhases = project.phases || [];
-
-          const phases =
-            projectPhases.length > 0
-              ? projectPhases
-              : Array.from({ length: 5 }, (_, index) => ({
-                  phase_id: `placeholder-${project.project_id}-${index + 1}`,
-                  phase_name: `Phase ${index + 1}`,
-                  is_completed: status.toLowerCase() === "completed",
-                  is_current:
-                    status.toLowerCase() === "active" && index === 0,
-                  is_placeholder: true
-                }));
-
-          return {
-            ...project,
-            name,
-            status,
-            phases,
-            icon
-          };
+        if (name.toLowerCase().includes("qr")) {
+          icon = <ShieldCheck />;
+        } else if (name.toLowerCase().includes("erp")) {
+          icon = <Cpu />;
         }
-      );
+
+        const status = project.status || "Not available";
+        const projectPhases = project.phases || [];
+
+        const phases =
+          projectPhases.length > 0
+            ? projectPhases
+            : Array.from({ length: 5 }, (_, index) => ({
+                phase_id: `placeholder-${project.project_id}-${index + 1}`,
+                phase_name: `Phase ${index + 1}`,
+                is_completed: status.toLowerCase() === "completed",
+                is_current:
+                  status.toLowerCase() === "active" && index === 0,
+                is_placeholder: true
+              }));
+
+        return {
+          ...project,
+          name,
+          status,
+          phases,
+          icon
+        };
+      });
 
       setProjects(formattedProjects);
     } catch (error) {
@@ -337,7 +471,13 @@ function HODDashboard() {
 
   const fetchHODMeetings = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/hod/meetings`, { headers: getHodAuthHeaders() });
+      const response = await fetch(
+        "http://localhost:5000/api/hod/meetings",
+        {
+          headers: getHodAuthHeaders()
+        }
+      );
+
       const data = await response.json();
 
       if (response.status === 401 || response.status === 403) {
@@ -349,7 +489,18 @@ function HODDashboard() {
         throw new Error(data.message || "Failed to fetch meetings");
       }
 
-      setMeetings(data.meetings || []);
+      // Supports both array responses and { meetings: [...] }
+      const meetingList = Array.isArray(data)
+        ? data
+        : Array.isArray(data.meetings)
+          ? data.meetings
+          : Array.isArray(data.data)
+            ? data.data
+            : [];
+
+      console.log("HOD meetings received:", meetingList);
+
+      setMeetings(meetingList);
     } catch (error) {
       console.error("HOD meetings error:", error);
     }
@@ -365,7 +516,9 @@ function HODDashboard() {
       fetchHODMeetings();
     };
 
-    const refreshMeetings = () => fetchHODMeetings();
+    const refreshMeetings = () => {
+      fetchHODMeetings();
+    };
 
     refreshDashboardData();
 
@@ -411,13 +564,32 @@ function HODDashboard() {
   // =====================================
 
   const updateMeetingStatus = async (meetingId, newStatus) => {
+    if (!meetingId) {
+      window.alert("Meeting ID is missing.");
+      return;
+    }
+
     try {
-      const response = await fetch(`${API_URL}/api/hod/meetings/${meetingId}/status`, {
-        method: "PATCH",
-        headers: { ...getHodAuthHeaders(), "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/hod/meetings/${meetingId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            ...getHodAuthHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            status: newStatus
+          })
+        }
+      );
+
       const data = await response.json();
+
+      if (response.status === 401 || response.status === 403) {
+        redirectToLogin();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -447,8 +619,12 @@ function HODDashboard() {
     { name: "Create Project Lead", icon: <UserPlus /> }
   ];
 
-  const openMeetingsPage = (createForm = false) => {
+  const openMeetingsPage = (
+    createForm = false,
+    section = "today"
+  ) => {
     setOpenCreateMeeting(createForm);
+    setMeetingInitialSection(section);
     setActivePage("Meetings");
   };
 
@@ -486,7 +662,7 @@ function HODDashboard() {
   };
 
   // =====================================
-  // GET UPCOMING AND ONGOING MEETINGS
+  // GET UPCOMING MEETINGS
   // =====================================
 
   const getUpcomingMeetings = () => {
@@ -504,104 +680,56 @@ function HODDashboard() {
       .filter((meeting) => {
         if (!meeting.normalizedDate) return false;
 
+        if (!hasProjectLeadApproved(meeting)) return false;
+
         if (normalize(meeting.status) === "rejected") {
           return false;
         }
 
-        // Include all meetings scheduled for future dates.
+        // All future-date meetings
         if (meeting.normalizedDate > today) {
           return true;
         }
 
-        // Include today's meetings only if they have not finished.
+        // Today's meeting remains upcoming until its end time
         if (meeting.normalizedDate === today) {
-          const end = getTimeMinutes(meeting.endTime);
+          const end = getTimeMinutes(
+            getMeetingEndTime(meeting)
+          );
 
           return end !== null && end > currentMinutes;
         }
 
+        // Hide meetings from previous dates
         return false;
       })
       .sort((a, b) => {
-        const first =
-          `${a.normalizedDate}T${a.startTime || "00:00"}`;
+        if (a.normalizedDate !== b.normalizedDate) {
+          return a.normalizedDate.localeCompare(b.normalizedDate);
+        }
 
-        const second =
-          `${b.normalizedDate}T${b.startTime || "00:00"}`;
+        const firstTime =
+          getTimeMinutes(getMeetingStartTime(a)) ?? 0;
 
-        return first.localeCompare(second);
+        const secondTime =
+          getTimeMinutes(getMeetingStartTime(b)) ?? 0;
+
+        return firstTime - secondTime;
       });
   };
 
   const upcomingMeetings = getUpcomingMeetings();
 
-  // =====================================
-  // CHECK WHETHER A MEETING IS ONGOING
-  // =====================================
-
-  const isMeetingOngoing = (meeting) => {
-    if (!meeting) return false;
-
-    const today = getLocalDate();
-
-    if (getMeetingDate(meeting) !== today) {
-      return false;
-    }
-
-    if (normalize(meeting.status) === "rejected") {
-      return false;
-    }
-
-    const now = new Date();
-
-    const currentMinutes =
-      now.getHours() * 60 + now.getMinutes();
-
-    const start = getTimeMinutes(meeting.startTime);
-    const end = getTimeMinutes(meeting.endTime);
-
-    if (start === null || end === null) {
-      return false;
-    }
-
-    return currentMinutes >= start && currentMinutes < end;
-  };
-
-  // =====================================
-  // GET ONGOING MEETING FIRST
-  // =====================================
-
-  const ongoingMeeting =
-    upcomingMeetings.find((meeting) =>
-      isMeetingOngoing(meeting)
-    ) || null;
-
-  // Show ongoing meeting first; otherwise show next upcoming meeting.
-  const nextMeeting =
-    ongoingMeeting || upcomingMeetings[0] || null;
-
-  // =====================================
-  // GET TEAM NAME
-  // =====================================
-
-  const getTeamName = (meeting) => {
-    const relatedProject = meeting.project;
-
-    const project =
-      relatedProject && typeof relatedProject === "object"
-        ? relatedProject.project_name ||
-          relatedProject.name ||
-          relatedProject.project_id
-        : relatedProject;
-
-    return (
-      meeting.team ||
-      meeting.projectName ||
-      meeting.project_name ||
-      project ||
-      "Team"
-    );
-  };
+  // Banner shows the next meeting that has not started yet.
+  const currentDate = getLocalDate();
+  const bannerNow = new Date();
+  const bannerCurrentMinutes = bannerNow.getHours() * 60 + bannerNow.getMinutes();
+  const nextMeeting = upcomingMeetings.find((meeting) => {
+    if (meeting.normalizedDate > currentDate) return true;
+    if (meeting.normalizedDate !== currentDate) return false;
+    const start = getTimeMinutes(getMeetingStartTime(meeting));
+    return start !== null && start > bannerCurrentMinutes;
+  }) || null;
 
   // =====================================
   // FORMAT MEETING DATE
@@ -671,17 +799,17 @@ function HODDashboard() {
 
             <p>
               <strong>Start Time:</strong>{" "}
-              {formatTime(meeting.startTime) || "Not available"}
+              {formatTime(getMeetingStartTime(meeting)) || "Not available"}
             </p>
 
             <p>
               <strong>End Time:</strong>{" "}
-              {formatTime(meeting.endTime) || "Not available"}
+              {formatTime(getMeetingEndTime(meeting)) || "Not available"}
             </p>
 
             <p>
               <strong>Venue:</strong>{" "}
-              {meeting.venue || "Not available"}
+              {meeting.venue || meeting.location || "Not available"}
             </p>
 
             <p>
@@ -731,7 +859,7 @@ function HODDashboard() {
               projectMeetings.map((meeting, index) => (
                 <div
                   className="project-meeting-detail"
-                  key={meeting.meeting_id || index}
+                  key={getMeetingId(meeting) || index}
                 >
                   <h3>{meeting.title || "Untitled Meeting"}</h3>
 
@@ -747,16 +875,17 @@ function HODDashboard() {
 
                   <p>
                     <strong>Start Time:</strong>{" "}
-                    {formatTime(meeting.startTime)}
+                    {formatTime(getMeetingStartTime(meeting))}
                   </p>
 
                   <p>
                     <strong>End Time:</strong>{" "}
-                    {formatTime(meeting.endTime)}
+                    {formatTime(getMeetingEndTime(meeting))}
                   </p>
 
                   <p>
-                    <strong>Venue:</strong> {meeting.venue}
+                    <strong>Venue:</strong>{" "}
+                    {meeting.venue || meeting.location || "Not available"}
                   </p>
 
                   <p>
@@ -792,8 +921,9 @@ function HODDashboard() {
     if (activePage === "Meetings") {
       return (
         <HODMeetings
-          key={openCreateMeeting ? "create-meeting" : "meetings-list"}
+          key={`${openCreateMeeting ? "create-meeting" : "meetings-list"}-${meetingInitialSection}`}
           initialShowForm={openCreateMeeting}
+          initialSection={meetingInitialSection}
         />
       );
     }
@@ -854,11 +984,7 @@ function HODDashboard() {
             <div className="banner-divider"></div>
 
             <div className="banner-content">
-              <h3>
-                {ongoingMeeting
-                  ? "Ongoing Meeting"
-                  : "Next Meeting"}
-              </h3>
+              <h3>Next Meeting</h3>
 
               <div className="banner-meeting-row">
                 <h2>
@@ -872,27 +998,11 @@ function HODDashboard() {
                 {nextMeeting && (
                   <span className="banner-date">
                     {formatMeetingDate(nextMeeting)} •{" "}
-                    {formatTime(nextMeeting.startTime)}
+                    {formatTime(getMeetingStartTime(nextMeeting))}
                   </span>
                 )}
               </div>
 
-              {ongoingMeeting && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    marginTop: "8px",
-                    padding: "5px 12px",
-                    borderRadius: "20px",
-                    backgroundColor: "#dcfce7",
-                    color: "#15803d",
-                    fontWeight: "700",
-                    fontSize: "12px"
-                  }}
-                >
-                  ONGOING
-                </span>
-              )}
             </div>
 
             <button
@@ -996,7 +1106,11 @@ function HODDashboard() {
                 <CalendarDays />
                 <h3>Upcoming Meetings</h3>
 
-                <button onClick={() => openMeetingsPage(false)}>
+                <button
+                  onClick={() =>
+                    openMeetingsPage(false, "upcoming")
+                  }
+                >
                   View All <ArrowRight size={16} />
                 </button>
               </div>
@@ -1007,7 +1121,7 @@ function HODDashboard() {
                     <tr>
                       <th>Sl. No.</th>
                       <th>Project Name</th>
-                      <th>Meeting Time</th>
+                      <th>Meeting Date &amp; Time</th>
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
@@ -1022,10 +1136,11 @@ function HODDashboard() {
                       </tr>
                     ) : (
                       upcomingMeetings.map((meeting, index) => {
-                        const status = meeting.status || "Pending";
+                        const status = getHodStatusLabel(meeting);
+                        const canReview = isAwaitingHodDecision(meeting);
 
                         return (
-                          <tr key={meeting.meeting_id || index}>
+                          <tr key={getMeetingId(meeting) || index}>
                             <td>{index + 1}</td>
 
                             <td className="meeting-project-name">
@@ -1035,7 +1150,7 @@ function HODDashboard() {
                             <td>
                               {formatMeetingDate(meeting)}
                               {" • "}
-                              {formatTime(meeting.startTime) ||
+                              {formatTime(getMeetingStartTime(meeting)) ||
                                 "Time not set"}
                             </td>
 
@@ -1051,12 +1166,12 @@ function HODDashboard() {
 
                             <td>
                               <div className="meeting-action-buttons">
+                                {canReview ? <>
                                 <button
                                   className="approve-button"
-                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
-                                      meeting.meeting_id,
+                                      getMeetingId(meeting),
                                       "Approved"
                                     )
                                   }
@@ -1066,16 +1181,18 @@ function HODDashboard() {
 
                                 <button
                                   className="reject-button"
-                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
-                                      meeting.meeting_id,
+                                      getMeetingId(meeting),
                                       "Rejected"
                                     )
                                   }
                                 >
                                   Reject
                                 </button>
+                                </> : <span className={`dashboard-status ${normalize(status)}`}>
+                                  {status}
+                                </span>}
                               </div>
                             </td>
                           </tr>
@@ -1155,7 +1272,7 @@ function HODDashboard() {
 
                     <button
                       className="view-details-button"
-                      onClick={() => setActivePage("Projects")}
+                      onClick={() => setSelectedProject(project)}
                     >
                       View Details
                     </button>
@@ -1225,7 +1342,7 @@ function HODDashboard() {
               }`}
               onClick={() => {
                 if (item.name === "Meetings") {
-                  openMeetingsPage(false);
+                  openMeetingsPage(false, "today");
                 } else {
                   setActivePage(item.name);
                 }

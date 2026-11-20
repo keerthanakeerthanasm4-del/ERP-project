@@ -21,7 +21,7 @@ export default function ProjectLeadProfile() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
     try {
@@ -45,7 +45,7 @@ export default function ProjectLeadProfile() {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
       const response = await fetch(`${API_URL}/api/project-lead/profile`, {

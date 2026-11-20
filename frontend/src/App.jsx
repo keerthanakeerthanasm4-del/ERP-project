@@ -18,7 +18,7 @@ import Home from "./pages/LandingPage";
    API CONFIGURATION — UNCHANGED
 ========================================================= */
 
-// const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() || "";
 
 /* =========================================================
    EXISTING SHARED ICONS
@@ -2621,8 +2621,12 @@ function LoginPage() {
   const navigate = useNavigate();
   const googleTokenClient = useRef(null);
 
-  // Load Google Identity Services and prepare account selection.
+  // Load Google Identity Services only when a browser client ID is configured.
   useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) {
+      setMessage("Google sign-in is not configured. Use your email and password instead.");
+      return;
+    }
     let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
     let createdScript = false;
     const initializeGoogle = () => {
@@ -2728,7 +2732,10 @@ function LoginPage() {
   // Open Google's account chooser.
   function handleGoogleLogin() {
     setMessage("");
-    if (!googleTokenClient.current) {
+    if (!GOOGLE_CLIENT_ID) {
+      setMessage("Google sign-in is not configured. Use your email and password instead.");
+      return;
+    }    if (!googleTokenClient.current) {
       setMessage("Google sign-in is loading. Please try again in a moment.");
       return;
     }

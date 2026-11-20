@@ -1,9 +1,28 @@
 
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import "../HOD styles/HODMeetings.css";
 import { API_URL } from "../../api.js";
+import { ArrowRight, CalendarDays, X } from "lucide-react";
 
-// GET TODAY'S DATE
+// =====================================
+// AUTH HEADERS
+// =====================================
+
+const getAuthHeaders = () => {
+  const token =
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
+  return {
+    Authorization: `Bearer ${token}`
+  };
+};
+
+// =====================================
+// DATE HELPERS
+// =====================================
+
 const getTodayDate = () => {
   const today = new Date();
 
@@ -14,76 +33,47 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
-// GET CURRENT TIME
-const getCurrentTimeString = () => {
-  const now = new Date();
-
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-
-  return `${hours}:${minutes}`;
-};
-
-// GET MEETING DATE
-const getMeetingDateKey = (meeting) => {
-  const value =
+const getMeetingDate = (meeting) => {
+  const rawDate =
     meeting.date ||
     meeting.meetingDate ||
     meeting.meeting_date ||
     meeting.scheduledDate ||
-    meeting.scheduled_date;
+    meeting.scheduled_date ||
+    "";
 
-  if (!value) return "";
+  if (!rawDate) return "";
 
-  if (value instanceof Date) {
-    const year = value.getFullYear();
-    const month = String(value.getMonth() + 1).padStart(2, "0");
-    const day = String(value.getDate()).padStart(2, "0");
+  const value = String(rawDate).trim();
 
-    return `${year}-${month}-${day}`;
+  const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (isoMatch) {
+    return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
   }
 
-  const dateString = String(value).trim();
-
-  const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})/);
-
-  if (match) {
-    return `${match[1]}-${match[2]}-${match[3]}`;
-  }
-
-  const otherMatch = dateString.match(
-    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
-  );
+  const otherMatch = value.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
 
   if (otherMatch) {
-    return `${otherMatch[3]}-${String(otherMatch[2]).padStart(
-      2,
-      "0"
-    )}-${String(otherMatch[1]).padStart(2, "0")}`;
+    return `${otherMatch[3]}-${String(otherMatch[2]).padStart(2, "0")}-${String(otherMatch[1]).padStart(2, "0")}`;
   }
 
   return "";
 };
 
-// GET MEETING START TIME
-const getMeetingStartTime = (meeting) =>
-  meeting.startTime ||
-  meeting.start_time ||
-  "";
+// =====================================
+// TIME HELPERS
+// =====================================
 
-// GET MEETING END TIME
-const getMeetingEndTime = (meeting) =>
-  meeting.endTime ||
-  meeting.end_time ||
-  "";
-
-// CONVERT TIME INTO MINUTES
+// Converts both 12-hour and 24-hour time into minutes.
 const getTimeMinutes = (time) => {
   if (!time) return null;
 
-  const match = String(time)
-    .trim()
-    .match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
+  const value = String(time).trim();
+
+  const match = value.match(
+    /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+  );
 
   if (!match) return null;
 
@@ -96,7 +86,7 @@ const getTimeMinutes = (time) => {
   if (period) {
     if (hours < 1 || hours > 12) return null;
 
-    if (period === "PM" && hours < 12) {
+    if (period === "PM" && hours !== 12) {
       hours += 12;
     } else if (period === "AM" && hours === 12) {
       hours = 0;
@@ -108,279 +98,555 @@ const getTimeMinutes = (time) => {
   return hours * 60 + minutes;
 };
 
-// CHECK REJECTED MEETINGS
-const isRejectedMeeting = (meeting) =>
-  String(meeting.status || "").trim().toLowerCase() === "rejected";
+// Converts 12-hour time into HH:mm for the API.
+const to24Hour = (time) => {
+  const totalMinutes = getTimeMinutes(time);
 
-const HODMeetings = ({ initialShowForm = false }) => {
+  if (totalMinutes === null) return "";
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+};
+
+const formatMinutes = (minutes) => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHour = hours % 12 || 12;
+
+  return `${displayHour}:${String(mins).padStart(2, "0")} ${period}`;
+};
+
+const formatTime = (time) => {
+  if (!time) return "Time not set";
+
+  const minutes = getTimeMinutes(time);
+
+  if (minutes === null) return String(time);
+
+  return formatMinutes(minutes);
+};
+
+// =====================================
+// HOUR, MINUTE, AM/PM PICKER
+// =====================================
+
+const parseTimeParts = (time) => {
+  const match = String(time || "").trim().match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+  if (!match) return { hour: "", minute: "", period: "" };
+
+  let hour = Number(match[1]);
+  let period = match[3]?.toUpperCase() || "";
+  if (!period) {
+    period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+  }
+  return { hour: String(hour), minute: match[2], period };
+};
+
+const TimePicker = ({ label, value, onChange }) => {
+  const [parts, setParts] = useState(() => parseTimeParts(value));
+
+  useEffect(() => {
+    setParts(parseTimeParts(value));
+  }, [value]);
+
+  const updatePart = (key, nextValue) => {
+    const nextParts = { ...parts, [key]: nextValue };
+    setParts(nextParts);
+    onChange(nextParts.hour && nextParts.minute && nextParts.period
+      ? `${Number(nextParts.hour)}:${nextParts.minute} ${nextParts.period}`
+      : "");
+  };
+
+  return (
+    <div className="hod-form-group">
+      <label>{label}</label>
+      <div className="hod-time-picker">
+        <select aria-label={`${label} hour`} value={parts.hour} onChange={(event) => updatePart("hour", event.target.value)} required>
+          <option value="">Hour</option>
+          {Array.from({ length: 12 }, (_, index) => index + 1).map((hour) => (
+            <option key={hour} value={String(hour)}>{String(hour).padStart(2, "0")}</option>
+          ))}
+        </select>
+        <select aria-label={`${label} minute`} value={parts.minute} onChange={(event) => updatePart("minute", event.target.value)} required>
+          <option value="">Minute</option>
+          {Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, "0")).map((minute) => (
+            <option key={minute} value={minute}>{minute}</option>
+          ))}
+        </select>
+        <select className="hod-time-period" aria-label={`${label} AM or PM`} value={parts.period} onChange={(event) => updatePart("period", event.target.value)} required>
+          <option value="">AM/PM</option>
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    </div>
+  );
+};
+
+// =====================================
+// GENERAL HELPERS
+// =====================================
+
+const normalize = (value) => {
+  const normalizedValue =
+    value && typeof value === "object"
+      ? value.project_name ||
+        value.projectName ||
+        value.name ||
+        value.project_id ||
+        value.id
+      : value;
+
+  return String(normalizedValue || "").trim().toLowerCase();
+};
+
+const getMeetingId = (meeting) => {
+  return meeting.meeting_id || meeting.meetingId || meeting.id;
+};
+
+const getApprovalStatus = (meeting) => {
+  return (
+    meeting.status ||
+    meeting.approval_status ||
+    meeting.approvalStatus ||
+    "Pending"
+  );
+};
+
+const getProjectLeadApproval = (meeting) =>
+  meeting.project_lead_approval_status ||
+  meeting.projectLeadApprovalStatus ||
+  meeting.project_lead_status ||
+  meeting.projectLeadStatus ||
+  meeting.project_lead_approval ||
+  meeting.projectLeadApproval ||
+  "";
+
+const hasProjectLeadApproved = (meeting) => {
+  const leadStatus = normalize(getProjectLeadApproval(meeting)).replace(/[\s-]+/g, "_");
+
+  if (leadStatus) {
+    return ["approved", "accepted", "project_lead_approved"].includes(leadStatus);
+  }
+
+  const status = normalize(getApprovalStatus(meeting)).replace(/[\s-]+/g, "_");
+
+  return [
+    "approved",
+    "fixed",
+    "confirmed",
+    "pending_hod",
+    "awaiting_hod",
+    "project_lead_approved",
+    "approved_by_project_lead"
+  ].includes(status);
+};
+
+const isAwaitingHodDecision = (meeting) => {
+  const status = normalize(getApprovalStatus(meeting)).replace(/[\s-]+/g, "_");
+
+  if (!hasProjectLeadApproved(meeting)) return false;
+
+  const hodStatus = normalize(
+    meeting.hod_approval_status ||
+    meeting.hodApprovalStatus ||
+    meeting.hod_status
+  );
+
+  if (hodStatus) {
+    return ["pending", "pending_hod", "awaiting_hod"].includes(
+      hodStatus.replace(/[\s-]+/g, "_")
+    );
+  }
+
+  return [
+    "pending",
+    "pending_hod",
+    "awaiting_hod",
+    "project_lead_approved",
+    "approved_by_project_lead"
+  ].includes(status);
+};
+
+const getHodStatusLabel = (meeting) => {
+  const status = normalize(getApprovalStatus(meeting));
+  const leadStatus = normalize(getProjectLeadApproval(meeting));
+
+  if (isAwaitingHodDecision(meeting)) return "Pending";
+
+  if (status === "approved" || status === "fixed" || status === "confirmed") {
+    return "Fixed";
+  }
+
+  if (status === "rejected") return "Rejected";
+
+  if (
+    leadStatus &&
+    ![
+      "approved",
+      "accepted",
+      "project lead approved",
+      "project_lead_approved"
+    ].includes(leadStatus)
+  ) {
+    return "Awaiting Project Lead";
+  }
+
+  return getApprovalStatus(meeting);
+};
+
+const getStartTime = (meeting) => {
+  return (
+    meeting.startTime ||
+    meeting.start_time ||
+    meeting.meeting_start_time ||
+    ""
+  );
+};
+
+const getEndTime = (meeting) => {
+  return (
+    meeting.endTime ||
+    meeting.end_time ||
+    meeting.meeting_end_time ||
+    ""
+  );
+};
+
+const getTeamName = (meeting) => {
+  const relatedProject = meeting.project;
+
+  const project =
+    relatedProject && typeof relatedProject === "object"
+      ? relatedProject.project_name ||
+        relatedProject.name ||
+        relatedProject.project_id
+      : relatedProject;
+
+  return (
+    meeting.team ||
+    meeting.projectName ||
+    meeting.project_name ||
+    project ||
+    "Team"
+  );
+};
+
+const getMeetingTitle = (meeting) => {
+  return meeting.title || meeting.meeting_title || "Meeting";
+};
+
+const formatMeetingDate = (meeting) => {
+  const dateKey = getMeetingDate(meeting);
+
+  if (!dateKey) return "Date not available";
+
+  const [year, month, day] = dateKey.split("-");
+
+  return new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    }
+  );
+};
+
+// =====================================
+// COMPONENT
+// =====================================
+
+const HODMeetings = ({
+  initialShowForm = false,
+  initialSection = "today"
+}) => {
   const formRef = useRef(null);
+  const upcomingSectionRef = useRef(null);
+  const todaySectionRef = useRef(null);
 
   const [meetings, setMeetings] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [selectedMeeting, setSelectedMeeting] = useState(null);
 
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [updatingMeetingId, setUpdatingMeetingId] = useState(null);
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
     project: "",
-    date: "",
+    project_id: "",
+    date: getTodayDate(),
     startTime: "",
     endTime: "",
     venue: ""
   });
 
-  // LOAD MEETINGS
-  const loadMeetings = useCallback(async () => {
-    try {
-      const token =
-        localStorage.getItem("token") ||
-        sessionStorage.getItem("token");
+  // =====================================
+  // SCROLL TO SELECTED SECTION
+  // =====================================
 
-      if (!token) {
-        console.error("HOD login token not found.");
-        setMeetings([]);
-        return;
-      }
-
-      const response = await fetch(`${API_URL}/api/hod/meetings`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to load meetings.");
-      }
-
-      if (!Array.isArray(data.meetings)) {
-        throw new Error("Meetings array not found in backend response.");
-      }
-
-      setMeetings(data.meetings);
-
-      console.log("HOD meetings loaded:", data.meetings);
-    } catch (error) {
-      console.error("Meeting loading error:", error);
-    }
-  }, []);
-
-  // AUTOMATICALLY REFRESH MEETINGS
   useEffect(() => {
-    loadMeetings();
-
-    const interval = window.setInterval(() => {
-      loadMeetings();
-    }, 15000);
-
-    window.addEventListener("focus", loadMeetings);
-
-    const handleMeetingsUpdated = () => {
-      loadMeetings();
-    };
-
-    window.addEventListener(
-      "hodMeetingsUpdated",
-      handleMeetingsUpdated
-    );
-
-    return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("focus", loadMeetings);
-
-      window.removeEventListener(
-        "hodMeetingsUpdated",
-        handleMeetingsUpdated
-      );
-    };
-  }, [loadMeetings]);
-
-  // UPDATE CURRENT TIME EVERY 5 SECONDS
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 5000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, []);
-
-  // FETCH PROJECTS
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const token =
-          localStorage.getItem("token") ||
-          sessionStorage.getItem("token");
-
-        if (!token) return;
-
-        const response = await fetch(`${API_URL}/api/hod/projects`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Unable to fetch projects.");
-        }
-
-        setProjects(data.projects || []);
-      } catch (error) {
-        console.error("Projects fetch error:", error);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
-  // SCROLL TO FORM WHEN REQUESTED
-  useEffect(() => {
-    if (initialShowForm) {
-      const timer = setTimeout(() => {
-        formRef.current?.scrollIntoView({
+    const timer = window.setTimeout(() => {
+      if (initialShowForm && formRef.current) {
+        formRef.current.scrollIntoView({
           behavior: "smooth",
           block: "start"
         });
-      }, 200);
-
-      return () => clearTimeout(timer);
-    }
-  }, [initialShowForm]);
-
-  // HANDLE FORM INPUT
-  const handleChange = (e) => {
-    setFormData((previous) => ({
-      ...previous,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  // RESET FORM
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      project: "",
-      date: "",
-      startTime: "",
-      endTime: "",
-      venue: ""
-    });
-  };
-
-  // CREATE MEETING
-  const handleCreate = async (e) => {
-    e.preventDefault();
-
-    if (!formData.date || !formData.startTime || !formData.endTime) {
-      alert("Please select the meeting date, start time and end time.");
-      return;
-    }
-
-    if (formData.date < getTodayDate()) {
-      alert("You cannot create a meeting for a past date.");
-      return;
-    }
-
-    if (formData.endTime <= formData.startTime) {
-      alert("End time must be after start time.");
-      return;
-    }
-
-    const selectedStartDateTime = new Date(
-      `${formData.date}T${formData.startTime}:00`
-    );
-
-    if (selectedStartDateTime <= new Date()) {
-      alert(
-        "You cannot create a meeting for a time that has already passed."
-      );
-      return;
-    }
-
-    const selectedProject = projects.find(
-      (project) =>
-        project.project_name?.trim().toLowerCase() ===
-        formData.project.trim().toLowerCase()
-    );
-
-    try {
-      const token =
-        localStorage.getItem("token") ||
-        sessionStorage.getItem("token");
-
-      if (!token) {
-        throw new Error("Please log in again.");
+      } else if (
+        initialSection === "upcoming" &&
+        upcomingSectionRef.current
+      ) {
+        upcomingSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      } else if (
+        initialSection === "today" &&
+        todaySectionRef.current
+      ) {
+        todaySectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
+    }, 150);
 
+    return () => window.clearTimeout(timer);
+  }, [initialShowForm, initialSection]);
+
+  // =====================================
+  // UPDATE CURRENT TIME
+  // =====================================
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setCurrentTime(new Date());
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  // =====================================
+  // FETCH MEETINGS
+  // =====================================
+
+  const fetchMeetings = useCallback(async () => {
+    try {
       const response = await fetch(`${API_URL}/api/hod/meetings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          title: formData.title.trim(),
-          project: formData.project.trim(),
-          project_id: selectedProject?.project_id || null,
-          date: formData.date,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          venue: formData.venue.trim()
-        })
+        headers: getAuthHeaders()
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to create meeting.");
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+
+        window.location.replace("/login");
+        return;
       }
 
-      await loadMeetings();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch meetings");
+      }
+
+      setMeetings(Array.isArray(data.meetings) ? data.meetings : []);
+    } catch (error) {
+      console.error("HOD Meetings Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // =====================================
+  // FETCH PROJECTS
+  // =====================================
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/hod/projects`, {
+        headers: getAuthHeaders()
+      });
+
+      const data = await response.json();
+
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+
+        window.location.replace("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch projects");
+      }
+
+      setProjects(Array.isArray(data.projects) ? data.projects : []);
+    } catch (error) {
+      console.error("HOD Projects Error:", error);
+    }
+  }, []);
+
+  // =====================================
+  // REFRESH DATA
+  // =====================================
+
+  useEffect(() => {
+    fetchMeetings();
+    fetchProjects();
+
+    const interval = window.setInterval(() => {
+      fetchMeetings();
+    }, 15000);
+
+    const refreshMeetings = () => fetchMeetings();
+
+    window.addEventListener("focus", refreshMeetings);
+    window.addEventListener("hodMeetingsUpdated", refreshMeetings);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshMeetings);
+      window.removeEventListener("hodMeetingsUpdated", refreshMeetings);
+    };
+  }, [fetchMeetings, fetchProjects]);
+
+  // =====================================
+  // APPROVE OR REJECT MEETING
+  // =====================================
+
+  const updateMeetingStatus = async (meetingId, newStatus) => {
+    if (!meetingId) {
+      window.alert("Meeting ID is missing.");
+      return;
+    }
+
+    try {
+      setUpdatingMeetingId(meetingId);
+
+      const response = await fetch(
+        `${API_URL}/api/hod/meetings/${meetingId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            ...getAuthHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            status: newStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to update meeting status.");
+      }
+
+      await fetchMeetings();
 
       window.dispatchEvent(new Event("hodMeetingsUpdated"));
-
-      resetForm();
-      setSelectedMeeting(null);
-
-      alert("Meeting created successfully!");
     } catch (error) {
-      console.error("Meeting creation error:", error);
-      alert(error.message || "Unable to save meeting.");
+      console.error("Update meeting status:", error);
+      window.alert(error.message || "Unable to update meeting status.");
+    } finally {
+      setUpdatingMeetingId(null);
     }
   };
 
+  // =====================================
   // CURRENT DATE AND TIME
-  const today = getTodayDate();
+  // =====================================
 
-  const now = new Date(currentTime);
+  const todayDate = getTodayDate();
 
   const currentMinutes =
-    now.getHours() * 60 + now.getMinutes();
+    currentTime.getHours() * 60 + currentTime.getMinutes();
 
-  // GET DISPLAY STATUS
-  const getMeetingDisplayStatus = (meeting) => {
-    const meetingDate = getMeetingDateKey(meeting);
+  // =====================================
+  // TODAY'S MEETINGS
+  // =====================================
 
-    if (!meetingDate) return "Unknown";
+  const todayMeetings = meetings
+    .filter((meeting) => {
+      if (getMeetingDate(meeting) !== todayDate) {
+        return false;
+      }
 
-    if (meetingDate < today) return "Completed";
+      if (!hasProjectLeadApproved(meeting)) return false;
 
-    if (meetingDate > today) return "Upcoming";
+      return normalize(getApprovalStatus(meeting)) !== "rejected";
+    })
+    .sort((a, b) => {
+      return (
+        (getTimeMinutes(getStartTime(a)) ?? 0) -
+        (getTimeMinutes(getStartTime(b)) ?? 0)
+      );
+    });
 
-    const start = getTimeMinutes(
-      getMeetingStartTime(meeting)
-    );
+  // =====================================
+  // UPCOMING MEETINGS
+  // =====================================
 
-    const end = getTimeMinutes(
-      getMeetingEndTime(meeting)
-    );
+  const upcomingMeetings = meetings
+    .map((meeting) => ({
+      ...meeting,
+      normalizedDate: getMeetingDate(meeting)
+    }))
+    .filter((meeting) => {
+      if (!meeting.normalizedDate) return false;
+
+      if (!hasProjectLeadApproved(meeting)) return false;
+
+      if (normalize(getApprovalStatus(meeting)) === "rejected") {
+        return false;
+      }
+
+      if (meeting.normalizedDate > todayDate) {
+        return true;
+      }
+
+      if (meeting.normalizedDate === todayDate) {
+        const end = getTimeMinutes(getEndTime(meeting));
+
+        return end !== null && end > currentMinutes;
+      }
+
+      return false;
+    })
+    .sort((a, b) => {
+      if (a.normalizedDate !== b.normalizedDate) {
+        return a.normalizedDate.localeCompare(b.normalizedDate);
+      }
+
+      return (
+        (getTimeMinutes(getStartTime(a)) ?? 0) -
+        (getTimeMinutes(getStartTime(b)) ?? 0)
+      );
+    });
+
+  // =====================================
+  // TODAY'S MEETING STATUS
+  // =====================================
+
+  const getTodayMeetingStatus = (meeting) => {
+    const start = getTimeMinutes(getStartTime(meeting));
+    const end = getTimeMinutes(getEndTime(meeting));
 
     if (start === null || end === null) {
       return "Upcoming";
@@ -397,429 +663,572 @@ const HODMeetings = ({ initialShowForm = false }) => {
     return "Upcoming";
   };
 
-  // TODAY'S MEETINGS
-  // SHOWS UPCOMING, ONGOING AND COMPLETED
-  const todaysMeetings = meetings
-    .filter((meeting) => {
-      if (isRejectedMeeting(meeting)) return false;
+  // =====================================
+  // FORM HANDLERS
+  // =====================================
 
-      return getMeetingDateKey(meeting) === today;
-    })
-    .sort((a, b) => {
-      const firstStart =
-        getTimeMinutes(getMeetingStartTime(a)) ?? 0;
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
 
-      const secondStart =
-        getTimeMinutes(getMeetingStartTime(b)) ?? 0;
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value
+    }));
+  };
 
-      return firstStart - secondStart;
+  const handleProjectChange = (event) => {
+    const projectName = event.target.value;
+
+    const selectedProject = projects.find((project) => {
+      const name = project.project_name || project.name || "";
+
+      return name.trim().toLowerCase() === projectName.trim().toLowerCase();
     });
 
-  // UPCOMING MEETINGS
-  // TODAY'S NOT-STARTED AND ALL FUTURE MEETINGS
-  const upcomingMeetings = meetings
-    .filter((meeting) => {
-      if (isRejectedMeeting(meeting)) return false;
+    setFormData((previous) => ({
+      ...previous,
+      project: projectName,
+      project_id: selectedProject
+        ? String(selectedProject.project_id || selectedProject.id || "")
+        : ""
+    }));
+  };
 
-      const meetingDate = getMeetingDateKey(meeting);
-
-      if (!meetingDate) return false;
-
-      if (meetingDate > today) return true;
-
-      if (meetingDate < today) return false;
-
-      const meetingStart = getTimeMinutes(
-        getMeetingStartTime(meeting)
-      );
-
-      return (
-        meetingStart !== null &&
-        meetingStart > currentMinutes
-      );
-    })
-    .sort((a, b) => {
-      const dateDifference = getMeetingDateKey(a).localeCompare(
-        getMeetingDateKey(b)
-      );
-
-      if (dateDifference !== 0) return dateDifference;
-
-      const firstStart =
-        getTimeMinutes(getMeetingStartTime(a)) ?? 0;
-
-      const secondStart =
-        getTimeMinutes(getMeetingStartTime(b)) ?? 0;
-
-      return firstStart - secondStart;
-    });
-
-  // FORMAT DATE
-  const formatDate = (dateValue) => {
-    if (!dateValue) return "--";
-
-    const dateKey = String(dateValue).match(
-      /^(\d{4}-\d{2}-\d{2})/
-    );
-
-    const normalized = dateKey ? dateKey[1] : dateValue;
-
-    const date = new Date(`${normalized}T00:00:00`);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(dateValue);
-    }
-
-    return date.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      project: "",
+      project_id: "",
+      date: getTodayDate(),
+      startTime: "",
+      endTime: "",
+      venue: ""
     });
   };
 
-  // FORMAT TIME
-  const formatTime = (time) => {
-    if (!time) return "--";
+  // =====================================
+  // CREATE MEETING
+  // =====================================
 
-    const minutes = getTimeMinutes(time);
+  const handleCreateMeeting = async (event) => {
+    event.preventDefault();
 
-    if (minutes === null) return String(time);
+    if (
+      !formData.title.trim() ||
+      !formData.project.trim() ||
+      !formData.date ||
+      !formData.startTime ||
+      !formData.endTime ||
+      !formData.venue.trim()
+    ) {
+      window.alert("Please fill in all meeting details.");
+      return;
+    }
 
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
+    const start = getTimeMinutes(formData.startTime);
+    const end = getTimeMinutes(formData.endTime);
 
-    const date = new Date();
+    if (start === null || end === null || end <= start) {
+      window.alert(
+        "Please enter valid times in AM/PM format (example: 09:30 AM), and ensure the end time is later than the start time."
+      );
+      return;
+    }
 
-    date.setHours(hours, remainingMinutes, 0, 0);
+    const today = getTodayDate();
 
-    return date.toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true
+    if (formData.date < today) {
+      window.alert("You cannot schedule a meeting in the past.");
+      return;
+    }
+
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (formData.date === today && start <= nowMinutes) {
+      window.alert("Please select a future meeting time.");
+      return;
+    }
+
+    const hasOverlap = meetings.some((meeting) => {
+      if (normalize(getApprovalStatus(meeting)) === "rejected") {
+        return false;
+      }
+
+      if (getMeetingDate(meeting) !== formData.date) {
+        return false;
+      }
+
+      const existingStart = getTimeMinutes(getStartTime(meeting));
+      const existingEnd = getTimeMinutes(getEndTime(meeting));
+
+      if (existingStart === null || existingEnd === null) {
+        return false;
+      }
+
+      return start < existingEnd && end > existingStart;
     });
+
+    if (hasOverlap) {
+      window.alert("Another meeting is already scheduled during this time.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const response = await fetch(`${API_URL}/api/hod/meetings`, {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: formData.title.trim(),
+          project: formData.project.trim(),
+          project_id: formData.project_id,
+          date: formData.date,
+
+          // Send standard 24-hour time to the backend.
+          startTime: to24Hour(formData.startTime),
+          endTime: to24Hour(formData.endTime),
+
+          venue: formData.venue.trim(),
+
+          // HOD-created meetings should be approved automatically.
+          status: "Approved",
+          approval_status: "Approved"
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to create meeting.");
+      }
+
+      const meetingId = getMeetingId(data.meeting || {});
+
+      if (!meetingId) {
+        throw new Error("The meeting was created, but its status could not be confirmed.");
+      }
+
+      // The create endpoint defaults to Pending, so immediately finalize HOD-created meetings.
+      const statusResponse = await fetch(
+        `${API_URL}/api/hod/meetings/${meetingId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            ...getAuthHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ status: "Approved" })
+        }
+      );
+
+      const statusData = await statusResponse.json();
+
+      if (!statusResponse.ok) {
+        throw new Error(statusData.message || "Meeting created but could not be marked as fixed.");
+      }
+
+      window.alert("Meeting created and fixed successfully.");
+
+      resetForm();
+
+      await fetchMeetings();
+
+      window.dispatchEvent(new Event("hodMeetingsUpdated"));
+    } catch (error) {
+      console.error("Create meeting error:", error);
+      window.alert(error.message || "Unable to create meeting.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // GET TEAM / PROJECT NAME
-  const getTeamName = (meeting) => {
-    if (typeof meeting.project === "string") {
-      return meeting.project;
-    }
+  // =====================================
+  // MEETING DETAILS
+  // =====================================
+
+  const renderMeetingDetails = () => {
+    if (!selectedMeeting) return null;
 
     return (
-      meeting.projectName ||
-      meeting.project_name ||
-      meeting.project?.project_name ||
-      meeting.team ||
-      "Team"
+      <div
+        className="hod-details-overlay"
+        onClick={() => setSelectedMeeting(null)}
+      >
+        <div
+          className="hod-inline-details"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="hod-details-heading">
+            <div>
+              <h3>Meeting Details</h3>
+              <p>{getMeetingTitle(selectedMeeting)}</p>
+            </div>
+
+            <button
+              type="button"
+              className="hod-form-close"
+              onClick={() => setSelectedMeeting(null)}
+            >
+              <X size={19} />
+            </button>
+          </div>
+
+          <div className="hod-details-grid">
+            <div className="hod-detail-item">
+              <span>Project/ Team Name</span>
+              <strong>{getTeamName(selectedMeeting)}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>Meeting Title</span>
+              <strong>{getMeetingTitle(selectedMeeting)}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>Date</span>
+              <strong>{formatMeetingDate(selectedMeeting)}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>Start Time</span>
+              <strong>{formatTime(getStartTime(selectedMeeting))}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>End Time</span>
+              <strong>{formatTime(getEndTime(selectedMeeting))}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>Venue</span>
+              <strong>{selectedMeeting.venue || "Not available"}</strong>
+            </div>
+
+            <div className="hod-detail-item">
+              <span>Approval Status</span>
+              <strong>{getApprovalStatus(selectedMeeting)}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
-  // MEETING TABLE
-  // VIEW DETAILS IS ON THE RIGHT AFTER STATUS
-  // ACTION HEADING REMOVED
-  const renderMeetingTable = (meetingList, emptyMessage) => (
-    <div className="table-wrapper">
-      <table className="hod-meetings-table">
-        <thead>
-          <tr>
-            <th>Team / Project</th>
-            <th>Meeting Time</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {meetingList.length === 0 ? (
-            <tr>
-              <td colSpan="4" className="hod-no-meetings">
-                {emptyMessage}
-              </td>
-            </tr>
-          ) : (
-            meetingList.map((meeting, index) => {
-              const status = getMeetingDisplayStatus(meeting);
-
-              return (
-                <tr key={meeting.meeting_id || index}>
-                  <td>
-                    <strong className="hod-team-name">
-                      {getTeamName(meeting)}
-                    </strong>
-                  </td>
-
-                  <td className="hod-meeting-time">
-                    {formatTime(getMeetingStartTime(meeting))} –{" "}
-                    {formatTime(getMeetingEndTime(meeting))}
-                  </td>
-
-                  <td>
-                    <strong
-                      style={{
-                        color:
-                          status === "Completed"
-                            ? "#16a34a"
-                            : status === "Ongoing"
-                            ? "#2563eb"
-                            : status === "Upcoming"
-                            ? "#64748b"
-                            : "#dc2626",
-                        fontWeight: 700
-                      }}
-                    >
-                      {status.toUpperCase()}
-                    </strong>
-                  </td>
-
-                  <td>
-                    <button
-                      type="button"
-                      className="view-details-button"
-                      onClick={() => setSelectedMeeting(meeting)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+  // =====================================
+  // PAGE
+  // =====================================
 
   return (
     <div className="hod-meetings-page">
 
-      {/* HEADER */}
-      <header className="hod-meetings-page-header">
+      {/* PAGE HEADING */}
+
+      <div className="hod-meetings-page-header">
         <div>
-          <h1>MEETINGS</h1>
-          <p>Manage your department meetings efficiently</p>
+          <h1>Meetings</h1>
+          <p>Manage your department meetings</p>
         </div>
-      </header>
+      </div>
 
       {/* TODAY'S MEETINGS */}
-      <section className="dashboard-card upcoming-card hod-meetings-card">
-        <div className="section-heading card-heading hod-meetings-heading">
-          <div>
-            <h3>Today's Meetings</h3>
-            <p>Meetings scheduled for today</p>
-          </div>
+
+      <div
+        className="dashboard-card upcoming-card"
+        ref={todaySectionRef}
+      >
+        <div className="section-heading card-heading">
+          <CalendarDays />
+          <h3>Today's Meetings</h3>
         </div>
 
-        {renderMeetingTable(
-          todaysMeetings,
-          "No meetings scheduled for today."
-        )}
-      </section>
+        <div className="table-wrapper">
+          <table className="dashboard-meetings-table">
+            <thead>
+              <tr>
+                <th>Sl. No.</th>
+                <th>Project/ Team Name</th>
+                <th>Meeting Date &amp; Time</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="no-meetings">
+                    Loading meetings...
+                  </td>
+                </tr>
+              ) : todayMeetings.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="no-meetings">
+                    No meetings scheduled for today.
+                  </td>
+                </tr>
+              ) : (
+                todayMeetings.map((meeting, index) => {
+                  const status = getTodayMeetingStatus(meeting);
+
+                  return (
+                    <tr key={getMeetingId(meeting) || index}>
+                      <td>{index + 1}</td>
+
+                      <td className="meeting-project-name">
+                        {getTeamName(meeting)}
+                      </td>
+
+                      <td>
+                        {formatMeetingDate(meeting)}
+                        {" • "}
+                        {formatTime(getStartTime(meeting))}
+                        {" - "}
+                        {formatTime(getEndTime(meeting))}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`dashboard-status ${normalize(status)}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="view-details-button"
+                          onClick={() => setSelectedMeeting(meeting)}
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* UPCOMING MEETINGS */}
-      <section className="dashboard-card upcoming-card hod-meetings-card">
-        <div className="section-heading card-heading hod-meetings-heading">
-          <div>
-            <h3>Upcoming Meetings</h3>
-            <p>Your future scheduled meetings</p>
-          </div>
-        </div>
 
-        {renderMeetingTable(
-          upcomingMeetings,
-          "No upcoming meetings found."
-        )}
-      </section>
+      <div
+        className="dashboard-card upcoming-card"
+        ref={upcomingSectionRef}
+      >
+        <div className="section-heading card-heading">
+          <CalendarDays />
+          <h3>Upcoming Meetings</h3>
 
-      {/* MEETING DETAILS POPUP */}
-      {selectedMeeting && (
-        <div
-          className="hod-details-overlay"
-          onClick={() => setSelectedMeeting(null)}
-        >
-          <section
-            className="hod-inline-details"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            onClick={() => {
+              upcomingSectionRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+            }}
           >
-            <div className="hod-details-heading">
-              <div>
-                <span className="hod-details-kicker">
-                  MEETING INFORMATION
-                </span>
-
-                <h3>Meeting Details</h3>
-
-                <p>Complete information about this meeting</p>
-              </div>
-
-              <button
-                type="button"
-                className="hod-form-close"
-                onClick={() => setSelectedMeeting(null)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="hod-details-grid">
-              <div className="hod-detail-item">
-                <span>Team / Project</span>
-                <strong>{getTeamName(selectedMeeting)}</strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>Meeting Title</span>
-                <strong>{selectedMeeting.title || "--"}</strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>Date</span>
-                <strong>
-                  {formatDate(getMeetingDateKey(selectedMeeting))}
-                </strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>Start Time</span>
-                <strong>
-                  {formatTime(getMeetingStartTime(selectedMeeting))}
-                </strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>End Time</span>
-                <strong>
-                  {formatTime(getMeetingEndTime(selectedMeeting))}
-                </strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>Venue</span>
-                <strong>{selectedMeeting.venue || "--"}</strong>
-              </div>
-
-              <div className="hod-detail-item">
-                <span>Status</span>
-                <strong
-                  style={{
-                    color:
-                      getMeetingDisplayStatus(selectedMeeting) === "Completed"
-                        ? "#16a34a"
-                        : getMeetingDisplayStatus(selectedMeeting) === "Ongoing"
-                        ? "#2563eb"
-                        : "#64748b"
-                  }}
-                >
-                  {getMeetingDisplayStatus(selectedMeeting).toUpperCase()}
-                </strong>
-              </div>
-            </div>
-          </section>
+            View All <ArrowRight size={16} />
+          </button>
         </div>
-      )}
 
-      {/* CREATE MEETING FORM */}
-      <section
-        ref={formRef}
+        <div className="table-wrapper">
+          <table className="dashboard-meetings-table">
+            <thead>
+              <tr>
+                <th>Sl. No.</th>
+                <th>Project/ Team Name</th>
+                <th>Meeting Date &amp; Time</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="no-meetings">
+                    Loading meetings...
+                  </td>
+                </tr>
+              ) : upcomingMeetings.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="no-meetings">
+                    No upcoming meetings found.
+                  </td>
+                </tr>
+              ) : (
+                upcomingMeetings.map((meeting, index) => {
+                  const status = getHodStatusLabel(meeting);
+                  const meetingId = getMeetingId(meeting);
+                  const isPending = isAwaitingHodDecision(meeting);
+                  const isUpdating = updatingMeetingId === meetingId;
+
+                  return (
+                    <tr key={meetingId || index}>
+                      <td>{index + 1}</td>
+
+                      <td className="meeting-project-name">
+                        {getTeamName(meeting)}
+                      </td>
+
+                      <td>
+                        {formatMeetingDate(meeting)}
+                        {" • "}
+                        {formatTime(getStartTime(meeting))}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`dashboard-status ${normalize(status)}`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+
+                      <td>
+                        {isPending ? (
+                          <div className="meeting-action-buttons">
+                            <button
+                              type="button"
+                              className="approve-button"
+                              disabled={!isPending || isUpdating}
+                              onClick={() =>
+                                updateMeetingStatus(meetingId, "Approved")
+                              }
+                            >
+                              {isUpdating ? "Updating..." : "Approve"}
+                            </button>
+
+                            <button
+                              type="button"
+                              className="reject-button"
+                              disabled={!isPending || isUpdating}
+                              onClick={() =>
+                                updateMeetingStatus(meetingId, "Rejected")
+                              }
+                            >
+                              {isUpdating ? "Updating..." : "Reject"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span
+                            className={`dashboard-status ${normalize(status)}`}
+                          >
+                            {status}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* CREATE MEETING FORM - ALWAYS BELOW UPCOMING MEETINGS */}
+
+      <div
         className="dashboard-card hod-meeting-form-card"
-        id="create-meeting-section"
+        ref={formRef}
       >
         <div className="hod-meeting-card-heading">
           <div>
             <h3>Create New Meeting</h3>
-            <p>Enter the details to schedule a meeting</p>
+            <p>Enter the details to schedule a department meeting.</p>
           </div>
         </div>
 
-        <form onSubmit={handleCreate}>
+        <form onSubmit={handleCreateMeeting}>
           <div className="hod-form-grid">
 
             <div className="hod-form-group">
-              <label>Meeting Title *</label>
-
+              <label>Meeting Title</label>
               <input
+                type="text"
                 name="title"
                 value={formData.title}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="Enter meeting title"
                 required
               />
             </div>
 
             <div className="hod-form-group">
-              <label>Team / Project Name *</label>
+              <label>Project/ Team Name</label>
 
               <input
+                type="text"
                 name="project"
-                list="hod-project-options"
+                list="hod-project-team-options"
                 value={formData.project}
-                onChange={handleChange}
-                placeholder="Type or select team name"
+                onChange={handleProjectChange}
+                placeholder="Type or select Project/ Team"
+                autoComplete="off"
                 required
               />
 
-              <datalist id="hod-project-options">
+              <datalist id="hod-project-team-options">
                 {projects.map((project) => (
                   <option
-                    key={project.project_id || project.project_name}
-                    value={project.project_name}
+                    key={project.project_id || project.id}
+                    value={project.project_name || project.name}
                   />
                 ))}
-
-                <option value="Development Team" />
-                <option value="Testing Team" />
-                <option value="Design Team" />
               </datalist>
             </div>
 
             <div className="hod-form-group">
-              <label>Meeting Date *</label>
-
+              <label>Meeting Date</label>
               <input
                 type="date"
                 name="date"
                 min={getTodayDate()}
                 value={formData.date}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </div>
 
-            <div className="hod-form-group">
-              <label>Start Time *</label>
+            <TimePicker
+              label="Start Time"
+              value={formData.startTime}
+              onChange={(value) =>
+                setFormData((previous) => ({
+                  ...previous,
+                  startTime: value
+                }))
+              }
+            />
 
-              <input
-                type="time"
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleChange}
-                min={
-                  formData.date === getTodayDate()
-                    ? getCurrentTimeString()
-                    : undefined
-                }
-                required
-              />
-            </div>
-
-            <div className="hod-form-group">
-              <label>End Time *</label>
-
-              <input
-                type="time"
-                name="endTime"
-                value={formData.endTime}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <TimePicker
+              label="End Time"
+              value={formData.endTime}
+              onChange={(value) =>
+                setFormData((previous) => ({
+                  ...previous,
+                  endTime: value
+                }))
+              }
+            />
 
             <div className="hod-form-group">
-              <label>Meeting Venue *</label>
-
+              <label>Venue</label>
               <input
+                type="text"
                 name="venue"
                 value={formData.venue}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="Enter meeting venue"
                 required
               />
@@ -833,18 +1242,23 @@ const HODMeetings = ({ initialShowForm = false }) => {
               className="hod-cancel-button"
               onClick={resetForm}
             >
-              Clear
+              Cancel
             </button>
 
             <button
               type="submit"
               className="hod-save-button"
+              disabled={saving}
             >
-              + Create Meeting
+              {saving ? "Creating..." : "Create Meeting"}
             </button>
           </div>
         </form>
-      </section>
+      </div>
+
+      {/* MEETING DETAILS POPUP */}
+
+      {renderMeetingDetails()}
 
     </div>
   );

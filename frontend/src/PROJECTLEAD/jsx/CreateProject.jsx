@@ -16,7 +16,7 @@ export default function CreateProject() {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
       const response = await fetch(`${API_URL}/api/project-lead/projects`, {

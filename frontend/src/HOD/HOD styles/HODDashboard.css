@@ -607,6 +607,12 @@ td,
   border-color: #a9e8c2;
 }
 
+.dashboard-bottom .dashboard-status.fixed {
+  background: #dcf8e8;
+  color: #12834b;
+  border-color: #a9e8c2;
+}
+
 .dashboard-bottom .dashboard-status.rejected {
   background: #ffe3e7;
   color: #d8324b;

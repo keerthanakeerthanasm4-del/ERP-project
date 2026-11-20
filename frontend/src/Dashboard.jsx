@@ -32,7 +32,7 @@ export default function Dashboard() {
         sessionStorage.getItem("token");
 
       if (!token) {
-        navigate("/login");
+        navigate("/login", { replace: true });
         return;
       }
 
@@ -67,7 +67,7 @@ export default function Dashboard() {
     sessionStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    navigate("/login");
+    navigate("/login", { replace: true });
   }
 
   function getStatusClass(status) {
@@ -133,6 +133,7 @@ export default function Dashboard() {
 
           <h1>
             Welcome,
+            <br />
             <span className="welcome-user-name">
               {" "}{user?.name || "Student"}!
             </span>

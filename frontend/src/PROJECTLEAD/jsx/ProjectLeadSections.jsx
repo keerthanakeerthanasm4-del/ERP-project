@@ -10,7 +10,7 @@ function useProjects() {
   useEffect(() => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
     fetch(`${API}/api/project-lead/my-projects`, {

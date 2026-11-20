@@ -3,8 +3,17 @@
 ========================================== */
 
 .dashboard-page {
+  --space-black: #020714;
+  --space-night: #030817;
+  --space-indigo: #07123a;
+  --space-cyan: #35c8ff;
+  --space-lavender: #9b8bea;
+  --space-muted: #c1c4d4;
+
   min-height: 100vh;
-  background: #020d25;
+  background:
+    radial-gradient(ellipse at 50% -20%, #172f86 0%, #09163e 38%, #030817 85%),
+    #030817;
   color: #fff;
   font-family: Inter, Arial, sans-serif;
   overflow-x: hidden;
@@ -19,7 +28,7 @@
 .dashboard-header {
   height: 70px;
   padding: 0 4%;
-  background: #020d25;
+  background: var(--space-black);
   border-bottom: 1px solid #087bdf;
 
   display: flex;
@@ -107,17 +116,9 @@
   overflow: hidden;
 
   background:
-    radial-gradient(
-      ellipse at 75% 20%,
-      rgba(9, 61, 138, 0.35),
-      transparent 48%
-    ),
-    linear-gradient(
-      120deg,
-      #020b21 0%,
-      #031334 50%,
-      #010b23 100%
-    );
+    radial-gradient(ellipse at 86% 18%, rgba(30, 80, 230, 0.38), transparent 40%),
+    radial-gradient(ellipse at 10% 96%, rgba(23, 47, 134, 0.18), transparent 52%),
+    linear-gradient(145deg, #020714 0%, #030919 58%, #07123a 100%);
 
   display: flex;
   align-items: center;
@@ -145,12 +146,12 @@
   pointer-events: none;
 
   background-image:
-    radial-gradient(circle, #8ce8ff 1px, transparent 2px),
-    radial-gradient(circle, #2c91ff 1px, transparent 2px);
+    radial-gradient(circle, #e8e9ff 1px, transparent 2px),
+    radial-gradient(circle, #7895e8 1px, transparent 2px),
+    radial-gradient(circle, #a79bff 1px, transparent 2px);
 
-  background-size:
-    165px 130px,
-    230px 190px;
+  background-size: 177px 151px, 263px 213px, 347px 281px;
+  background-position: 22px 29px, 95px 82px, 63px 117px;
 
   opacity: 0.5;
 
@@ -180,11 +181,13 @@
   pointer-events: none;
 
   background: repeating-conic-gradient(
-    from 220deg at 80% 10%,
+    from 220deg at 77% 17%,
     transparent 0deg,
-    rgba(22, 133, 255, 0.08) 5deg,
-    rgba(70, 195, 255, 0.3) 8deg,
-    transparent 14deg
+    rgba(77, 102, 206, 0.04) 4deg,
+    rgba(112, 89, 207, 0.28) 7deg,
+    rgba(205, 194, 255, 0.55) 8deg,
+    rgba(76, 113, 224, 0.12) 10deg,
+    transparent 16deg
   );
 
   filter: blur(8px);
@@ -604,11 +607,10 @@
 
   padding: 38px max(6%, calc((100% - 1280px) / 2)) 45px;
 
-  background: linear-gradient(
-    180deg,
-    #020e2a,
-    #041536
-  );
+  background:
+    radial-gradient(ellipse at 92% 12%, rgba(41, 94, 255, 0.32), transparent 44%),
+    radial-gradient(ellipse at 6% 82%, rgba(112, 89, 207, 0.15), transparent 48%),
+    linear-gradient(180deg, var(--space-night), var(--space-indigo));
 
   min-height: 360px;
 }
@@ -741,11 +743,9 @@
   border: 1px solid #43c9ff;
   border-radius: 17px;
 
-  background: linear-gradient(
-    145deg,
-    rgba(9, 48, 104, 0.85),
-    rgba(3, 22, 55, 0.9)
-  );
+  background:
+    radial-gradient(ellipse at 90% 0%, rgba(66, 86, 180, 0.2), transparent 55%),
+    linear-gradient(145deg, rgba(8, 16, 35, 0.96), rgba(4, 9, 23, 0.98));
 
   box-shadow:
     0 0 8px rgba(0, 132, 255, 0.3),
@@ -814,11 +814,9 @@
   border: 1px solid #236eb9;
   border-radius: 18px;
 
-  background: linear-gradient(
-    145deg,
-    #0a2a5b,
-    #03172f
-  );
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(47, 69, 156, 0.24), transparent 56%),
+    linear-gradient(145deg, #0a1023, #050b18);
 
   box-shadow: 0 0 12px rgba(0, 96, 255, 0.15);
 
@@ -940,7 +938,7 @@
 
   border-top: 1px solid #1767b9;
 
-  background: #020d25;
+  background: var(--space-black);
 
   text-align: center;
 }

@@ -35,7 +35,7 @@ export default function ProjectDetails() {
       });
       const data = await response.json();
       if (!response.ok) {
-        if (response.status === 401) navigate("/login");
+        if (response.status === 401) navigate("/login", { replace: true });
         setError(data.message || "Unable to load project details.");
         return;
       }
@@ -50,7 +50,7 @@ export default function ProjectDetails() {
   }
   useEffect(() => {
     if (!token()) {
-      navigate("/login");
+      navigate("/login", { replace: true });
       return;
     }
     loadProject();
