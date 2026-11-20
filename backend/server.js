@@ -5,7 +5,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-import { PrismaClient } from "@prisma/client";
+import prismaPackage from "@prisma/client";
+const { PrismaClient } = prismaPackage;
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
@@ -172,19 +173,20 @@ app.post("/api/auth/register", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Registration error:", error);
+  console.error("REGISTRATION ERROR:");
+  console.dir(error, { depth: null });
+  console.dir(error.cause, { depth: null });
 
-    // Handle duplicate database values
-    if (error.code === "P2002") {
-      return res.status(409).json({
-        message: "Email or USN already registered.",
-      });
-    }
-
-    res.status(500).json({
-      message: "Registration failed",
+  if (error.code === "P2002") {
+    return res.status(409).json({
+      message: "Email or USN already registered.",
     });
   }
+
+  res.status(500).json({
+    message: "Registration failed",
+  });
+}
 });
 
 /* -------------------------------------------------------

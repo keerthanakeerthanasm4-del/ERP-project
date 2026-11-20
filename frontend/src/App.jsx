@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import {
   Link,
@@ -9,6 +10,11 @@ import {
 
 import "./App.css";
 import Dashboard from "./Dashboard";
+import TeamLeadDashboard from "./TEAMLEAD/TeamLeadDashboard";
+import TeamLeadProfile from "./TEAMLEAD/TeamLeadProfile";
+import TeamLeadMeetings from "./TEAMLEAD/TeamLeadMeetings";
+import TeamLeadTasks from "./TEAMLEAD/TeamLeadTasks";
+import TeamLeadAssignedWork from "./TEAMLEAD/TeamLeadAssignedWork";
 
 /* -------------------------------------------------------
    API CONFIGURATION
@@ -863,8 +869,31 @@ export default function App() {
 
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* Existing Student Dashboard */}
       <Route path="/dashboard" element={<Dashboard />} />
 
+      {/* Added Team Lead Dashboard */}
+      <Route path="/teamlead/dashboard" element={<TeamLeadDashboard />}
+      />
+
+      {/* Added Team Lead Profile */}
+      <Route
+        path="/teamlead/profile" element={<TeamLeadProfile />}
+      />
+      <Route
+        path="/teamlead/meetings" element={<TeamLeadMeetings />}
+      />
+      <Route
+  path="/teamlead/tasks"
+  element={<TeamLeadTasks />}
+/>
+
+<Route
+  path="/teamlead/assigned-work"
+  element={<TeamLeadAssignedWork />}
+/>
+
+      {/* Keep wildcard route last */}
       <Route
         path="*"
         element={<Navigate to="/" replace />}
