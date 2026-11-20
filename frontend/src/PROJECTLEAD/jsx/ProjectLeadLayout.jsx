@@ -1,25 +1,19 @@
-import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import Particles from "./Particles.jsx";
 import "../css/ProjectLeadLayout.css";
 import "../css/ProjectLeadMotion.css";
 export default function ProjectLeadLayout() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  let user = null;
+  let user = {};
   try {
-    user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
-  } catch {
-    user = null;
-  }
-  if (!token || !user) return <Navigate to="/login" replace />;
-  if (user.role !== "PROJECT_LEAD") return <Navigate to="/dashboard" replace />;
-
+    user = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch {/* use default label */}
   const initials = user.name?.split(/\s+/).map(part => part[0]).slice(0, 2).join("").toUpperCase() || "PL";
   function logout() {
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login", { replace: true });
+    navigate("/login");
   }
   return <main className="pl-app-shell">
     <div className="pl-global-particles" aria-hidden="true">
