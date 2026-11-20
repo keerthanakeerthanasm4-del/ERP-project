@@ -80,6 +80,42 @@ const getMeetingId = (meeting) =>
   meeting.meetingId ||
   meeting.id;
 
+const getProjectLeadApproval = (meeting) =>
+  meeting.project_lead_approval_status ||
+  meeting.projectLeadApprovalStatus ||
+  meeting.project_lead_status ||
+  meeting.projectLeadStatus ||
+  meeting.project_lead_approval ||
+  meeting.projectLeadApproval ||
+  "";
+
+const hasProjectLeadApproved = (meeting) => {
+  const leadStatus = normalize(getProjectLeadApproval(meeting)).replace(/[\s-]+/g, "_");
+  if (leadStatus) return ["approved", "accepted", "project_lead_approved"].includes(leadStatus);
+  const status = normalize(meeting.status).replace(/[\s-]+/g, "_");
+  return ["approved", "fixed", "confirmed", "pending_hod", "awaiting_hod", "project_lead_approved", "approved_by_project_lead"].includes(status);
+};
+
+const isAwaitingHodDecision = (meeting) => {
+  const status = normalize(meeting.status).replace(/[\s-]+/g, "_");
+  if (!hasProjectLeadApproved(meeting)) return false;
+  const hodStatus = normalize(
+    meeting.hod_approval_status || meeting.hodApprovalStatus || meeting.hod_status
+  ).replace(/[\s-]+/g, "_");
+
+  if (hodStatus) return ["pending", "pending_hod", "awaiting_hod"].includes(hodStatus);
+  return ["pending", "pending_hod", "awaiting_hod", "project_lead_approved", "approved_by_project_lead"].includes(status);
+};
+
+const getHodStatusLabel = (meeting) => {
+  const status = normalize(meeting.status);
+  if (!hasProjectLeadApproved(meeting)) return "Awaiting Project Lead";
+  if (isAwaitingHodDecision(meeting)) return "Pending";
+  if (["approved", "fixed", "confirmed"].includes(status)) return "Fixed";
+  if (status === "rejected") return "Rejected";
+  return meeting.status || "Pending";
+};
+
 const getMeetingStartTime = (meeting) =>
   meeting.startTime ||
   meeting.start_time ||
@@ -642,6 +678,8 @@ function HODDashboard() {
       .filter((meeting) => {
         if (!meeting.normalizedDate) return false;
 
+        if (!hasProjectLeadApproved(meeting)) return false;
+
         if (normalize(meeting.status) === "rejected") {
           return false;
         }
@@ -680,54 +718,16 @@ function HODDashboard() {
 
   const upcomingMeetings = getUpcomingMeetings();
 
-  // =====================================
-  // CHECK WHETHER A MEETING IS ONGOING
-  // =====================================
-
-  const isMeetingOngoing = (meeting) => {
-    if (!meeting) return false;
-
-    const today = getLocalDate();
-
-    if (getMeetingDate(meeting) !== today) {
-      return false;
-    }
-
-    if (normalize(meeting.status) === "rejected") {
-      return false;
-    }
-
-    const now = new Date();
-
-    const currentMinutes =
-      now.getHours() * 60 + now.getMinutes();
-
-    const start = getTimeMinutes(
-      getMeetingStartTime(meeting)
-    );
-
-    const end = getTimeMinutes(
-      getMeetingEndTime(meeting)
-    );
-
-    if (start === null || end === null) {
-      return false;
-    }
-
-    return currentMinutes >= start && currentMinutes < end;
-  };
-
-  // =====================================
-  // GET ONGOING MEETING FIRST
-  // =====================================
-
-  const ongoingMeeting =
-    upcomingMeetings.find((meeting) =>
-      isMeetingOngoing(meeting)
-    ) || null;
-
-  const nextMeeting =
-    ongoingMeeting || upcomingMeetings[0] || null;
+  // Banner shows the next meeting that has not started yet.
+  const currentDate = getLocalDate();
+  const bannerNow = new Date();
+  const bannerCurrentMinutes = bannerNow.getHours() * 60 + bannerNow.getMinutes();
+  const nextMeeting = upcomingMeetings.find((meeting) => {
+    if (meeting.normalizedDate > currentDate) return true;
+    if (meeting.normalizedDate !== currentDate) return false;
+    const start = getTimeMinutes(getMeetingStartTime(meeting));
+    return start !== null && start > bannerCurrentMinutes;
+  }) || null;
 
   // =====================================
   // FORMAT MEETING DATE
@@ -982,11 +982,7 @@ function HODDashboard() {
             <div className="banner-divider"></div>
 
             <div className="banner-content">
-              <h3>
-                {ongoingMeeting
-                  ? "Ongoing Meeting"
-                  : "Next Meeting"}
-              </h3>
+              <h3>Next Meeting</h3>
 
               <div className="banner-meeting-row">
                 <h2>
@@ -1005,22 +1001,6 @@ function HODDashboard() {
                 )}
               </div>
 
-              {ongoingMeeting && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    marginTop: "8px",
-                    padding: "5px 12px",
-                    borderRadius: "20px",
-                    backgroundColor: "#dcfce7",
-                    color: "#15803d",
-                    fontWeight: "700",
-                    fontSize: "12px"
-                  }}
-                >
-                  ONGOING
-                </span>
-              )}
             </div>
 
             <button
@@ -1154,7 +1134,8 @@ function HODDashboard() {
                       </tr>
                     ) : (
                       upcomingMeetings.map((meeting, index) => {
-                        const status = meeting.status || "Pending";
+                        const status = getHodStatusLabel(meeting);
+                        const canReview = isAwaitingHodDecision(meeting);
 
                         return (
                           <tr key={getMeetingId(meeting) || index}>
@@ -1183,9 +1164,9 @@ function HODDashboard() {
 
                             <td>
                               <div className="meeting-action-buttons">
+                                {canReview ? <>
                                 <button
                                   className="approve-button"
-                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
                                       getMeetingId(meeting),
@@ -1198,7 +1179,6 @@ function HODDashboard() {
 
                                 <button
                                   className="reject-button"
-                                  disabled={normalize(status) !== "pending"}
                                   onClick={() =>
                                     updateMeetingStatus(
                                       getMeetingId(meeting),
@@ -1208,6 +1188,9 @@ function HODDashboard() {
                                 >
                                   Reject
                                 </button>
+                                </> : <span className={`dashboard-status ${normalize(status)}`}>
+                                  {status}
+                                </span>}
                               </div>
                             </td>
                           </tr>

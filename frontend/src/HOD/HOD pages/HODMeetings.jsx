@@ -72,30 +72,15 @@ const getMeetingDate = (meeting) => {
 // TIME HELPERS
 // =====================================
 
-const getStartTime = (meeting) => {
-  return (
-    meeting.startTime ||
-    meeting.start_time ||
-    meeting.meeting_start_time ||
-    ""
-  );
-};
-
-const getEndTime = (meeting) => {
-  return (
-    meeting.endTime ||
-    meeting.end_time ||
-    meeting.meeting_end_time ||
-    ""
-  );
-};
-
+// Converts both 12-hour and 24-hour time into minutes.
 const getTimeMinutes = (time) => {
   if (!time) return null;
 
   const value = String(time).trim();
 
-  const match = value.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
+  const match = value.match(
+    /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+  );
 
   if (!match) return null;
 
@@ -108,7 +93,7 @@ const getTimeMinutes = (time) => {
   if (period) {
     if (hours < 1 || hours > 12) return null;
 
-    if (period === "PM" && hours < 12) {
+    if (period === "PM" && hours !== 12) {
       hours += 12;
     } else if (period === "AM" && hours === 12) {
       hours = 0;
@@ -118,6 +103,18 @@ const getTimeMinutes = (time) => {
   }
 
   return hours * 60 + minutes;
+};
+
+// Converts 12-hour time into HH:mm for the API.
+const to24Hour = (time) => {
+  const totalMinutes = getTimeMinutes(time);
+
+  if (totalMinutes === null) return "";
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
 };
 
 const formatMinutes = (minutes) => {
@@ -140,20 +137,61 @@ const formatTime = (time) => {
   return formatMinutes(minutes);
 };
 
-const formatMeetingDate = (meeting) => {
-  const dateKey = getMeetingDate(meeting);
+// =====================================
+// HOUR, MINUTE, AM/PM PICKER
+// =====================================
 
-  if (!dateKey) return "Date not available";
+const parseTimeParts = (time) => {
+  const match = String(time || "").trim().match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?$/i);
+  if (!match) return { hour: "", minute: "", period: "" };
 
-  const [year, month, day] = dateKey.split("-");
+  let hour = Number(match[1]);
+  let period = match[3]?.toUpperCase() || "";
+  if (!period) {
+    period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+  }
+  return { hour: String(hour), minute: match[2], period };
+};
 
-  return new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    }
+const TimePicker = ({ label, value, onChange }) => {
+  const [parts, setParts] = useState(() => parseTimeParts(value));
+
+  useEffect(() => {
+    setParts(parseTimeParts(value));
+  }, [value]);
+
+  const updatePart = (key, nextValue) => {
+    const nextParts = { ...parts, [key]: nextValue };
+    setParts(nextParts);
+    onChange(nextParts.hour && nextParts.minute && nextParts.period
+      ? `${Number(nextParts.hour)}:${nextParts.minute} ${nextParts.period}`
+      : "");
+  };
+
+  return (
+    <div className="hod-form-group">
+      <label>{label}</label>
+      <div className="hod-time-picker">
+        <select aria-label={`${label} hour`} value={parts.hour} onChange={(event) => updatePart("hour", event.target.value)} required>
+          <option value="">Hour</option>
+          {Array.from({ length: 12 }, (_, index) => index + 1).map((hour) => (
+            <option key={hour} value={String(hour)}>{String(hour).padStart(2, "0")}</option>
+          ))}
+        </select>
+        <select aria-label={`${label} minute`} value={parts.minute} onChange={(event) => updatePart("minute", event.target.value)} required>
+          <option value="">Minute</option>
+          {Array.from({ length: 60 }, (_, minute) => String(minute).padStart(2, "0")).map((minute) => (
+            <option key={minute} value={minute}>{minute}</option>
+          ))}
+        </select>
+        <select className="hod-time-period" aria-label={`${label} AM or PM`} value={parts.period} onChange={(event) => updatePart("period", event.target.value)} required>
+          <option value="">AM/PM</option>
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+    </div>
   );
 };
 
@@ -187,6 +225,106 @@ const getApprovalStatus = (meeting) => {
   );
 };
 
+const getProjectLeadApproval = (meeting) =>
+  meeting.project_lead_approval_status ||
+  meeting.projectLeadApprovalStatus ||
+  meeting.project_lead_status ||
+  meeting.projectLeadStatus ||
+  meeting.project_lead_approval ||
+  meeting.projectLeadApproval ||
+  "";
+
+const hasProjectLeadApproved = (meeting) => {
+  const leadStatus = normalize(getProjectLeadApproval(meeting)).replace(/[\s-]+/g, "_");
+
+  if (leadStatus) {
+    return ["approved", "accepted", "project_lead_approved"].includes(leadStatus);
+  }
+
+  const status = normalize(getApprovalStatus(meeting)).replace(/[\s-]+/g, "_");
+
+  return [
+    "approved",
+    "fixed",
+    "confirmed",
+    "pending_hod",
+    "awaiting_hod",
+    "project_lead_approved",
+    "approved_by_project_lead"
+  ].includes(status);
+};
+
+const isAwaitingHodDecision = (meeting) => {
+  const status = normalize(getApprovalStatus(meeting)).replace(/[\s-]+/g, "_");
+
+  if (!hasProjectLeadApproved(meeting)) return false;
+
+  const hodStatus = normalize(
+    meeting.hod_approval_status ||
+    meeting.hodApprovalStatus ||
+    meeting.hod_status
+  );
+
+  if (hodStatus) {
+    return ["pending", "pending_hod", "awaiting_hod"].includes(
+      hodStatus.replace(/[\s-]+/g, "_")
+    );
+  }
+
+  return [
+    "pending",
+    "pending_hod",
+    "awaiting_hod",
+    "project_lead_approved",
+    "approved_by_project_lead"
+  ].includes(status);
+};
+
+const getHodStatusLabel = (meeting) => {
+  const status = normalize(getApprovalStatus(meeting));
+  const leadStatus = normalize(getProjectLeadApproval(meeting));
+
+  if (isAwaitingHodDecision(meeting)) return "Pending";
+
+  if (status === "approved" || status === "fixed" || status === "confirmed") {
+    return "Fixed";
+  }
+
+  if (status === "rejected") return "Rejected";
+
+  if (
+    leadStatus &&
+    ![
+      "approved",
+      "accepted",
+      "project lead approved",
+      "project_lead_approved"
+    ].includes(leadStatus)
+  ) {
+    return "Awaiting Project Lead";
+  }
+
+  return getApprovalStatus(meeting);
+};
+
+const getStartTime = (meeting) => {
+  return (
+    meeting.startTime ||
+    meeting.start_time ||
+    meeting.meeting_start_time ||
+    ""
+  );
+};
+
+const getEndTime = (meeting) => {
+  return (
+    meeting.endTime ||
+    meeting.end_time ||
+    meeting.meeting_end_time ||
+    ""
+  );
+};
+
 const getTeamName = (meeting) => {
   const relatedProject = meeting.project;
 
@@ -210,6 +348,23 @@ const getMeetingTitle = (meeting) => {
   return meeting.title || meeting.meeting_title || "Meeting";
 };
 
+const formatMeetingDate = (meeting) => {
+  const dateKey = getMeetingDate(meeting);
+
+  if (!dateKey) return "Date not available";
+
+  const [year, month, day] = dateKey.split("-");
+
+  return new Date(`${year}-${month}-${day}T00:00:00`).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    }
+  );
+};
+
 // =====================================
 // COMPONENT
 // =====================================
@@ -231,7 +386,6 @@ const HODMeetings = ({
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedMeeting, setSelectedMeeting] = useState(null);
-  const [showForm, setShowForm] = useState(initialShowForm);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -248,8 +402,6 @@ const HODMeetings = ({
   // =====================================
 
   useEffect(() => {
-    setShowForm(initialShowForm);
-
     const timer = window.setTimeout(() => {
       if (initialShowForm && formRef.current) {
         formRef.current.scrollIntoView({
@@ -443,6 +595,8 @@ const HODMeetings = ({
         return false;
       }
 
+      if (!hasProjectLeadApproved(meeting)) return false;
+
       return normalize(getApprovalStatus(meeting)) !== "rejected";
     })
     .sort((a, b) => {
@@ -463,6 +617,8 @@ const HODMeetings = ({
     }))
     .filter((meeting) => {
       if (!meeting.normalizedDate) return false;
+
+      if (!hasProjectLeadApproved(meeting)) return false;
 
       if (normalize(getApprovalStatus(meeting)) === "rejected") {
         return false;
@@ -527,7 +683,6 @@ const HODMeetings = ({
     }));
   };
 
-  // Supports both typing and selecting an existing project/team.
   const handleProjectChange = (event) => {
     const projectName = event.target.value;
 
@@ -544,6 +699,18 @@ const HODMeetings = ({
         ? String(selectedProject.project_id || selectedProject.id || "")
         : ""
     }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: "",
+      project: "",
+      project_id: "",
+      date: getTodayDate(),
+      startTime: "",
+      endTime: "",
+      venue: ""
+    });
   };
 
   // =====================================
@@ -569,7 +736,9 @@ const HODMeetings = ({
     const end = getTimeMinutes(formData.endTime);
 
     if (start === null || end === null || end <= start) {
-      window.alert("End time must be later than start time.");
+      window.alert(
+        "Please enter valid times in AM/PM format (example: 09:30 AM), and ensure the end time is later than the start time."
+      );
       return;
     }
 
@@ -626,9 +795,16 @@ const HODMeetings = ({
           project: formData.project.trim(),
           project_id: formData.project_id,
           date: formData.date,
-          startTime: formData.startTime,
-          endTime: formData.endTime,
-          venue: formData.venue.trim()
+
+          // Send standard 24-hour time to the backend.
+          startTime: to24Hour(formData.startTime),
+          endTime: to24Hour(formData.endTime),
+
+          venue: formData.venue.trim(),
+
+          // HOD-created meetings should be approved automatically.
+          status: "Approved",
+          approval_status: "Approved"
         })
       });
 
@@ -638,19 +814,34 @@ const HODMeetings = ({
         throw new Error(data.message || "Unable to create meeting.");
       }
 
-      window.alert("Meeting created successfully.");
+      const meetingId = getMeetingId(data.meeting || {});
 
-      setFormData({
-        title: "",
-        project: "",
-        project_id: "",
-        date: getTodayDate(),
-        startTime: "",
-        endTime: "",
-        venue: ""
-      });
+      if (!meetingId) {
+        throw new Error("The meeting was created, but its status could not be confirmed.");
+      }
 
-      setShowForm(false);
+      // The create endpoint defaults to Pending, so immediately finalize HOD-created meetings.
+      const statusResponse = await fetch(
+        `${API_URL}/api/hod/meetings/${meetingId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            ...getAuthHeaders(),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ status: "Approved" })
+        }
+      );
+
+      const statusData = await statusResponse.json();
+
+      if (!statusResponse.ok) {
+        throw new Error(statusData.message || "Meeting created but could not be marked as fixed.");
+      }
+
+      window.alert("Meeting created and fixed successfully.");
+
+      resetForm();
 
       await fetchMeetings();
 
@@ -883,9 +1074,9 @@ const HODMeetings = ({
                 </tr>
               ) : (
                 upcomingMeetings.map((meeting, index) => {
-                  const status = getApprovalStatus(meeting);
+                  const status = getHodStatusLabel(meeting);
                   const meetingId = getMeetingId(meeting);
-                  const isPending = normalize(status) === "pending";
+                  const isPending = isAwaitingHodDecision(meeting);
                   const isUpdating = updatingMeetingId === meetingId;
 
                   return (
@@ -911,29 +1102,37 @@ const HODMeetings = ({
                       </td>
 
                       <td>
-                        <div className="meeting-action-buttons">
-                          <button
-                            type="button"
-                            className="approve-button"
-                            disabled={!isPending || isUpdating}
-                            onClick={() =>
-                              updateMeetingStatus(meetingId, "Approved")
-                            }
-                          >
-                            {isUpdating ? "Updating..." : "Approve"}
-                          </button>
+                        {isPending ? (
+                          <div className="meeting-action-buttons">
+                            <button
+                              type="button"
+                              className="approve-button"
+                              disabled={!isPending || isUpdating}
+                              onClick={() =>
+                                updateMeetingStatus(meetingId, "Approved")
+                              }
+                            >
+                              {isUpdating ? "Updating..." : "Approve"}
+                            </button>
 
-                          <button
-                            type="button"
-                            className="reject-button"
-                            disabled={!isPending || isUpdating}
-                            onClick={() =>
-                              updateMeetingStatus(meetingId, "Rejected")
-                            }
+                            <button
+                              type="button"
+                              className="reject-button"
+                              disabled={!isPending || isUpdating}
+                              onClick={() =>
+                                updateMeetingStatus(meetingId, "Rejected")
+                              }
+                            >
+                              {isUpdating ? "Updating..." : "Reject"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span
+                            className={`dashboard-status ${normalize(status)}`}
                           >
-                            {isUpdating ? "Updating..." : "Reject"}
-                          </button>
-                        </div>
+                            {status}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -944,127 +1143,125 @@ const HODMeetings = ({
         </div>
       </div>
 
-      {/* CREATE MEETING FORM */}
+      {/* CREATE MEETING FORM - ALWAYS BELOW UPCOMING MEETINGS */}
 
-      {showForm && (
-        <div
-          className="dashboard-card hod-meeting-form-card"
-          ref={formRef}
-        >
-          <div className="hod-meeting-card-heading">
-            <div>
-              <h3>Create New Meeting</h3>
-              <p>Enter the details to schedule a department meeting.</p>
+      <div
+        className="dashboard-card hod-meeting-form-card"
+        ref={formRef}
+      >
+        <div className="hod-meeting-card-heading">
+          <div>
+            <h3>Create New Meeting</h3>
+            <p>Enter the details to schedule a department meeting.</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleCreateMeeting}>
+          <div className="hod-form-grid">
+
+            <div className="hod-form-group">
+              <label>Meeting Title</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter meeting title"
+                required
+              />
             </div>
+
+            <div className="hod-form-group">
+              <label>Project/ Team Name</label>
+
+              <input
+                type="text"
+                name="project"
+                list="hod-project-team-options"
+                value={formData.project}
+                onChange={handleProjectChange}
+                placeholder="Type or select Project/ Team"
+                autoComplete="off"
+                required
+              />
+
+              <datalist id="hod-project-team-options">
+                {projects.map((project) => (
+                  <option
+                    key={project.project_id || project.id}
+                    value={project.project_name || project.name}
+                  />
+                ))}
+              </datalist>
+            </div>
+
+            <div className="hod-form-group">
+              <label>Meeting Date</label>
+              <input
+                type="date"
+                name="date"
+                min={getTodayDate()}
+                value={formData.date}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <TimePicker
+              label="Start Time"
+              value={formData.startTime}
+              onChange={(value) =>
+                setFormData((previous) => ({
+                  ...previous,
+                  startTime: value
+                }))
+              }
+            />
+
+            <TimePicker
+              label="End Time"
+              value={formData.endTime}
+              onChange={(value) =>
+                setFormData((previous) => ({
+                  ...previous,
+                  endTime: value
+                }))
+              }
+            />
+
+            <div className="hod-form-group">
+              <label>Venue</label>
+              <input
+                type="text"
+                name="venue"
+                value={formData.venue}
+                onChange={handleInputChange}
+                placeholder="Enter meeting venue"
+                required
+              />
+            </div>
+
           </div>
 
-          <form onSubmit={handleCreateMeeting}>
-            <div className="hod-form-grid">
+          <div className="hod-form-actions">
+            <button
+              type="button"
+              className="hod-cancel-button"
+              onClick={resetForm}
+            >
+              Cancel
+            </button>
 
-              <div className="hod-form-group">
-                <label>Meeting Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="Enter meeting title"
-                  required
-                />
-              </div>
-
-              <div className="hod-form-group">
-                <label>Project/ Team Name</label>
-
-                <input
-                  type="text"
-                  name="project"
-                  list="hod-project-team-options"
-                  value={formData.project}
-                  onChange={handleProjectChange}
-                  placeholder="Type or select Project/ Team"
-                  autoComplete="off"
-                  required
-                />
-
-                <datalist id="hod-project-team-options">
-                  {projects.map((project) => (
-                    <option
-                      key={project.project_id || project.id}
-                      value={project.project_name || project.name}
-                    />
-                  ))}
-                </datalist>
-              </div>
-
-              <div className="hod-form-group">
-                <label>Meeting Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  min={getTodayDate()}
-                  value={formData.date}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="hod-form-group">
-                <label>Start Time</label>
-                <input
-                  type="time"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="hod-form-group">
-                <label>End Time</label>
-                <input
-                  type="time"
-                  name="endTime"
-                  value={formData.endTime}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="hod-form-group">
-                <label>Venue</label>
-                <input
-                  type="text"
-                  name="venue"
-                  value={formData.venue}
-                  onChange={handleInputChange}
-                  placeholder="Enter meeting venue"
-                  required
-                />
-              </div>
-
-            </div>
-
-            <div className="hod-form-actions">
-              <button
-                type="button"
-                className="hod-cancel-button"
-                onClick={() => setShowForm(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                className="hod-save-button"
-                disabled={saving}
-              >
-                {saving ? "Creating..." : "Create Meeting"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+            <button
+              type="submit"
+              className="hod-save-button"
+              disabled={saving}
+            >
+              {saving ? "Creating..." : "Create Meeting"}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {/* MEETING DETAILS POPUP */}
 

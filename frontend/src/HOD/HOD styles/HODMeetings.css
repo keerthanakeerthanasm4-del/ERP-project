@@ -448,6 +448,32 @@
   color: #a0a9bb;
 }
 
+.hod-time-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(76px, 0.8fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.hod-time-picker select {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  background: #fbfcff;
+  border: 1px solid #dfe4f0;
+  border-radius: 7px;
+  outline: none;
+  color: #263657;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.hod-time-picker select:focus {
+  border-color: #6558e8;
+  box-shadow: 0 0 0 3px rgba(81, 69, 217, 0.09);
+}
+
 /* FORM BUTTONS */
 
 .hod-form-actions {
