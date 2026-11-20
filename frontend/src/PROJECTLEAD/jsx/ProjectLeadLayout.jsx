@@ -12,8 +12,10 @@ export default function ProjectLeadLayout() {
     user = null;
   }
   if (!token || !user) return <Navigate to="/login" replace />;
+  console.log("Logged-in user:", user);
+  console.log("Logged-in role:", user?.role);
   if (user.role !== "PROJECT_LEAD") return <Navigate to="/dashboard" replace />;
-
+  
   const initials = user.name?.split(/\s+/).map(part => part[0]).slice(0, 2).join("").toUpperCase() || "PL";
   function logout() {
     localStorage.removeItem("token");
@@ -64,6 +66,14 @@ export default function ProjectLeadLayout() {
         <NavLink to="/project-lead/profile" end className={({
           isActive
         }) => `pl-side-link${isActive ? " is-active" : ""}`}><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg><span>Profile</span></NavLink>
+        <NavLink
+          to="/project-lead/create-project"
+          className={({ isActive }) =>
+              `pl-side-link${isActive ? " is-active" : ""}`
+          }
+      >s
+          Create Project
+      </NavLink>
       </nav>
       <div className="pl-sidebar-bottom"><div className="pl-sidebar-note"><span className="pl-note-dot" /><div><strong>Project Lead</strong><small>Manage your workspace</small></div></div><button className="pl-sidebar-logout" onClick={logout}>Log out</button></div>
     </aside>
