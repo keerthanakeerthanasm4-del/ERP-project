@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -11,10 +12,18 @@ model User {
   name         String
   usn          String?  @unique
   email        String   @unique
-  passwordHash String
-  ph_no        String?
+  passwordHash String   @map("password")
+  ph_no        String?  @map("phone")
   join_date    DateTime @default(now())
   dept_name    String?
+
+  role String @default("STUDENT")
+
+  leadProjects          Project[]                        @relation("ProjectLead")
+  projectLeadAssignment DepartmentProjectLeadAssignment?
+  projectLeadHistory    ProjectLeadAssignmentHistory[]
+  memberships  ProjectMember[]
+  projectMemberHistory ProjectMemberHistory[]
 }
 
 model Project {
@@ -24,4 +33,116 @@ model Project {
   start_date   DateTime?
   deadline     DateTime?
   status       String    @default("ACTIVE")
+  created_at   DateTime  @default(now())
+
+  projectLeadId Int?
+  projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
+
+  phases   ProjectPhase[]
+  members  ProjectMember[]
+  memberHistory ProjectMemberHistory[]
+  meetings Meeting[]
+}
+
+enum ProjectMemberRole {
+  TEAM_LEAD
+  TECH_LEAD
+  TEAM_MEMBER
+}
+
+model ProjectMember {
+  id         Int               @id @default(autoincrement())
+  project_id String
+  user_id    Int
+  role       ProjectMemberRole
+  added_at   DateTime          @default(now())
+
+  project Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@unique([project_id, user_id])
+}
+
+model ProjectMemberHistory {
+  id         Int               @id @default(autoincrement())
+  project_id String
+  user_id    Int
+  role       ProjectMemberRole
+  added_at   DateTime          @default(now())
+  removed_at DateTime          @default(now())
+
+  project Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([project_id, removed_at])
+}
+
+model Meeting {
+  meeting_id  Int      @id @default(autoincrement())
+  title       String
+  projectName String
+  date        DateTime
+  startTime   String
+  endTime     String
+  venue       String
+  status      String   @default("Pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project_id String?
+  project    Project? @relation(fields: [project_id], references: [project_id], onDelete: SetNull)
+
+  @@index([date, startTime])
+  @@index([project_id])
+}
+
+model ProjectPhase {
+  phase_id     Int     @id @default(autoincrement())
+  phase_name   String
+  phase_order  Int     @default(0)
+  is_completed Boolean @default(false)
+
+  project_id String
+  project    Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([project_id])
+}
+
+model DepartmentProjectLeadAssignment {
+  id             Int      @id @default(1)
+  assignedUserId Int?     @unique
+  assignedUser   User?    @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  updatedAt      DateTime @updatedAt
+}
+
+model ProjectLeadAssignmentHistory {
+  id             Int       @id @default(autoincrement())
+  assignedUserId Int?
+  assignedUser   User?     @relation(fields: [assignedUserId], references: [user_id], onDelete: SetNull)
+  assignedName   String
+  assignedEmail  String
+  department     String?
+  assignedAt     DateTime  @default(now())
+  relievedAt     DateTime?
+
+  @@index([assignedUserId])
+  @@index([assignedAt])
+}
+
+model HODProfile {
+  id           Int      @id @default(1)
+  name         String   @default("HOD Name")
+  designation  String   @default("Head of Department")
+  employeeId   String   @default("SVCE-HOD-001")
+  joiningDate  DateTime @default("2020-07-01T00:00:00.000Z")
+  email        String   @default("hod@svce.ac.in")
+  phone        String   @default("+91 XXXXX XXXXX")
+  department   String   @default("Computer Science and Engineering")
+  institution  String   @default("Sri Venkateshwara College of Engineering")
+  location     String   @default("Bengaluru, Karnataka")
+  profileImage String?  @db.Text
+  updatedAt    DateTime @updatedAt
 }

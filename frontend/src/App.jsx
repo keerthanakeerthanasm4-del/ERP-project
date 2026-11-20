@@ -1,14 +1,17 @@
+import HODDashboard from "./HOD/HOD pages/HODDashboard.jsx";
 import { useState, useEffect, useRef } from "react";
-import {
-  Link,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-
+import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
+import portalNebula from "./assets/portal-nebula.webp";
 import Dashboard from "./Dashboard";
+import { API_URL } from "./api.js";
+import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
+import CreateProject from "./PROJECTLEAD/jsx/CreateProject.jsx";
+import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
+import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
+import ProjectLeadCover from "./PROJECTLEAD/jsx/ProjectLeadCover.jsx";
+import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
+import { ProjectLeadProjects } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 import Home from "./pages/LandingPage";
 import TeamMemberDashboard from "./TEAMMEMB/pages/TeamMemberDashboard";
 
@@ -16,66 +19,24 @@ import TeamMemberDashboard from "./TEAMMEMB/pages/TeamMemberDashboard";
    API CONFIGURATION — UNCHANGED
 ========================================================= */
 
-const API_URL = "http://localhost:5000";
-
-const GOOGLE_CLIENT_ID =
-  "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
+// const GOOGLE_CLIENT_ID = "935746879596-3bi48aq1oqekpld9segrobopoph05pvk.apps.googleusercontent.com";
 
 /* =========================================================
    EXISTING SHARED ICONS
 ========================================================= */
 
-function CapIcon() {
-  return (
-    <svg viewBox="0 0 40 34" className="cap-icon" aria-hidden="true">
-      <path d="M2 11 20 2 38 11 20 20 2 11Z" />
-      <path d="M8 15v8c7 6 17 6 24 0v-8" />
-      <path d="M36 12v12" />
-      <circle cx="36" cy="27" r="2" />
-    </svg>
-  );
-}
-
-function Brand({ label = "Campus Project Tracker" }) {
-  return (
-    <Link to="/" className="brand">
-      <CapIcon />
-      <span>{label}</span>
-    </Link>
-  );
-}
-
 function UserIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="field-icon"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
+  return <svg viewBox="0 0 24 24" className="field-icon" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <circle cx="12" cy="8" r="4" />
       <path d="M4 21v-2a8 8 0 0 1 16 0v2Z" />
-    </svg>
-  );
+    </svg>;
 }
-
 function LockIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="field-icon"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
+  return <svg viewBox="0 0 24 24" className="field-icon" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <rect x="4" y="10" width="16" height="12" rx="2" />
       <path d="M8 10V7a4 4 0 0 1 8 0v3" />
       <path d="M12 14v4" />
-    </svg>
-  );
+    </svg>;
 }
 
 /* =========================================================
@@ -85,7 +46,6 @@ function LockIcon() {
 function saveLogin(data, rememberMe, navigate) {
   localStorage.removeItem("token");
   sessionStorage.removeItem("token");
-
   if (rememberMe) {
     localStorage.setItem("token", data.token);
   } else {
@@ -94,7 +54,25 @@ function saveLogin(data, rememberMe, navigate) {
 
   localStorage.setItem("user", JSON.stringify(data.user));
 
-  navigate("/dashboard");
+  if (data.user?.role === "PROJECT_LEAD") {
+    const accountId =
+      data.user.id ?? data.user.user_id ?? data.user.email ?? data.user.usn;
+    const seenKey = accountId
+      ? "projectLeadCoverSeen:" + String(accountId).trim().toLowerCase()
+      : null;
+    const hasSeenCover = seenKey && localStorage.getItem(seenKey) === "true";
+
+    if (seenKey && !hasSeenCover) {
+      localStorage.setItem(seenKey, "true");
+      navigate("/project-lead/welcome", {
+        replace: true,
+        state: { firstLoginCover: true },
+      });
+      return;
+    }
+  }
+
+  navigate(data.user?.role === "PROJECT_LEAD" ? "/project-lead/dashboard" : "/dashboard");
 }
 
 /* =========================================================
@@ -902,6 +880,200 @@ const AUTH_STYLES = `
   }
 `;
 
+const LOGIN_GALAXY_STYLES = `
+  /* Login-only galaxy palette; registration styles stay untouched. */
+  .erp-auth-scene:not(.erp-register-scene) {
+    background:
+      radial-gradient(ellipse at 85% 4%, rgba(105, 73, 176, .2), transparent 34%),
+      radial-gradient(ellipse at 50% 103%, rgba(54, 75, 169, .24), transparent 42%),
+      #05070d;
+    color: #f3f1f8;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-stars {
+    background-image:
+      radial-gradient(circle, #e8e9ff 1px, transparent 2px),
+      radial-gradient(circle, #7895e8 1px, transparent 2px),
+      radial-gradient(circle, #f2b36e 1px, transparent 2px);
+    background-size: 177px 151px, 263px 213px, 347px 281px;
+    background-position: 22px 29px, 95px 82px, 63px 117px;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-rays {
+    background: repeating-conic-gradient(
+      from 220deg at 77% 17%,
+      transparent 0deg,
+      rgba(77, 102, 206, .04) 4deg,
+      rgba(112, 89, 207, .18) 7deg,
+      rgba(205, 194, 255, .48) 8deg,
+      rgba(76, 113, 224, .12) 10deg,
+      transparent 16deg
+    );
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-rays::after {
+    background: radial-gradient(ellipse at 70% 16%, rgba(192, 174, 255, .56), transparent 37%);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-auth-brand svg {
+    filter: hue-rotate(58deg) saturate(.88) drop-shadow(0 0 14px rgba(126, 104, 236, .72));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel {
+    border-color: #8069c9;
+    background: linear-gradient(150deg, #091221, #060d18);
+    box-shadow:
+      0 0 12px rgba(109, 92, 211, .54),
+      0 0 38px rgba(63, 67, 156, .3),
+      inset 0 0 20px rgba(83, 76, 154, .18);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel::before {
+    box-shadow: inset 0 0 9px rgba(170, 145, 255, .62);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
+    border-color: #edab60;
+    background: linear-gradient(150deg, #171922, #090c14);
+    box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
+    stroke: #ffbb69;
+    filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-title h1 span,
+  .erp-auth-scene:not(.erp-register-scene) .erp-signup a {
+    color: #ebb7f5;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-title p,
+  .erp-auth-scene:not(.erp-register-scene) .erp-signup {
+    color: #c1c4d4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap {
+    border-color: #394568;
+    background: linear-gradient(#0b1427, #091221);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35), 0 0 4px rgba(91, 97, 177, .18);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap:focus-within {
+    border-color: #9a82e4;
+    box-shadow: 0 0 10px rgba(141, 116, 235, .42);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap svg,
+  .erp-auth-scene:not(.erp-register-scene) .erp-eye svg {
+    stroke: #b9a9f4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-input-wrap input::placeholder {
+    color: #a8aabd;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember {
+    color: #c2b4f2;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember input {
+    accent-color: #f2a65a;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-forgot,
+  .erp-auth-scene:not(.erp-register-scene) .erp-auth-home {
+    color: #b6a2f4;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit {
+    border-color: #ffc27e;
+    background: linear-gradient(100deg, #eea25a, #de8b48);
+    box-shadow: 0 0 12px rgba(242, 166, 90, .4), inset 0 0 9px rgba(255, 255, 255, .28);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-or::before,
+  .erp-auth-scene:not(.erp-register-scene) .erp-or::after {
+    background: #41415c;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-google {
+    border-color: #555675;
+    background: linear-gradient(#1d2238, #12182a);
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, .1);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-art {
+    filter: drop-shadow(0 0 8px rgba(111, 103, 213, .22));
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-horizon {
+    border-top-color: rgba(151, 135, 255, .98);
+    box-shadow:
+      0 -7px 18px rgba(81, 125, 255, .92),
+      0 -14px 42px rgba(115, 79, 238, .76),
+      0 -2px 9px rgba(242, 166, 90, .54),
+      inset 0 22px 35px rgba(77, 66, 164, .3);
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) .erp-horizon::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0 0;
+    border-radius: inherit;
+    padding-top: 3px;
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ffc584 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ffc584 74%, #b69fff 76%, #4978df 90%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .erp-auth-scene:not(.erp-register-scene) {
+    background: #02050c url("${portalNebula}") center / cover no-repeat;
+  }
+  .erp-shooting-star {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .erp-shooting-star { display: none; }
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel {
+    border-color: #8170b7;
+    box-shadow: 0 0 12px rgba(113, 80, 200, .23);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-login-panel::before {
+    box-shadow: inset 0 0 5px rgba(172, 145, 255, .16);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
+    border-color: #e3a057;
+    box-shadow: 0 0 9px rgba(226, 151, 74, .2);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
+    filter: none;
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-remember,
+  .erp-auth-scene:not(.erp-register-scene) .erp-forgot {
+    color: #e4e4ee;
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-google {
+    border-color: #243450;
+    background: linear-gradient(#0b1427, #091221);
+  }
+  .erp-auth-scene:not(.erp-register-scene) .erp-submit {
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.2);
+  }
+`;
+
 /* =========================================================
    NEW CREATE ACCOUNT STYLES
 
@@ -1454,6 +1626,101 @@ const REGISTER_STYLES = `
       animation: none;
     }
   }
+
+  /* Carry the login and landing page galaxy palette through registration. */
+  .erp-register-scene {
+    background: #02050c url("${portalNebula}") center / cover no-repeat;
+    color: #f3f1f8;
+  }
+
+  .erp-register-scene .erp-stars {
+    background-image:
+      radial-gradient(circle, #e8e9ff 1px, transparent 2px),
+      radial-gradient(circle, #7895e8 1px, transparent 2px),
+      radial-gradient(circle, #f2b36e 1px, transparent 2px);
+    background-size: 177px 151px, 263px 213px, 347px 281px;
+    background-position: 22px 29px, 95px 82px, 63px 117px;
+  }
+
+  .erp-register-scene .erp-rays {
+    background: repeating-conic-gradient(
+      from 220deg at 77% 17%,
+      transparent 0deg,
+      rgba(77, 102, 206, .04) 4deg,
+      rgba(112, 89, 207, .18) 7deg,
+      rgba(205, 194, 255, .48) 8deg,
+      rgba(76, 113, 224, .12) 10deg,
+      transparent 16deg
+    );
+  }
+
+  .erp-register-scene .erp-rays::after {
+    background: radial-gradient(ellipse at 70% 16%, rgba(192, 174, 255, .56), transparent 37%);
+  }
+
+  .erp-register-panel {
+    border-color: #8069c9;
+    background: linear-gradient(150deg, #091221, #060d18);
+    box-shadow: 0 0 12px rgba(109, 92, 211, .54), 0 0 38px rgba(63, 67, 156, .3), inset 0 0 20px rgba(83, 76, 154, .18);
+  }
+
+  .erp-register-panel::before {
+    box-shadow: inset 0 0 9px rgba(170, 145, 255, .62);
+  }
+
+  .erp-register-avatar {
+    border-color: #edab60;
+    background: linear-gradient(150deg, #171922, #090c14);
+    box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
+  }
+
+  .erp-register-avatar svg {
+    stroke: #ffbb69;
+    filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
+  }
+
+  .erp-register-panel .erp-input-wrap {
+    border-color: #394568;
+    background: linear-gradient(#0b1427, #091221);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35), 0 0 4px rgba(91, 97, 177, .18);
+  }
+
+  .erp-register-panel .erp-input-wrap:focus-within {
+    border-color: #9a82e4;
+    box-shadow: 0 0 10px rgba(141, 116, 235, .42);
+  }
+
+  .erp-register-panel .erp-input-wrap svg,
+  .erp-register-panel .erp-eye svg {
+    stroke: #b9a9f4;
+  }
+
+  .erp-register-submit {
+    border-color: #ffc27e;
+    background: linear-gradient(100deg, #eea25a, #de8b48);
+    box-shadow: 0 0 12px rgba(242, 166, 90, .4), inset 0 0 9px rgba(255, 255, 255, .28);
+  }
+
+  .erp-register-login a {
+    color: #ebb7f5;
+  }
+
+  .erp-register-scene .erp-horizon {
+    border-top-color: rgba(151, 135, 255, .98);
+    box-shadow: 0 -7px 18px rgba(81, 125, 255, .92), 0 -14px 42px rgba(115, 79, 238, .76), 0 -2px 9px rgba(242, 166, 90, .54), inset 0 22px 35px rgba(77, 66, 164, .3);
+  }
+
+  .erp-register-scene .erp-horizon::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0 0;
+    border-radius: inherit;
+    padding-top: 3px;
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ffc584 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ffc584 74%, #b69fff 76%, #4978df 90%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 `;
 
 /* =========================================================
@@ -1466,6 +1733,7 @@ function AuthStyles({ register = false }) {
   return (
     <style>
       {AUTH_STYLES}
+      {register ? "" : LOGIN_GALAXY_STYLES}
       {register ? REGISTER_STYLES : ""}
     </style>
   );
@@ -1553,8 +1821,8 @@ function LaptopIllustration() {
           x2="1"
           y2="1"
         >
-          <stop stopColor="#47dfff" />
-          <stop offset="1" stopColor="#0750d8" />
+          <stop stopColor="#91a6f5" />
+          <stop offset="1" stopColor="#283879" />
         </linearGradient>
       </defs>
 
@@ -1564,7 +1832,7 @@ function LaptopIllustration() {
         rx="169"
         ry="39"
         fill="none"
-        stroke="#21caff"
+        stroke="#acb3f4"
         strokeWidth="3"
         opacity=".9"
       />
@@ -1575,7 +1843,7 @@ function LaptopIllustration() {
         rx="135"
         ry="25"
         fill="none"
-        stroke="#0a6dff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1586,8 +1854,8 @@ function LaptopIllustration() {
           width="246"
           height="158"
           rx="13"
-          fill="#0a2758"
-          stroke="#50dfff"
+          fill="#111a31"
+          stroke="#acb3f4"
           strokeWidth="7"
         />
 
@@ -1597,20 +1865,20 @@ function LaptopIllustration() {
           width="214"
           height="124"
           rx="5"
-          fill="#071b44"
+          fill="#070e1c"
         />
 
         <path
           d="M93 194l39-32 31 13 49-59 41-12"
           fill="none"
-          stroke="#71ecff"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M237 105l18-2-1 18"
           fill="none"
-          stroke="#71ecff"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
@@ -1649,13 +1917,13 @@ function LaptopIllustration() {
         <path
           d="M47 248h261l38 25q6 8-8 10H34q-12-3-6-10z"
           fill="url(#erpLaptop)"
-          stroke="#a0f6ff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
 
         <path
           d="M123 269h100"
-          stroke="#b1faff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
       </g>
@@ -1665,8 +1933,8 @@ function LaptopIllustration() {
           width="86"
           height="78"
           rx="12"
-          fill="#123f96"
-          stroke="#4cbcff"
+          fill="#111527"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
 
@@ -1684,21 +1952,21 @@ function LaptopIllustration() {
       <g transform="translate(300 191)">
         <circle
           r="31"
-          fill="#2787ff"
-          stroke="#91f2ff"
+          fill="#44439b"
+          stroke="#acb3f4"
           strokeWidth="6"
         />
 
         <circle
           r="13"
-          fill="#0b2e66"
-          stroke="#d5faff"
+          fill="#eea25a"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M-37 0h74M0-37v74M-26-26l52 52M26-26l-52 52"
-          stroke="#57caff"
+          stroke="#acb3f4"
           strokeWidth="8"
           strokeDasharray="10 13"
         />
@@ -1724,7 +1992,7 @@ function TargetIllustration() {
         rx="171"
         ry="39"
         fill="none"
-        stroke="#21caff"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1734,7 +2002,7 @@ function TargetIllustration() {
         rx="135"
         ry="25"
         fill="none"
-        stroke="#0a6dff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1742,8 +2010,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="91"
-        fill="#063274"
-        stroke="#5ad7ff"
+        fill="#0b1226"
+        stroke="#acb3f4"
         strokeWidth="6"
       />
 
@@ -1751,8 +2019,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="68"
-        fill="#1264d5"
-        stroke="#b4f6ff"
+        fill="#25234d"
+        stroke="#acb3f4"
         strokeWidth="5"
       />
 
@@ -1760,8 +2028,8 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="47"
-        fill="#082d77"
-        stroke="#5bb9ff"
+        fill="#10142b"
+        stroke="#acb3f4"
         strokeWidth="6"
       />
 
@@ -1769,14 +2037,14 @@ function TargetIllustration() {
         cx="188"
         cy="178"
         r="23"
-        fill="#58b9ff"
-        stroke="#d3faff"
+        fill="#6257a1"
+        stroke="#acb3f4"
         strokeWidth="5"
       />
 
       <path
         d="M189 178l95-65"
-        stroke="#b8faff"
+        stroke="#acb3f4"
         strokeWidth="9"
         strokeLinecap="round"
       />
@@ -1784,7 +2052,7 @@ function TargetIllustration() {
       <path
         d="M274 119l30-19-4 24-23 14"
         fill="#6ad7ff"
-        stroke="#c7faff"
+        stroke="#acb3f4"
         strokeWidth="2"
       />
 
@@ -1793,14 +2061,14 @@ function TargetIllustration() {
           width="87"
           height="73"
           rx="9"
-          fill="#1250b8"
-          stroke="#54dcff"
+          fill="#111527"
+          stroke="#acb3f4"
           strokeWidth="4"
         />
 
         <path
           d="M12 21h63M12 38h63M12 55h63M26 10v52M48 10v52"
-          stroke="#9df5ff"
+          stroke="#acb3f4"
           strokeWidth="3"
         />
       </g>
@@ -1811,8 +2079,8 @@ function TargetIllustration() {
         width="26"
         height="49"
         rx="3"
-        fill="#19baff"
-        stroke="#b1f9ff"
+        fill="#262b54"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1822,8 +2090,8 @@ function TargetIllustration() {
         width="26"
         height="69"
         rx="3"
-        fill="#2186f8"
-        stroke="#b1f9ff"
+        fill="#3b3569"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
 
@@ -1833,8 +2101,8 @@ function TargetIllustration() {
         width="26"
         height="90"
         rx="3"
-        fill="#1266df"
-        stroke="#b1f9ff"
+        fill="#242847"
+        stroke="#acb3f4"
         strokeWidth="3"
       />
     </svg>
@@ -2347,177 +2615,112 @@ function EyeIcon({ visible }) {
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [message, setMessage] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
   const navigate = useNavigate();
-
   const googleTokenClient = useRef(null);
 
   // Load Google Identity Services and prepare account selection.
   useEffect(() => {
-    let script = document.querySelector(
-      'script[src="https://accounts.google.com/gsi/client"]'
-    );
-
+    let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
     let createdScript = false;
-
     const initializeGoogle = () => {
       if (!window.google?.accounts?.oauth2) {
-        setMessage(
-          "Google sign-in could not be initialized. Please refresh the page."
-        );
+        setMessage("Google sign-in could not be initialized. Please refresh the page.");
         return;
       }
-
-      googleTokenClient.current =
-        window.google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
-
-          scope: "openid email profile",
-
-          callback: async (googleResponse) => {
-            if (
-              googleResponse.error ||
-              !googleResponse.access_token
-            ) {
-              setMessage(
-                "Google sign-in was cancelled or could not be completed."
-              );
+      googleTokenClient.current = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: "openid email profile",
+        callback: async googleResponse => {
+          if (googleResponse.error || !googleResponse.access_token) {
+            setMessage("Google sign-in was cancelled or could not be completed.");
+            return;
+          }
+          setMessage("");
+          setIsLoggingIn(true);
+          try {
+            const response = await fetch(`${API_URL}/api/auth/google`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                accessToken: googleResponse.access_token
+              })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+              setMessage(data.message || "Google login failed.");
               return;
             }
-
-            setMessage("");
-            setIsLoggingIn(true);
-
-            try {
-              const response = await fetch(
-                `${API_URL}/api/auth/google`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    accessToken: googleResponse.access_token,
-                  }),
-                }
-              );
-
-              const data = await response.json();
-
-              if (!response.ok) {
-                setMessage(
-                  data.message || "Google login failed."
-                );
-                return;
-              }
-
-              saveLogin(data, rememberMe, navigate);
-
-            } catch (error) {
-              console.error("Google login error:", error);
-
-              setMessage(
-                "Unable to connect to the backend."
-              );
-
-            } finally {
-              setIsLoggingIn(false);
-            }
-          },
-
-          error_callback: (error) => {
-            console.error("Google popup error:", error);
-
-            setMessage(
-              "Google account selection was cancelled or blocked."
-            );
-          },
-        });
+            saveLogin(data, rememberMe, navigate);
+          } catch (error) {
+            console.error("Google login error:", error);
+            setMessage("Unable to connect to the backend.");
+          } finally {
+            setIsLoggingIn(false);
+          }
+        },
+        error_callback: error => {
+          console.error("Google popup error:", error);
+          setMessage("Google account selection was cancelled or blocked.");
+        }
+      });
     };
-
     if (window.google?.accounts?.oauth2) {
       initializeGoogle();
       return;
     }
-
     if (!script) {
       script = document.createElement("script");
-
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
-
       createdScript = true;
     }
-
     const handleScriptLoad = () => initializeGoogle();
-
     const handleScriptError = () => {
-      setMessage(
-        "Google sign-in could not be loaded. Please refresh the page."
-      );
+      setMessage("Google sign-in could not be loaded. Please refresh the page.");
     };
-
     script.addEventListener("load", handleScriptLoad);
     script.addEventListener("error", handleScriptError);
-
     if (createdScript) {
       document.head.appendChild(script);
     }
-
     return () => {
       script?.removeEventListener("load", handleScriptLoad);
       script?.removeEventListener("error", handleScriptError);
     };
-
   }, [rememberMe, navigate]);
 
   // Email and password login.
   async function handleLogin(event) {
     event.preventDefault();
-
     setMessage("");
     setIsLoggingIn(true);
-
     try {
-      const response = await fetch(
-        `${API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            password,
-          }),
-        }
-      );
-
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password
+        })
+      });
       const data = await response.json();
-
       if (!response.ok) {
-        setMessage(
-          data.message || "Invalid email or password"
-        );
+        setMessage(data.message || "Invalid email or password");
         return;
       }
-
       saveLogin(data, rememberMe, navigate);
-
     } catch (error) {
       console.error("Login error:", error);
-
-      setMessage(
-        "Unable to connect to the backend."
-      );
-
+      setMessage("Unable to connect to the backend.");
     } finally {
       setIsLoggingIn(false);
     }
@@ -2526,16 +2729,12 @@ function LoginPage() {
   // Open Google's account chooser.
   function handleGoogleLogin() {
     setMessage("");
-
     if (!googleTokenClient.current) {
-      setMessage(
-        "Google sign-in is loading. Please try again in a moment."
-      );
+      setMessage("Google sign-in is loading. Please try again in a moment.");
       return;
     }
-
     googleTokenClient.current.requestAccessToken({
-      prompt: "select_account",
+      prompt: "select_account"
     });
   }
 
@@ -2557,6 +2756,31 @@ function LoginPage() {
         className="erp-rays"
         aria-hidden="true"
       />
+
+      <svg className="erp-shooting-star" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="erpShootingStarTrail" x1="-150" y1="0" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#777cff" stopOpacity="0" />
+            <stop offset="72%" stopColor="#9a8dff" stopOpacity=".5" />
+            <stop offset="100%" stopColor="#fff4dc" />
+          </linearGradient>
+          <filter id="erpShootingStarGlow" x="-100%" y="-300%" width="300%" height="700%">
+            <feGaussianBlur stdDeviation="5" />
+          </filter>
+        </defs>
+        <g>
+          <animateMotion
+            path="M 1000 30 C 690 20 320 180 10 800"
+            dur="5.5s"
+            begin="1.5s"
+            repeatCount="indefinite"
+            rotate="auto"
+          />
+          <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.12;.17;.86;.94;1" dur="5.5s" begin="1.5s" repeatCount="indefinite" />
+          <path d="M -150 0 L 0 0" fill="none" stroke="url(#erpShootingStarTrail)" strokeWidth="3" strokeLinecap="round" />
+          <path d="M -150 0 L 0 0" fill="none" stroke="#b5a7ff" strokeWidth="9" strokeLinecap="round" opacity=".7" filter="url(#erpShootingStarGlow)" />
+        </g>
+      </svg>
 
       {/* HOME LINK */}
 
@@ -2612,24 +2836,13 @@ function LoginPage() {
 
             <div className="erp-field">
               <label htmlFor="email">
-                Email or Roll Number
+                Email
               </label>
 
               <div className="erp-input-wrap">
                 <UserIcon />
 
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  placeholder="Enter your email"
-                  autoComplete="username"
-                  required
-                />
+                <input id="email" type="email" name="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="Enter your email" autoComplete="username" required />
               </div>
             </div>
 
@@ -2643,18 +2856,7 @@ function LoginPage() {
               <div className="erp-input-wrap">
                 <LockIcon />
 
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={password}
-                  onChange={(event) =>
-                    setPassword(event.target.value)
-                  }
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  required
-                />
+                <input id="password" type={showPassword ? "text" : "password"} name="password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required />
 
                 <button
                   type="button"
@@ -2752,8 +2954,7 @@ function LoginPage() {
               role="status"
             >
               {message}
-            </p>
-          )}
+            </p>)}
         </section>
       </div>
 
@@ -2782,7 +2983,6 @@ function RegisterPage() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
 
   const [
@@ -2805,44 +3005,32 @@ function RegisterPage() {
 
   async function handleRegister(event) {
     event.preventDefault();
-
     setMessage("");
-
     if (password !== confirmPassword) {
       setMessage("Passwords do not match.");
       return;
     }
-
     if (password.length < 8) {
       setMessage(
         "Password must contain at least 8 characters."
       );
       return;
     }
-
     setIsRegistering(true);
-
     try {
-      const response = await fetch(
-        `${API_URL}/api/auth/register`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            name: name.trim(),
-            usn: usn.trim().toUpperCase(),
-            email: email.trim(),
-            password,
-          }),
-        }
-      );
-
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          usn: usn.trim().toUpperCase(),
+          email: email.trim(),
+          password
+        })
+      });
       const data = await response.json();
-
       if (!response.ok) {
         setMessage(
           data.message || "Registration failed."
@@ -2851,14 +3039,9 @@ function RegisterPage() {
       }
 
       saveLogin(data, true, navigate);
-
     } catch (error) {
       console.error("Registration error:", error);
-
-      setMessage(
-        "Unable to connect to the backend. Please try again."
-      );
-
+      setMessage("Unable to connect to the backend. Please try again.");
     } finally {
       setIsRegistering(false);
     }
@@ -2964,17 +3147,7 @@ function RegisterPage() {
               <div className="erp-input-wrap">
                 <UserIcon />
 
-                <input
-                  id="registerName"
-                  type="text"
-                  value={name}
-                  onChange={(event) =>
-                    setName(event.target.value)
-                  }
-                  placeholder="Enter your full name"
-                  autoComplete="name"
-                  required
-                />
+                <input id="registerName" type="text" value={name} onChange={event => setName(event.target.value)} placeholder="Enter your full name" autoComplete="name" required />
               </div>
             </div>
 
@@ -2988,17 +3161,7 @@ function RegisterPage() {
               <div className="erp-input-wrap">
                 <UserIcon />
 
-                <input
-                  id="registerUsn"
-                  type="text"
-                  value={usn}
-                  onChange={(event) =>
-                    setUsn(event.target.value.toUpperCase())
-                  }
-                  placeholder="Enter your USN"
-                  autoComplete="off"
-                  required
-                />
+                <input id="registerUsn" type="text" value={usn} onChange={event => setUsn(event.target.value.toUpperCase())} placeholder="Enter your USN" autoComplete="off" required />
               </div>
             </div>
 
@@ -3012,17 +3175,7 @@ function RegisterPage() {
               <div className="erp-input-wrap">
                 <EmailIcon />
 
-                <input
-                  id="registerEmail"
-                  type="email"
-                  value={email}
-                  onChange={(event) =>
-                    setEmail(event.target.value)
-                  }
-                  placeholder="Enter your email"
-                  autoComplete="email"
-                  required
-                />
+                <input id="registerEmail" type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="Enter your email" autoComplete="email" required />
               </div>
             </div>
 
@@ -3148,8 +3301,7 @@ function RegisterPage() {
               role="alert"
             >
               {message}
-            </p>
-          )}
+            </p>)}
 
           {/* LOGIN LINK */}
 
@@ -3172,65 +3324,46 @@ function RegisterPage() {
     </main>
   );
 }
+function RoleDashboard() {
+  let storedUser;
 
-/* =========================================================
-   APP ROUTES — UNCHANGED
-========================================================= */
+  try {
+    storedUser = JSON.parse(
+      localStorage.getItem("user") ||
+      sessionStorage.getItem("user") ||
+      "null"
+    );
+  } catch {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (storedUser?.role === "HOD") return <HODDashboard />;
+  if (storedUser?.role === "PROJECT_LEAD") return <Navigate to="/project-lead/dashboard" replace />;
+  if (!storedUser) return <Navigate to="/login" replace />;
+  return <Dashboard />;
+}
+/* -------------------------------------------------------
+   APP ROUTES
+------------------------------------------------------- */
 
 export default function App() {
   return (
     <Routes>
-
-      {/* LANDING PAGE */}
-
-      <Route
-        path="/"
-        element={<Home />}
-      />
-
-      {/* LOGIN PAGE */}
-
-      <Route
-        path="/login"
-        element={<LoginPage />}
-      />
-
-      {/* CREATE ACCOUNT PAGE */}
-
-      <Route
-        path="/register"
-        element={<RegisterPage />}
-      />
-
-      {/* DASHBOARD */}
-
-      <Route
-        path="/dashboard"
-        element={<Dashboard />}
-      />
-
-      {/* UNKNOWN ROUTES */}
-
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to="/"
-            replace
-          />
-        }
-      />
-      {/* TEAM MEMBER DASHBOARD */}
-
-<Route
-  path="/team-member"
-  element={
-    <TeamMemberDashboard />
-  }
-/>
-{/* 3D ASTRONAUT */}
-
-
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/dashboard" element={<RoleDashboard />} />
+      <Route path="/team-member" element={<TeamMemberDashboard />} />
+      <Route path="/project-lead/welcome" element={<ProjectLeadCover />} />
+      <Route path="/project-lead" element={<ProjectLeadLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ProjectLeadDashboard />} />
+        <Route path="projects" element={<ProjectLeadProjects />} />
+        <Route path="profile" element={<ProjectLeadProfile />} />
+        <Route path="create-project" element={<CreateProject />} />
+        <Route path="projects/:projectId" element={<ProjectDetails />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

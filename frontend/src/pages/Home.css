@@ -378,7 +378,7 @@
 
   color: #ffffff;
 
-  font-size: clamp(29px, 4.25vw, 65px);
+  font-size: calc(clamp(29px, 4.25vw, 65px) + 2px);
   font-weight: 400;
 
   line-height: 1.12;
@@ -449,7 +449,7 @@
 
   color: rgba(222, 225, 235, 0.83);
 
-  font-size: clamp(13px, 1.42vw, 19px);
+  font-size: calc(clamp(13px, 1.42vw, 19px) + 2px);
   font-weight: 400;
 
   line-height: 1.45;
@@ -485,7 +485,7 @@
   box-shadow: 0 6px 24px rgba(0, 72, 255, 0.14);
 
   font-family: inherit;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
 
   cursor: pointer;
@@ -605,7 +605,7 @@
   margin: 9px 0 0 10px;
 
   color: #ffffff;
-  font-size: clamp(12px, 1.2vw, 17px);
+  font-size: calc(clamp(12px, 1.2vw, 17px) + 2px);
   font-weight: 600;
 }
 
@@ -643,7 +643,7 @@
 .vision-brief-label {
   color: #ffffff;
 
-  font-size: clamp(12px, 1.28vw, 17px);
+  font-size: calc(clamp(12px, 1.28vw, 17px) + 2px);
   font-weight: 600;
 
   white-space: nowrap;
@@ -655,7 +655,7 @@
   margin-left: 2px;
 
   color: #ff508b;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 /* =====================================================
@@ -677,7 +677,7 @@
 
   gap: 17px;
 
-  font-size: clamp(12px, 1.27vw, 17px);
+  font-size: calc(clamp(12px, 1.27vw, 17px) + 2px);
   font-weight: 600;
 
   white-space: nowrap;
@@ -753,7 +753,7 @@
   top: 37%;
 
   color: #ff657d;
-  font-size: 21px;
+  font-size: 23px;
 }
 
 .vision-save-pill {
@@ -764,7 +764,7 @@
   color: white;
   background: #ff657a;
 
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -829,7 +829,7 @@
   color: white;
   background: #1261ff;
 
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 
   white-space: nowrap;
@@ -1027,13 +1027,13 @@
   }
 
   .vision-heading {
-    font-size: clamp(24px, 4.5vw, 42px);
+    font-size: calc(clamp(24px, 4.5vw, 42px) + 2px);
     letter-spacing: -0.7px;
   }
 
   .vision-description {
     max-width: 80%;
-    font-size: 13px;
+    font-size: 15px;
   }
 
   .vision-joint-card {
@@ -1077,14 +1077,14 @@
   }
 
   .vision-heading {
-    font-size: clamp(15px, 4.1vw, 25px);
+    font-size: calc(clamp(15px, 4.1vw, 25px) + 2px);
     letter-spacing: -0.5px;
   }
 
   .vision-description {
     max-width: 95%;
     margin-top: 22px;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.6;
   }
 
@@ -1096,7 +1096,7 @@
     width: 160px;
     height: 45px;
     margin-top: 24px;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .vision-light-system {
@@ -1140,7 +1140,7 @@
   .vision-joint-label,
   .vision-brief-label,
   .vision-meeting-card {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .vision-planet-system {
@@ -1166,4 +1166,197 @@
   .vision-letter {
     transition: none;
   }
+}
+
+/* Galaxy palette: preserve the landing page layout and animations. */
+.vision-home {
+  background:
+    radial-gradient(ellipse at 80% -10%, rgba(78, 59, 145, 0.26), transparent 42%),
+    radial-gradient(ellipse at 18% 90%, rgba(36, 69, 143, 0.18), transparent 48%),
+    #05070d;
+}
+
+.vision-window {
+  border-color: rgba(135, 145, 188, 0.34);
+  background:
+    radial-gradient(ellipse at 84% 33%, rgba(91, 62, 177, 0.2), transparent 48%),
+    linear-gradient(145deg, #05070d 0%, #080d1a 52%, #101125 100%);
+}
+
+.vision-background-glow {
+  background: radial-gradient(
+    ellipse at 70% 30%,
+    rgba(119, 82, 205, 0.38),
+    rgba(43, 74, 160, 0.2) 34%,
+    transparent 70%
+  );
+}
+
+.vision-stars span {
+  background: #d9d9f7;
+  box-shadow: 0 0 9px rgba(173, 166, 255, 0.72);
+}
+
+.vision-stars span:nth-child(3n) {
+  background: #f2b36e;
+  box-shadow: 0 0 8px rgba(242, 166, 90, 0.7);
+}
+
+.vision-light-glow {
+  background: radial-gradient(
+    ellipse at 85% 20%,
+    rgba(202, 190, 255, 0.72) 0%,
+    rgba(117, 95, 224, 0.58) 15%,
+    rgba(40, 87, 190, 0.34) 34%,
+    transparent 68%
+  );
+}
+
+.vision-light-ray-one {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(77, 110, 228, 0.16) 23%,
+    rgba(130, 111, 244, 0.42) 43%,
+    rgba(219, 213, 255, 0.76) 51%,
+    rgba(91, 139, 255, 0.48) 59%,
+    transparent 84%
+  );
+  box-shadow: 0 0 60px rgba(100, 91, 225, 0.38);
+}
+
+.vision-light-ray-two {
+  border-top-color: rgba(175, 159, 255, 0.72);
+  background: linear-gradient(180deg, rgba(101, 111, 221, 0.15), transparent 70%);
+}
+
+.vision-light-ray-three {
+  border-top-color: rgba(124, 147, 255, 0.5);
+}
+
+.vision-light-core {
+  background: radial-gradient(
+    ellipse,
+    rgba(237, 229, 255, 0.82),
+    rgba(139, 116, 255, 0.5) 30%,
+    transparent 75%
+  );
+}
+
+.vision-typing-cursor {
+  background: #a58bff;
+  box-shadow: 0 0 11px rgba(165, 139, 255, 0.6);
+}
+
+.vision-start-button {
+  background: linear-gradient(105deg, #f2a65a, #e49349);
+  box-shadow: 0 6px 24px rgba(242, 166, 90, 0.2);
+}
+
+.vision-start-button:hover {
+  box-shadow: 0 9px 28px rgba(242, 166, 90, 0.34);
+}
+
+.vision-start-button:focus-visible {
+  outline-color: #f2b36e;
+}
+
+.vision-floating-card {
+  border-color: rgba(137, 145, 190, 0.2);
+  background: linear-gradient(145deg, rgba(35, 40, 69, 0.52), rgba(18, 23, 43, 0.54));
+}
+
+.vision-pink-star,
+.vision-workflow-star {
+  color: #f2a65a;
+}
+
+.vision-save-pill,
+.vision-send-pill {
+  background: #5266c7;
+}
+
+.vision-planet {
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    #171433 0%,
+    #090c19 23%,
+    #050810 49%,
+    #05070d 78%
+  );
+  box-shadow:
+    0 -10px 42px rgba(91, 91, 228, 0.52),
+    0 -2px 14px rgba(169, 151, 255, 0.7);
+}
+
+.vision-planet-edge {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  filter: none;
+}
+
+.vision-horizon-halo,
+.vision-horizon-line {
+  fill: none;
+  stroke: url("#visionHorizonSpectrum");
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.vision-horizon-halo {
+  stroke-width: 30px;
+  opacity: 0.56;
+  filter: url("#visionHorizonBloom");
+}
+
+.vision-horizon-line {
+  stroke-width: 3px;
+  filter:
+    drop-shadow(0 0 5px rgba(139, 119, 255, 0.92))
+    drop-shadow(0 0 12px rgba(88, 116, 255, 0.62));
+}
+
+.vision-planet-glow {
+  background: rgba(93, 61, 210, 0.34);
+  filter: blur(50px);
+}
+
+.vision-stars {
+  background-image: radial-gradient(1px 1px at 23px 45px, #969bb8 75%, transparent), radial-gradient(1px 1px at 71px 13px, #535d81 75%, transparent);
+  background-size: 113px 157px, 197px 131px;
+}
+
+/* Reference sky and surface luminance. */
+.vision-window {
+  background: #02050c url("../assets/portal-nebula.webp") center / cover no-repeat;
+}
+.vision-floating-card {
+  background: linear-gradient(145deg, rgba(13,21,41,.94), rgba(7,14,28,.92));
+  border-color: #29334e;
+  box-shadow: inset 0 1px 1px rgba(160,172,211,.06);
+}
+.vision-workflow-small-box,
+.vision-workflow-save-area,
+.vision-workflow-placeholder,
+.vision-workflow-footer {
+  background: rgba(26,38,66,.4);
+}
+.vision-start-button {
+  background: linear-gradient(#eea25a, #de8b48);
+  box-shadow: inset 0 0 0 1px #f4b476;
+}
+.vision-horizon-line {
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 3px #b293ff) drop-shadow(0 0 9px #6b35ef);
+}
+.vision-horizon-halo {
+  opacity: .8;
+}
+.vision-planet {
+  background: radial-gradient(ellipse at 50% 0%, #100a29 0%, #050718 15%, #02050c 42%);
+  box-shadow: none;
 }

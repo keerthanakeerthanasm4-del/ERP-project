@@ -69,7 +69,7 @@ a {
   gap: 12px;
 
   color: #fff;
-  font-size: clamp(19px, 1.9vw, 29px);
+  font-size: calc(clamp(19px, 1.9vw, 29px) + 2px);
   font-weight: 800;
   letter-spacing: -0.7px;
 
@@ -152,7 +152,7 @@ a {
   color: #fff;
 
   font-family: "Caveat", cursive;
-  font-size: clamp(23px, 2.2vw, 36px);
+  font-size: calc(clamp(23px, 2.2vw, 36px) + 2px);
   font-weight: 700;
   font-style: italic;
   letter-spacing: 1.2px;
@@ -191,7 +191,7 @@ a {
   color: #ffffff;
 
   font-family: "Permanent Marker", cursive;
-  font-size: clamp(65px, 8.2vw, 125px);
+  font-size: calc(clamp(65px, 8.2vw, 125px) + 2px);
   font-weight: 400;
 
   text-shadow:
@@ -208,7 +208,7 @@ a {
   margin-top: 2px;
 
   font-family: "Permanent Marker", cursive;
-  font-size: clamp(40px, 5.8vw, 95px);
+  font-size: calc(clamp(40px, 5.8vw, 95px) + 2px);
   font-weight: 400;
   letter-spacing: -1.3px;
 
@@ -289,7 +289,7 @@ a {
   color: #fff;
 
   font-family: "Caveat", cursive;
-  font-size: clamp(19px, 1.55vw, 27px);
+  font-size: calc(clamp(19px, 1.55vw, 27px) + 2px);
   font-weight: 700;
   line-height: 0.98;
 
@@ -447,7 +447,7 @@ a {
     0 13px 34px rgba(0, 57, 174, 0.30),
     inset 0 1px 0 rgba(255, 255, 255, 0.32);
 
-  font-size: clamp(19px, 1.45vw, 24px);
+  font-size: calc(clamp(19px, 1.45vw, 24px) + 2px);
   font-weight: 700;
 
   transform: translateX(-50%);
@@ -578,7 +578,7 @@ a {
 
   backdrop-filter: blur(12px);
 
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
 }
 
@@ -632,7 +632,7 @@ a {
 
   backdrop-filter: blur(12px);
 
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 1.35px;
 }
@@ -643,7 +643,7 @@ a {
 
   color: #fff;
 
-  font-size: clamp(44px, 4.35vw, 68px);
+  font-size: calc(clamp(44px, 4.35vw, 68px) + 2px);
   font-weight: 800;
   letter-spacing: -2.8px;
   line-height: 1.16;
@@ -670,7 +670,7 @@ a {
 
   color: rgba(255, 255, 255, 0.96);
 
-  font-size: clamp(17px, 1.3vw, 21px);
+  font-size: calc(clamp(17px, 1.3vw, 21px) + 2px);
   line-height: 1.75;
 
   text-shadow: 0 2px 10px rgba(0, 20, 55, 0.35);
@@ -714,12 +714,12 @@ a {
   color: #1677ff;
   background: #fff;
 
-  font-size: 27px;
+  font-size: 29px;
 }
 
 .story-decoration strong {
   color: #fff;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
 }
 
@@ -728,7 +728,7 @@ a {
 
   color: rgba(255, 255, 255, 0.92);
 
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -781,7 +781,7 @@ a {
 
   color: #14234e;
 
-  font-size: clamp(27px, 2.4vw, 38px);
+  font-size: calc(clamp(27px, 2.4vw, 38px) + 2px);
   font-weight: 800;
   letter-spacing: -1.1px;
 }
@@ -791,7 +791,7 @@ a {
   margin: 14px 0 0;
 
   color: #7484a8;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 /* INPUT FIELDS */
@@ -807,7 +807,7 @@ a {
 .input-group label {
   color: #3e4f77;
 
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -862,7 +862,7 @@ a {
   color: #17264f;
   background: transparent;
 
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .input-box input::placeholder,
@@ -883,7 +883,7 @@ a {
 
   cursor: pointer;
 
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -899,7 +899,7 @@ a {
   margin: 0 0 30px;
 
   color: #47577e;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .remember-option {
@@ -930,7 +930,7 @@ a {
 
   cursor: pointer;
 
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -963,7 +963,7 @@ a {
 
   cursor: pointer;
 
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
 
   transition:
@@ -979,7 +979,7 @@ a {
 }
 
 .button-arrow {
-  font-size: 25px;
+  font-size: 27px;
   font-weight: 400;
   line-height: 1;
 }
@@ -1007,7 +1007,7 @@ a {
 .or-divider p {
   margin: 0;
 
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -1031,7 +1031,7 @@ a {
 
   cursor: pointer;
 
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -1040,7 +1040,7 @@ a {
 }
 
 .google-letter {
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 900;
 
   background: conic-gradient(
@@ -1068,7 +1068,7 @@ a {
   margin-top: 27px;
 
   color: #8290ad;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .login-message {
@@ -1078,7 +1078,7 @@ a {
 
   text-align: center;
 
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -1112,7 +1112,7 @@ a {
 }
 
 .project-story h1 {
-  font-size: clamp(47px, 4.6vw, 72px);
+  font-size: calc(clamp(47px, 4.6vw, 72px) + 2px);
 }
 
 .project-card {
@@ -1126,12 +1126,12 @@ a {
 }
 
 .project-heading h2 {
-  font-size: clamp(28px, 2.4vw, 38px);
+  font-size: calc(clamp(28px, 2.4vw, 38px) + 2px);
 }
 
 .project-heading p {
   margin-top: 17px;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 /* PROJECT NAME AND ID */
@@ -1142,7 +1142,7 @@ a {
 }
 
 .project-input-group label {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .project-input-box {
@@ -1158,7 +1158,7 @@ a {
 
 .project-input-box input {
   height: 62px;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 /* VERIFY BUTTON */
@@ -1166,7 +1166,7 @@ a {
 .verify-button {
   min-height: 67px;
   margin-top: 6px;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .verify-button svg {
@@ -1188,7 +1188,7 @@ a {
 
   text-align: center;
 
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .project-back-link {
@@ -1200,7 +1200,7 @@ a {
 
   color: #0868ff;
 
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
 }
 
@@ -1209,7 +1209,7 @@ a {
 
   text-align: center;
 
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
 }
 
@@ -1278,7 +1278,7 @@ a {
 
   .brand {
     gap: 8px;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .cap-icon {
@@ -1292,15 +1292,15 @@ a {
   }
 
   .hero-kicker {
-    font-size: clamp(19px, 3.5vw, 25px);
+    font-size: calc(clamp(19px, 3.5vw, 25px) + 2px);
   }
 
   .title-campus {
-    font-size: clamp(50px, 10.8vw, 84px);
+    font-size: calc(clamp(50px, 10.8vw, 84px) + 2px);
   }
 
   .title-project {
-    font-size: clamp(30px, 7.3vw, 58px);
+    font-size: calc(clamp(30px, 7.3vw, 58px) + 2px);
   }
 
   .hero-brush {
@@ -1309,7 +1309,7 @@ a {
   }
 
   .home-note {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .home-note-left {
@@ -1324,7 +1324,7 @@ a {
     min-width: 100px;
     min-height: 82px;
 
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .hero-doodle-plane {
@@ -1384,7 +1384,7 @@ a {
 
   .login-story h1,
   .project-story h1 {
-    font-size: clamp(38px, 8vw, 54px);
+    font-size: calc(clamp(38px, 8vw, 54px) + 2px);
     letter-spacing: -1.8px;
   }
 
@@ -1395,7 +1395,7 @@ a {
   .story-description {
     margin-top: 15px;
 
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.55;
   }
 
@@ -1432,7 +1432,7 @@ a {
   }
 
   .hero-kicker {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .hero-kicker span {
@@ -1440,11 +1440,11 @@ a {
   }
 
   .title-campus {
-    font-size: 13vw;
+    font-size: calc(13vw + 2px);
   }
 
   .title-project {
-    font-size: 7.7vw;
+    font-size: calc(7.7vw + 2px);
     letter-spacing: -0.5px;
   }
 
@@ -1452,7 +1452,7 @@ a {
     top: 13%;
     left: 5%;
 
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .home-note-left i {
@@ -1468,7 +1468,7 @@ a {
 
     padding: 5px 8px;
 
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .hero-doodle-plane {
@@ -1481,7 +1481,7 @@ a {
     width: 225px;
     min-height: 59px;
 
-    font-size: 17px;
+    font-size: 19px;
   }
 
   .home-waves {
@@ -1495,13 +1495,13 @@ a {
   }
 
   .inner-header .brand {
-    font-size: 17px;
+    font-size: 19px;
   }
 
   .top-back-link {
     min-height: 37px;
     padding: 7px 11px;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .login-card,
@@ -1515,14 +1515,14 @@ a {
 
   .login-heading h2,
   .project-heading h2 {
-    font-size: 27px;
+    font-size: 29px;
   }
 
   .login-options {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .text-link {
-    font-size: 12px;
+    font-size: 14px;
   }
 }

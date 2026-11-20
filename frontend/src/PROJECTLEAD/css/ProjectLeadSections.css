@@ -1,0 +1,142 @@
+.pl-feature-page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 32px clamp(20px,4vw,58px);
+}
+
+.pl-feature-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.pl-feature-heading span {
+  color: #3679e7;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+
+.pl-feature-heading h1 {
+  margin: 7px 0;
+  color: #14213d;
+  font-size: 32px;
+}
+
+.pl-feature-heading p {
+  margin: 0;
+  color: #6e7b94;
+  font-size: 15px;
+}
+
+.pl-feature-heading button {
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(100deg,#118ddf,#6e48ea);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pl-section-state {
+  padding: 28px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e7eaf2;
+  color: #6e7b94;
+  text-align: center;
+}
+
+.pl-section-state.is-error {
+  color: #b42318;
+  background: #fff1f1;
+}
+
+.pl-section-project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 16px;
+}
+
+.pl-section-project {
+  padding: 19px;
+  border: 1px solid #e7eaf2;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px #1a2c4c08;
+}
+
+.pl-section-project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pl-project-symbol {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #eaf3ff;
+  color: #397be0;
+}
+
+.pl-section-status {
+  padding: 5px 9px;
+  border-radius: 99px;
+  background: #eaf7f1;
+  color: #188252;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pl-section-project h2 {
+  margin: 15px 0 5px;
+  font-size: 18px;
+}
+
+.pl-section-id {
+  margin: 0 0 13px;
+  color: #8b96aa;
+  font-size: 13px;
+}
+
+.pl-section-id b {
+  color: #52617a;
+}
+
+.pl-section-detail {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-top: 1px solid #eff1f5;
+  color: #8290a6;
+  font-size: 13px;
+}
+
+.pl-section-detail b {
+  color: #495a75;
+}
+
+.pl-section-view {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #132349;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width:640px) {
+  .pl-feature-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

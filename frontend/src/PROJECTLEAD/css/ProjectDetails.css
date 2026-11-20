@@ -1,0 +1,408 @@
+.pd-page {
+  min-height: 100vh;
+  background: #f5f7fc;
+  color: #101d3c;
+}
+
+.pd-header {
+  height: 66px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #091b42;
+  color: #fff;
+}
+
+.pd-header button,.pd-back {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pd-content {
+  max-width: 1000px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+
+.pd-back {
+  margin-bottom: 18px;
+  color: #1769d2;
+  font-weight: 650;
+}
+
+.pd-project-card,.pd-members-card {
+  padding: 28px;
+  margin-bottom: 22px;
+  background: white;
+  border: 1px solid #e3e9f5;
+  border-radius: 12px;
+  box-shadow: 0 5px 18px #091b4209;
+}
+
+.pd-eyebrow {
+  color: #1769d2;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.pd-project-card h1 {
+  margin: 8px 0 24px;
+  color: #091b42;
+}
+
+.pd-meta {
+  display: flex;
+  gap: 55px;
+  flex-wrap: wrap;
+}
+
+.pd-meta span {
+  display: grid;
+  gap: 6px;
+  color: #53617f;
+}
+
+.pd-meta b {
+  font-size: 14px;
+  color: #74809a;
+}
+
+.pd-members-card h2 {
+  margin-top: 0;
+  color: #091b42;
+}
+
+.pd-members-card>p {
+  color: #68758f;
+}
+
+.pd-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+  max-width: 700px;
+  margin: 22px 0 32px;
+}
+
+.pd-form label {
+  align-self: end;
+  color: #34415f;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.pd-form input,.pd-form select {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #dfe5ef;
+  border-radius: 7px;
+  font: inherit;
+}
+
+.pd-submit {
+  grid-column: 2;
+  justify-self: end;
+  margin-top: 10px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: #091b42;
+  color: white;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-submit:disabled {
+  opacity: .65;
+}
+
+.pd-success,.pd-error {
+  max-width: 700px;
+  padding: 12px 14px;
+  border-radius: 7px;
+}
+
+.pd-success {
+  background: #e5f7ec;
+  color: #18834a;
+}
+
+.pd-error {
+  background: #fff0f0;
+  color: #b42318;
+}
+
+.pd-members-card h3 {
+  margin: 12px 0;
+  color: #091b42;
+}
+
+.pd-empty {
+  padding: 18px;
+  background: #f7f9fd;
+  border-radius: 8px;
+}
+
+.pd-member-list {
+  display: grid;
+  gap: 10px;
+}
+
+.pd-member {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 15px;
+  border: 1px solid #e3e9f5;
+  border-radius: 8px;
+}
+
+.pd-member div {
+  display: grid;
+  gap: 5px;
+}
+
+.pd-member span {
+  font-size: 15px;
+  color: #68758f;
+}
+
+.pd-member>b {
+  color: #1769d2;
+  font-size: 15px;
+}
+
+.pd-member-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-member-actions>b {
+  color: #1769d2;
+  font-size: 15px;
+}
+
+.pd-remove-user {
+  padding: 8px 12px;
+  border: 1px solid #f0c9ce;
+  border-radius: 7px;
+  background: #fff;
+  color: #b42335;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-remove-user:hover:not(:disabled) {
+  background: #fff1f2;
+  border-color: #df8792;
+}
+
+.pd-remove-user:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.pd-previous-members-card {
+  background: #fbfcff;
+}
+
+.pd-previous-member {
+  background: #fff;
+}
+
+.pd-previous-member small {
+  color: #8290a9;
+  font-size: 13px;
+}
+
+@media (max-width:600px) {
+  .pd-form {
+    grid-template-columns: 1fr;
+  }
+  .pd-form label:not(:first-child) {
+    margin-top: 8px;
+  }
+  .pd-submit {
+    grid-column: 1;
+    justify-self: stretch;
+  }
+  .pd-meta {
+    gap: 18px;
+  }
+  .pd-member {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .pd-member-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.pd-add-user {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: #091b42;
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-form-actions {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.pd-cancel {
+  padding: 11px 18px;
+  border: 1px solid #dfe5ef;
+  border-radius: 7px;
+  background: #fff;
+  color: #53617f;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-project-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.pd-project-actions {
+  display: grid;
+  gap: 8px;
+  flex: 0 0 150px;
+}
+
+.pd-project-heading h1 {
+  margin: 8px 0 24px;
+}
+
+.pd-add-user-panel {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #e9edf5;
+}
+
+.pd-add-user-panel>p {
+  margin: 0 0 18px;
+  color: #68758f;
+}
+
+.pd-progress-button {
+  padding: 11px 18px;
+  border: 1px solid #dfe5ef;
+  border-radius: 7px;
+  background: #fff;
+  color: #091b42;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.pd-progress-button:hover {
+  border-color: #1769d2;
+  color: #1769d2;
+}
+
+.pd-progress-panel {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #e9edf5;
+}
+
+.pd-progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pd-progress-heading h2 {
+  margin: 0 0 12px;
+  color: #091b42;
+  font-size: 20px;
+}
+
+.pd-progress-heading strong {
+  color: #1769d2;
+}
+
+.pd-progress-bar {
+  display: block;
+  width: 100%;
+  height: 12px;
+  accent-color: #1769d2;
+}
+
+.pd-progress-summary,
+.pd-progress-empty {
+  color: #68758f;
+}
+
+.pd-phase-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-phase-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e3e9f5;
+  border-radius: 8px;
+  color: #53617f;
+}
+
+.pd-phase-list li.is-complete {
+  border-color: #ccebd8;
+  background: #f3fbf6;
+}
+
+.pd-phase-indicator {
+  color: #1769d2;
+  font-weight: 800;
+}
+
+.pd-phase-status {
+  margin-left: auto;
+  color: #74809a;
+  font-size: 15px;
+}
+
+@media (max-width:600px) {
+  .pd-project-heading {
+    align-items: flex-start;
+  }
+  .pd-project-actions {
+    flex-basis: 130px;
+  }
+  .pd-project-actions button {
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+  .pd-phase-list li {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .pd-phase-status {
+    margin-left: 28px;
+  }
+}
