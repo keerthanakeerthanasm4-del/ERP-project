@@ -74,7 +74,7 @@ const prisma = new PrismaClient({
 
 // Generate JWT token
 async function findUserFromToken(decoded) {
-  const rawId = decoded?.user_id ?? decoded?.userId ?? decoded?.id ?? decoded?.sub;
+  const rawId = decoded?.user_id;
   const userId = Number(rawId);
 
   if (rawId !== undefined && rawId !== null && Number.isInteger(userId) && userId > 0) {
