@@ -97,7 +97,6 @@ function RotatingLight() {
     </div>
   );
 }
-
 /* =====================================================
    CARD 1 — JOINT BOARD
    DESIGN UNCHANGED
@@ -447,7 +446,7 @@ export default function Home() {
     /* -----------------------------------------
        EXISTING ARC LOADING
 
-       Duration: 2.8 seconds
+       Duration: 10 seconds
        Direction: left to right
 
        No new stroke or line is drawn.
@@ -457,7 +456,7 @@ export default function Home() {
       arc,
       {
         clipPath: "inset(-6% 0% 0 0)",
-        duration: 6,
+        duration: 10,
         ease: "power1.inOut",
       },
       0.15

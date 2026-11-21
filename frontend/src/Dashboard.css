@@ -1057,3 +1057,265 @@
     animation: none;
   }
 }
+/* LOGIN PALETTE SYNC */
+.dashboard-page {
+  --login-cyan: #08c3ef;
+  --login-blue: #1677ff;
+  --login-purple: #743cff;
+  --login-pink: #e94bd0;
+
+  background:
+    radial-gradient(ellipse at 92% 18%, rgba(116, 60, 255, 0.2), transparent 38%),
+    radial-gradient(ellipse at 50% -20%, #172f86 0%, #09163e 38%, #030817 85%),
+    #030817;
+}
+
+.dashboard-header {
+  border-bottom-color: rgba(116, 60, 255, 0.72);
+  box-shadow: 0 1px 16px rgba(116, 60, 255, 0.18);
+}
+
+.dashboard-logo {
+  filter: drop-shadow(0 0 8px var(--login-purple));
+}
+
+.dashboard-logout {
+  border-color: rgba(116, 60, 255, 0.9);
+  background: linear-gradient(110deg, #073d8b, #25216f);
+  box-shadow:
+    0 0 8px rgba(8, 195, 239, 0.55),
+    0 0 18px rgba(116, 60, 255, 0.3),
+    inset 0 0 8px rgba(36, 171, 255, 0.35);
+}
+
+.dashboard-logout:hover {
+  background: linear-gradient(110deg, #0866d5, #743cff);
+  box-shadow: 0 0 20px rgba(116, 60, 255, 0.65);
+}
+
+.college-welcome-banner {
+  background:
+    radial-gradient(ellipse at 86% 18%, rgba(116, 60, 255, 0.34), transparent 42%),
+    radial-gradient(ellipse at 10% 96%, rgba(8, 195, 239, 0.13), transparent 52%),
+    linear-gradient(145deg, #020714 0%, #030919 58%, #07123a 100%);
+}
+
+.dashboard-stars {
+  background-image:
+    radial-gradient(circle, #f5eaff 1px, transparent 2px),
+    radial-gradient(circle, #7895e8 1px, transparent 2px),
+    radial-gradient(circle, #d16bf0 1px, transparent 2px);
+}
+
+.dashboard-light-rays {
+  background: repeating-conic-gradient(
+    from 220deg at 77% 17%,
+    transparent 0deg,
+    rgba(77, 102, 206, 0.04) 4deg,
+    rgba(116, 60, 255, 0.3) 7deg,
+    rgba(205, 194, 255, 0.55) 8deg,
+    rgba(8, 195, 239, 0.16) 10deg,
+    transparent 16deg
+  );
+}
+
+.welcome-eyebrow {
+  border-color: rgba(8, 195, 239, 0.9);
+  box-shadow:
+    0 0 12px rgba(8, 195, 239, 0.3),
+    0 0 20px rgba(116, 60, 255, 0.18);
+}
+
+.welcome-user-name {
+  background: linear-gradient(95deg, #08c3ef 0%, #6a9cff 48%, #d16bf0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.welcome-explore-btn {
+  border-color: rgba(209, 107, 240, 0.85);
+  background: linear-gradient(100deg, #08c5ec 0%, #2368ff 50%, #c02be9 100%);
+  box-shadow:
+    0 0 9px rgba(8, 195, 239, 0.8),
+    0 0 25px rgba(116, 60, 255, 0.42),
+    inset 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.welcome-explore-btn:hover {
+  box-shadow:
+    0 0 18px rgba(8, 195, 239, 0.8),
+    0 0 30px rgba(192, 43, 233, 0.55);
+}
+
+.welcome-bottom-shape {
+  border-top-color: #8a77ff;
+  box-shadow:
+    0 -5px 15px rgba(116, 60, 255, 0.72),
+    0 -15px 35px rgba(8, 104, 255, 0.45);
+}
+
+.assigned-projects {
+  background:
+    radial-gradient(ellipse at 92% 12%, rgba(41, 94, 255, 0.25), transparent 44%),
+    radial-gradient(ellipse at 6% 82%, rgba(116, 60, 255, 0.22), transparent 48%),
+    linear-gradient(180deg, var(--space-night), var(--space-indigo));
+}
+
+.projects-subtitle,
+.empty-sparkle {
+  color: #5ad9ff;
+}
+
+.projects-count {
+  border-color: rgba(209, 107, 240, 0.85);
+  background: linear-gradient(135deg, #174d9d 0%, #25216f 60%, #301554 100%);
+  box-shadow:
+    0 0 10px rgba(8, 195, 239, 0.65),
+    0 0 22px rgba(116, 60, 255, 0.34),
+    inset 0 0 12px rgba(209, 107, 240, 0.2);
+}
+
+.dashboard-message {
+  border-color: rgba(116, 60, 255, 0.72);
+  box-shadow: 0 0 14px rgba(116, 60, 255, 0.16);
+}
+
+.loading-spinner {
+  border-top-color: #d16bf0;
+}
+
+.empty-project-state {
+  border-color: rgba(116, 60, 255, 0.82);
+  background:
+    radial-gradient(ellipse at 90% 0%, rgba(116, 60, 255, 0.24), transparent 55%),
+    linear-gradient(145deg, rgba(8, 16, 35, 0.96), rgba(4, 9, 23, 0.98));
+  box-shadow:
+    0 0 10px rgba(8, 195, 239, 0.2),
+    0 0 18px rgba(116, 60, 255, 0.24),
+    inset 0 0 20px rgba(10, 102, 219, 0.15);
+}
+
+.student-project-card {
+  border-color: rgba(116, 60, 255, 0.5);
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(116, 60, 255, 0.2), transparent 56%),
+    linear-gradient(145deg, #0a1023, #050b18);
+}
+
+.student-project-card:hover {
+  border-color: #8a77ff;
+  box-shadow:
+    0 0 12px rgba(8, 195, 239, 0.22),
+    0 0 20px rgba(116, 60, 255, 0.38);
+}
+
+.dashboard-footer {
+  border-top-color: rgba(116, 60, 255, 0.62);
+}
+/* FULL PAGE LOGIN COLOR MATCH */
+.dashboard-page {
+  background:
+    radial-gradient(ellipse at 86% 14%, rgba(116, 60, 255, 0.27), transparent 36%),
+    radial-gradient(ellipse at 12% 58%, rgba(8, 195, 239, 0.12), transparent 42%),
+    linear-gradient(145deg, #020714 0%, #07112d 48%, #101039 100%);
+}
+
+.dashboard-header,
+.dashboard-footer {
+  background: linear-gradient(105deg, #020714 0%, #07112d 58%, #111039 100%);
+}
+
+.college-welcome-banner {
+  background:
+    radial-gradient(ellipse at 88% 8%, rgba(209, 107, 240, 0.38), transparent 42%),
+    radial-gradient(ellipse at 75% 50%, rgba(116, 60, 255, 0.27), transparent 48%),
+    radial-gradient(ellipse at 12% 92%, rgba(8, 195, 239, 0.2), transparent 46%),
+    linear-gradient(145deg, #020714 0%, #07112d 55%, #111039 100%);
+}
+
+.assigned-projects {
+  background:
+    radial-gradient(ellipse at 92% 14%, rgba(116, 60, 255, 0.3), transparent 42%),
+    radial-gradient(ellipse at 9% 78%, rgba(8, 195, 239, 0.13), transparent 44%),
+    linear-gradient(145deg, #030817 0%, #09122f 55%, #111039 100%);
+}
+
+.dashboard-message,
+.empty-project-state,
+.student-project-card {
+  border-color: rgba(138, 119, 255, 0.62);
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(116, 60, 255, 0.2), transparent 54%),
+    radial-gradient(ellipse at 8% 100%, rgba(8, 195, 239, 0.09), transparent 48%),
+    linear-gradient(145deg, rgba(11, 18, 43, 0.96), rgba(5, 9, 26, 0.98));
+  box-shadow:
+    0 0 14px rgba(116, 60, 255, 0.2),
+    inset 0 0 24px rgba(8, 195, 239, 0.07);
+}
+
+.dashboard-message {
+  border-style: solid;
+}
+
+.student-project-card:hover {
+  border-color: #d16bf0;
+  box-shadow:
+    0 0 16px rgba(8, 195, 239, 0.28),
+    0 0 26px rgba(116, 60, 255, 0.42);
+}
+
+.projects-count {
+  background: linear-gradient(145deg, #0c4d9d 0%, #25216f 58%, #301554 100%);
+}
+
+.dashboard-footer {
+  border-top-color: rgba(138, 119, 255, 0.7);
+}
+/* KEEP WELCOME NAME PLAIN */
+.welcome-user-name {
+  color: #fff;
+  background: none;
+  -webkit-text-fill-color: #fff;
+  text-shadow: none;
+}
+/* BLACK LOGIN PAGE BACKGROUND */
+.dashboard-page {
+  background: #020207;
+}
+
+.dashboard-header,
+.dashboard-footer {
+  background: #020207;
+}
+
+.college-welcome-banner {
+  background:
+    radial-gradient(ellipse at 88% 8%, rgba(116, 60, 255, 0.2), transparent 42%),
+    radial-gradient(ellipse at 75% 50%, rgba(79, 48, 177, 0.13), transparent 48%),
+    radial-gradient(ellipse at 12% 92%, rgba(8, 195, 239, 0.1), transparent 46%),
+    #020207;
+}
+
+.assigned-projects {
+  background:
+    radial-gradient(ellipse at 92% 14%, rgba(116, 60, 255, 0.16), transparent 42%),
+    radial-gradient(ellipse at 9% 78%, rgba(8, 195, 239, 0.08), transparent 44%),
+    #020207;
+}
+
+.dashboard-message,
+.empty-project-state,
+.student-project-card {
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(116, 60, 255, 0.13), transparent 54%),
+    radial-gradient(ellipse at 8% 100%, rgba(8, 195, 239, 0.06), transparent 48%),
+    #07070d;
+}
+
+.projects-count {
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(116, 60, 255, 0.16), transparent 65%),
+    #07070d;
+}
