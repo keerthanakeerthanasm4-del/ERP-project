@@ -13,7 +13,7 @@ import ProjectLeadCover from "./PROJECTLEAD/jsx/ProjectLeadCover.jsx";
 import ProjectLeadLayout from "./PROJECTLEAD/jsx/ProjectLeadLayout.jsx";
 import { ProjectLeadProjects } from "./PROJECTLEAD/jsx/ProjectLeadSections.jsx";
 import Home from "./pages/LandingPage";
-
+import TeamMemberDashboard from "./TEAMMEMB/pages/TeamMemberDashboard";
 /* =========================================================
    API CONFIGURATION — UNCHANGED
 ========================================================= */
@@ -3370,6 +3370,7 @@ export default function App() {
         <Route path="projects/:projectId" element={<ProjectDetails />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/team-member" element={<TeamMemberDashboard />} />
     </Routes>
   );
 }
