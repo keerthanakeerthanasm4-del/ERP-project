@@ -6,6 +6,7 @@ import portalNebula from "./assets/portal-nebula.webp";
 import Dashboard from "./Dashboard";
 import { API_URL } from "./api.js";
 import ProjectLeadDashboard from "./PROJECTLEAD/jsx/ProjectLeadDashboard.jsx";
+import TechLeadDashboard from "./TECHLEAD/JSX/TechLead.jsx";
 import CreateProject from "./PROJECTLEAD/jsx/CreateProject.jsx";
 import ProjectDetails from "./PROJECTLEAD/jsx/ProjectDetails.jsx";
 import ProjectLeadProfile from "./PROJECTLEAD/jsx/ProjectLeadProfile.jsx";
@@ -3360,6 +3361,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/dashboard" element={<RoleDashboard />} />
+      <Route path="/techlead-preview" element={<TechLeadDashboard />}/>
       <Route path="/project-lead/welcome" element={<ProjectLeadCover />} />
       <Route path="/project-lead" element={<ProjectLeadLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />

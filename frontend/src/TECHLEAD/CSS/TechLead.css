@@ -1,0 +1,48 @@
+
+.tl-app-layout {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  background: #080f21;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+.tl-main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+  overflow-x: hidden;
+}
+
+.tl-page-placeholder {
+  margin-top: 30px;
+  padding: 30px;
+  border: 1px solid rgba(75, 180, 255, 0.18);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #132440, #0b172d);
+}
+
+.tl-page-placeholder h2 {
+  color: #ffffff;
+}
+
+.tl-page-placeholder p {
+  color: #91a4c5;
+}
+
+@media (max-width: 900px) {
+  .tl-main-content {
+    padding: 22px 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .tl-app-layout {
+    flex-direction: column;
+  }
+
+  .tl-main-content {
+    padding: 18px 14px;
+  }
+}

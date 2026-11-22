@@ -29,7 +29,6 @@ import {
 
 import "../HOD styles/HODDashboard.css";
 
-const API_URL = "http://localhost:5000";
 
 // =====================================
 // AUTH HEADERS

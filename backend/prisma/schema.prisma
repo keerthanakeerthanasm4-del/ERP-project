@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -22,8 +23,12 @@ model User {
   leadProjects          Project[]                        @relation("ProjectLead")
   projectLeadAssignment DepartmentProjectLeadAssignment?
   projectLeadHistory    ProjectLeadAssignmentHistory[]
-  memberships  ProjectMember[]
-  projectMemberHistory ProjectMemberHistory[]
+  memberships           ProjectMember[]
+  projectMemberHistory  ProjectMemberHistory[]
+
+  // Task relationships
+  tasksCreated  Task[] @relation("TasksCreated")
+  tasksAssigned Task[] @relation("TasksAssigned")
 }
 
 model Project {
@@ -38,10 +43,13 @@ model Project {
   projectLeadId Int?
   projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
 
-  phases   ProjectPhase[]
-  members  ProjectMember[]
+  phases        ProjectPhase[]
+  members       ProjectMember[]
   memberHistory ProjectMemberHistory[]
-  meetings Meeting[]
+  meetings      Meeting[]
+
+  // Task relationship
+  tasks Task[]
 }
 
 enum ProjectMemberRole {
@@ -145,4 +153,42 @@ model HODProfile {
   location     String   @default("Bengaluru, Karnataka")
   profileImage String?  @db.Text
   updatedAt    DateTime @updatedAt
+}
+
+// Task model
+model Task {
+  task_id      Int      @id @default(autoincrement())
+
+  title        String
+  description  String?
+
+  // Foreign key: Project
+  project_id   String
+
+  // Foreign key: Tech Lead who creates the task
+  assignedById Int
+
+  // Foreign key: Team Lead who receives the task
+  assignedToId Int
+
+  priority     String   @default("Medium")
+  status       String   @default("Pending")
+
+  deadline     DateTime
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationship with Project
+  project Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+
+  // Relationship with Tech Lead
+  assignedBy User @relation("TasksCreated", fields: [assignedById], references: [user_id], onDelete: Cascade)
+
+  // Relationship with Team Lead
+  assignedTo User @relation("TasksAssigned", fields: [assignedToId], references: [user_id], onDelete: Cascade)
+
+  @@index([project_id])
+  @@index([assignedById])
+  @@index([assignedToId])
 }

@@ -1,0 +1,121 @@
+
+/* =================================
+   TECH LEAD STAT CARDS
+================================= */
+
+.tl-stat-card {
+  position: relative;
+  min-width: 0;
+  padding: 23px;
+  overflow: hidden;
+  border: 1px solid rgba(75, 180, 255, 0.2);
+  border-radius: 16px;
+  background: linear-gradient(
+    145deg,
+    #142440,
+    #0b172d
+  );
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tl-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(27, 153, 255, 0.13);
+}
+
+/* CARD TOP */
+
+.tl-stat-card-top {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.tl-stat-icon {
+  width: 49px;
+  height: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 13px;
+  color: #4bdfff;
+  background: rgba(42, 174, 255, 0.14);
+  border: 1px solid rgba(75, 215, 255, 0.25);
+}
+
+.tl-stat-label {
+  color: #a9bddb;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* CARD BOTTOM */
+
+.tl-stat-card-bottom {
+  margin-top: 24px;
+}
+
+.tl-stat-card-bottom h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+
+.tl-stat-card-bottom p {
+  margin: 8px 0 0;
+  color: #849bbd;
+  font-size: 12px;
+}
+
+/* CARD VARIANTS */
+
+.tl-stat-projects .tl-stat-icon {
+  color: #50ddff;
+  background: rgba(40, 190, 255, 0.13);
+}
+
+.tl-stat-leads .tl-stat-icon {
+  color: #ae91ff;
+  background: rgba(148, 103, 255, 0.14);
+  border-color: rgba(166, 128, 255, 0.25);
+}
+
+.tl-stat-members .tl-stat-icon {
+  color: #43e6a0;
+  background: rgba(45, 219, 145, 0.13);
+  border-color: rgba(45, 219, 145, 0.25);
+}
+
+/* OPTIONAL CHANGE INDICATOR */
+
+.tl-stat-change {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 15px;
+  color: #42e6a0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+  .tl-stat-card {
+    padding: 18px;
+  }
+
+  .tl-stat-card-bottom h2 {
+    font-size: 29px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-stat-card {
+    transition: none;
+  }
+}
