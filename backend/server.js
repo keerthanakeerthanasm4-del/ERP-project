@@ -641,7 +641,7 @@ app.get("/api/hod/project-leads", requireHod, async (req, res) => {
 
     const leads = await prisma.user.findMany({
       where: {
-  role: "PROJECT_LEAD",
+  role: { in: ["STUDENT", "PROJECT_LEAD"] },
 },
       select: {
         user_id: true,
@@ -786,9 +786,9 @@ app.put("/api/hod/department-assignment", async (req, res) => {
       },
     });
 
-    if (!student || student.role !== "PROJECT_LEAD") {
+    if (!student || !["STUDENT", "PROJECT_LEAD"].includes(student.role)) {
       return res.status(404).json({
-        message: "Project Lead account not found",
+        message: "Registered user account not found",
       });
     }
 
@@ -816,6 +816,14 @@ app.put("/api/hod/department-assignment", async (req, res) => {
     await tx.departmentProjectLeadAssignment.findUnique({
       where: { id: 1 },
     });
+
+  // Grant the assigned student access to the Project Lead dashboard.
+  if (student.role === "STUDENT") {
+    await tx.user.update({
+      where: { user_id: student.user_id },
+      data: { role: "PROJECT_LEAD" },
+    });
+  }
 
   // Avoid duplicate history if the same student is assigned again
   if (currentAssignment?.assignedUserId === student.user_id) {

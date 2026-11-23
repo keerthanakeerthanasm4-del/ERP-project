@@ -25,6 +25,8 @@ function CreateProjectLead() {
 
   const [search, setSearch] = useState("");
   const [selectedLead, setSelectedLead] = useState("");
+  const [projectLeadSearch, setProjectLeadSearch] = useState("");
+  const [projectLeadDropdownOpen, setProjectLeadDropdownOpen] = useState(false);
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [currentAssignment, setCurrentAssignment] = useState(null);
@@ -427,22 +429,63 @@ const fetchAssignmentHistory = async () => {
           <div className="pl-form-group">
             <label>Select Project Lead</label>
 
-            <select
-              value={selectedLead}
-              onChange={(e) => {
-                setSelectedLead(e.target.value);
-                setStudentEmail("");
-                setStudentPassword("");
-              }}
-            >
-              <option value="">Choose Project Lead</option>
+            <div className="pl-searchable-select">
+              <button
+                type="button"
+                className="pl-searchable-select-trigger"
+                aria-haspopup="listbox"
+                aria-expanded={projectLeadDropdownOpen}
+                onClick={() => setProjectLeadDropdownOpen((open) => !open)}
+              >
+                {leads.find((lead) => String(lead.id) === selectedLead)
+                  ? `${leads.find((lead) => String(lead.id) === selectedLead).name} (${leads.find((lead) => String(lead.id) === selectedLead).email})`
+                  : "Choose Project Lead"}
+                <span aria-hidden="true">▾</span>
+              </button>
 
-              {leads.map((lead) => (
-                <option key={lead.id} value={lead.id}>
-                  {lead.name} ({lead.email})
-                </option>
-              ))}
-            </select>
+              {projectLeadDropdownOpen && (
+                <div className="pl-searchable-select-menu">
+                  <input
+                    type="search"
+                    placeholder="Search by name or email"
+                    value={projectLeadSearch}
+                    onChange={(e) => setProjectLeadSearch(e.target.value)}
+                    aria-label="Search registered users"
+                    autoFocus
+                  />
+                  <div role="listbox" aria-label="Registered users">
+                    {leads
+                      .filter((lead) =>
+                        `${lead.name} ${lead.email}`
+                          .toLowerCase()
+                          .includes(projectLeadSearch.trim().toLowerCase())
+                      )
+                      .map((lead) => (
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={String(lead.id) === selectedLead}
+                          key={lead.id}
+                          onClick={() => {
+                            setSelectedLead(String(lead.id));
+                            setStudentEmail("");
+                            setStudentPassword("");
+                            setProjectLeadDropdownOpen(false);
+                            setProjectLeadSearch("");
+                          }}
+                        >
+                          {lead.name} ({lead.email})
+                        </button>
+                      ))}
+                    {leads.filter((lead) =>
+                      `${lead.name} ${lead.email}`
+                        .toLowerCase()
+                        .includes(projectLeadSearch.trim().toLowerCase())
+                    ).length === 0 && <p>No registered users found.</p>}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pl-form-group">

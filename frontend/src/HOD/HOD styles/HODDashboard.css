@@ -958,6 +958,37 @@ td,
   margin-bottom: 9px;
 }
 
+.profile-edit-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 14px;
+  border: 1px solid #d8e2f0;
+  border-radius: 10px;
+  background: #fbfcff;
+  color: #243b60;
+  font: inherit;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-edit-input:hover {
+  border-color: #b6c8e3;
+}
+
+.profile-edit-input:focus {
+  outline: none;
+  border-color: #2877d2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(40, 119, 210, 0.12);
+}
+
+.profile-edit-input[type="date"] {
+  color-scheme: light;
+}
+
 .profile-detail p {
   display: flex;
   align-items: center;
@@ -1131,6 +1162,75 @@ td,
 .pl-form-group select:focus {
   border-color: #2877d2;
   box-shadow: 0 0 0 3px rgba(40, 119, 210, 0.1);
+}
+
+.pl-searchable-select {
+  position: relative;
+}
+
+.pl-searchable-select-trigger {
+  width: 100%;
+  height: 47px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #dce4ef;
+  border-radius: 9px;
+  background: #fbfcff;
+  color: #344b6e;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pl-searchable-select-trigger:focus {
+  border-color: #2877d2;
+  box-shadow: 0 0 0 3px rgba(40, 119, 210, 0.1);
+  outline: none;
+}
+
+.pl-searchable-select-menu {
+  position: absolute;
+  inset: calc(100% + 5px) 0 auto;
+  z-index: 20;
+  padding: 9px;
+  border: 1px solid #dce4ef;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(20, 40, 75, 0.16);
+}
+
+.pl-form-group .pl-searchable-select-menu input {
+  height: 40px;
+  margin-bottom: 7px;
+}
+
+.pl-searchable-select-menu [role="listbox"] {
+  max-height: 210px;
+  overflow-y: auto;
+}
+
+.pl-searchable-select-menu [role="option"] {
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #344b6e;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pl-searchable-select-menu [role="option"]:hover,
+.pl-searchable-select-menu [role="option"][aria-selected="true"] {
+  background: #eef5ff;
+}
+
+.pl-searchable-select-menu p {
+  margin: 8px 10px;
+  color: #7586a0;
+  font-size: 13px;
 }
 
 .pl-create-button,
