@@ -932,13 +932,13 @@ const LOGIN_GALAXY_STYLES = `
   }
 
   .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
-    border-color: #63D6B5;
+    border-color: #43B99A;
     background: linear-gradient(150deg, #171922, #090c14);
     box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
   }
 
   .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
-    stroke: #63D6B5;
+    stroke: #43B99A;
     filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
   }
 
@@ -980,7 +980,7 @@ const LOGIN_GALAXY_STYLES = `
   }
 
   .erp-auth-scene:not(.erp-register-scene) .erp-remember input {
-    accent-color: #63D6B5;
+    accent-color: 43B99A;
   }
 
   .erp-auth-scene:not(.erp-register-scene) .erp-forgot,
@@ -989,8 +989,8 @@ const LOGIN_GALAXY_STYLES = `
   }
 
   .erp-auth-scene:not(.erp-register-scene) .erp-submit {
-    border-color: #ffc27e;
-    background: linear-gradient(100deg, #63D6B5, #43B99A);
+    border-color: #A7F0DD;
+    background: linear-gradient(105deg, #63D6B5, #43B99A);
     box-shadow: 0 0 12px rgba(99, 214, 181, .34), inset 0 0 9px rgba(255, 255, 255, .28);
   }
 
@@ -1018,7 +1018,7 @@ const LOGIN_GALAXY_STYLES = `
     box-shadow:
       0 -7px 18px rgba(81, 125, 255, .92),
       0 -14px 42px rgba(115, 79, 238, .76),
-      0 -2px 9px rgba(99, 214, 181, .42),
+      0 -2px 9px rgba(240, 127, 117, .42),
       inset 0 22px 35px rgba(77, 66, 164, .3);
   }
 
@@ -1028,7 +1028,7 @@ const LOGIN_GALAXY_STYLES = `
     inset: -4px 0 0;
     border-radius: inherit;
     padding-top: 3px;
-    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #63D6B5 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #63D6B5 74%, #b69fff 76%, #4978df 90%);
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ff9d91 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ff9d91 74%, #b69fff 76%, #4978df 90%);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
     pointer-events: none;
@@ -1060,8 +1060,8 @@ const LOGIN_GALAXY_STYLES = `
     box-shadow: inset 0 0 5px rgba(172, 145, 255, .16);
   }
   .erp-auth-scene:not(.erp-register-scene) .erp-avatar {
-    border-color: #63D6B5;
-    box-shadow: 0 0 9px rgba(99, 214, 181, .2);
+    border-color: #43B99A;
+    box-shadow: 0 0 9px rgba(67, 185, 154, .24);
   }
   .erp-auth-scene:not(.erp-register-scene) .erp-avatar svg {
     filter: none;
@@ -1076,11 +1076,6 @@ const LOGIN_GALAXY_STYLES = `
   }
   .erp-auth-scene:not(.erp-register-scene) .erp-submit {
     box-shadow: inset 0 1px 2px rgba(255,255,255,.2);
-  }
-  .erp-auth-scene:not(.erp-register-scene) .erp-submit {
-    -webkit-text-stroke: 0.8px #0B5149;
-    text-shadow: 0 0 1px rgba(11, 81, 73, .55);
-    paint-order: stroke fill;
   }
 `;
 
@@ -1647,7 +1642,7 @@ const REGISTER_STYLES = `
     background-image:
       radial-gradient(circle, #e8e9ff 1px, transparent 2px),
       radial-gradient(circle, #7895e8 1px, transparent 2px),
-      radial-gradient(circle, #63D6B5 1px, transparent 2px);
+      radial-gradient(circle, #ffa096 1px, transparent 2px);
     background-size: 177px 151px, 263px 213px, 347px 281px;
     background-position: 22px 29px, 95px 82px, 63px 117px;
   }
@@ -1679,13 +1674,13 @@ const REGISTER_STYLES = `
   }
 
   .erp-register-avatar {
-    border-color: #63D6B5;
+    border-color: #43B99A;
     background: linear-gradient(150deg, #171922, #090c14);
     box-shadow: 0 0 9px rgba(180, 157, 255, .78), 0 0 22px rgba(111, 85, 220, .58);
   }
 
   .erp-register-avatar svg {
-    stroke: #63D6B5;
+    stroke: #43B99A;
     filter: drop-shadow(0 0 5px rgba(173, 148, 255, .65));
   }
 
@@ -1706,8 +1701,8 @@ const REGISTER_STYLES = `
   }
 
   .erp-register-submit {
-    border-color: #ffc27e;
-    background: linear-gradient(100deg, #63D6B5, #43B99A);
+    border-color: #A7F0DD;
+    background: linear-gradient(105deg, #63D6B5, #43B99A);
     box-shadow: 0 0 12px rgba(99, 214, 181, .34), inset 0 0 9px rgba(255, 255, 255, .28);
   }
 
@@ -1717,7 +1712,7 @@ const REGISTER_STYLES = `
 
   .erp-register-scene .erp-horizon {
     border-top-color: rgba(151, 135, 255, .98);
-    box-shadow: 0 -7px 18px rgba(81, 125, 255, .92), 0 -14px 42px rgba(115, 79, 238, .76), 0 -2px 9px rgba(99, 214, 181, .42), inset 0 22px 35px rgba(77, 66, 164, .3);
+    box-shadow: 0 -7px 18px rgba(81, 125, 255, .92), 0 -14px 42px rgba(115, 79, 238, .76), 0 -2px 9px rgba(240, 127, 117, .42), inset 0 22px 35px rgba(77, 66, 164, .3);
   }
 
   .erp-register-scene .erp-horizon::after {
@@ -1726,15 +1721,10 @@ const REGISTER_STYLES = `
     inset: -4px 0 0;
     border-radius: inherit;
     padding-top: 3px;
-    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #63D6B5 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #63D6B5 74%, #b69fff 76%, #4978df 90%);
+    background: linear-gradient(90deg, #233a80 10%, #6088ff 29%, #ff9d91 31%, #80a0ff 33%, #a891ff 52%, #d69eff 70%, #ff9d91 74%, #b69fff 76%, #4978df 90%);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
     pointer-events: none;
-  }
-  .erp-register-scene .erp-register-submit {
-    -webkit-text-stroke: 0.8px #0B5149;
-    text-shadow: 0 0 1px rgba(11, 81, 73, .55);
-    paint-order: stroke fill;
   }
 `;
 
@@ -1974,7 +1964,7 @@ function LaptopIllustration() {
 
         <circle
           r="13"
-          fill="#63D6B5"
+          fill="#f07f75"
           stroke="#acb3f4"
           strokeWidth="4"
         />

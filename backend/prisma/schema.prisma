@@ -22,8 +22,8 @@ model User {
   leadProjects          Project[]                        @relation("ProjectLead")
   projectLeadAssignment DepartmentProjectLeadAssignment?
   projectLeadHistory    ProjectLeadAssignmentHistory[]
-  memberships  ProjectMember[]
-  projectMemberHistory ProjectMemberHistory[]
+  memberships           ProjectMember[]
+  projectMemberHistory  ProjectMemberHistory[]
 }
 
 model Project {
@@ -38,10 +38,10 @@ model Project {
   projectLeadId Int?
   projectLead   User? @relation("ProjectLead", fields: [projectLeadId], references: [user_id], onDelete: SetNull)
 
-  phases   ProjectPhase[]
-  members  ProjectMember[]
+  phases        ProjectPhase[]
+  members       ProjectMember[]
   memberHistory ProjectMemberHistory[]
-  meetings Meeting[]
+  meetings      Meeting[]
 }
 
 enum ProjectMemberRole {
@@ -99,11 +99,15 @@ model Meeting {
 model ProjectPhase {
   phase_id     Int     @id @default(autoincrement())
   phase_name   String
+  description  String?
   phase_order  Int     @default(0)
   is_completed Boolean @default(false)
 
   project_id String
   project    Project @relation(fields: [project_id], references: [project_id], onDelete: Cascade)
+
+  start_date DateTime?
+  end_date   DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

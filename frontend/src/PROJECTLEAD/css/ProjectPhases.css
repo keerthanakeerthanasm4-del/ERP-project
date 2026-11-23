@@ -1,0 +1,373 @@
+
+.phases-page {
+  min-height: 100vh;
+  padding: 35px;
+  color: #ffffff;
+  background: transparent;
+  font-family: "Inter", sans-serif;
+}
+
+/* Header */
+
+.phases-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.phases-subtitle {
+  color: #08c3ef;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.phases-header h1 {
+  font-size: 32px;
+  margin: 8px 0;
+}
+
+.phases-project-name {
+  color: #b9d2f2;
+  font-size: 14px;
+}
+
+.add-phase-btn {
+  background: #1677ff;
+  color: white;
+  border: none;
+  padding: 13px 22px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.add-phase-btn:hover {
+  background: #08aeea;
+  transform: translateY(-2px);
+}
+
+/* Progress card */
+
+.phase-progress-card {
+  background: rgba(3, 19, 52, 0.92);
+  border: 1px solid rgba(8, 195, 239, 0.2);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 35px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.progress-info h3 {
+  margin: 0 0 7px;
+}
+
+.progress-info p {
+  color: #b9d2f2;
+  font-size: 13px;
+  margin: 0;
+}
+
+.progress-percentage {
+  color: #08c3ef;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.progress-track {
+  height: 9px;
+  background: #152a4d;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1677ff, #08c3ef);
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+/* Form */
+
+.phase-form-card {
+  background: #031334;
+  border: 1px solid rgba(8, 195, 239, 0.3);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.phase-form-card h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.phase-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 18px;
+  flex: 1;
+}
+
+.phase-form-group label {
+  color: #b9d2f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.phase-form-group input,
+.phase-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #020d25;
+  border: 1px solid #23446d;
+  border-radius: 8px;
+  padding: 13px;
+  color: white;
+  outline: none;
+  font-size: 14px;
+}
+
+.phase-form-group input:focus,
+.phase-form-group textarea:focus {
+  border-color: #08c3ef;
+}
+
+.phase-form-group input::placeholder,
+.phase-form-group textarea::placeholder {
+  color: #7790b0;
+}
+
+.phase-date-row {
+  display: flex;
+  gap: 20px;
+}
+
+.phase-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.phase-form-actions button {
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: 1px solid #365274;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+}
+
+.phase-form-actions .save-phase-btn {
+  background: #1677ff;
+  border: none;
+}
+
+/* Section heading */
+
+.phases-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.phases-section-heading h2 {
+  margin: 0 0 7px;
+}
+
+.phases-section-heading p {
+  color: #b9d2f2;
+  font-size: 13px;
+  margin: 0;
+}
+
+.phases-section-heading > span {
+  color: #08c3ef;
+  font-size: 13px;
+}
+
+/* Phase cards */
+
+.phases-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.phase-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(3, 19, 52, 0.94);
+  border: 1px solid rgba(8, 195, 239, 0.18);
+  border-radius: 14px;
+  transition: 0.3s;
+}
+
+.phase-card:hover {
+  border-color: #08c3ef;
+  transform: translateY(-2px);
+}
+
+.phase-number {
+  min-width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(22, 119, 255, 0.18);
+  color: #08c3ef;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.phase-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.phase-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.phase-title-row h3 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.phase-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.phase-status.completed {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+}
+
+.phase-status.in-progress {
+  color: #08c3ef;
+  background: rgba(8, 195, 239, 0.12);
+}
+
+.phase-status.pending {
+  color: #c4b5fd;
+  background: rgba(116, 60, 255, 0.16);
+}
+
+.phase-description {
+  color: #b9d2f2;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+.phase-dates {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  color: #8ea9ce;
+  font-size: 12px;
+}
+
+.phase-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.phase-actions button {
+  background: rgba(22, 119, 255, 0.12);
+  color: #08c3ef;
+  border: 1px solid rgba(8, 195, 239, 0.25);
+  padding: 8px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.phase-actions button:hover {
+  background: #1677ff;
+  color: white;
+}
+
+.phase-actions .delete-phase-btn {
+  color: #fb7185;
+  border-color: rgba(251, 113, 133, 0.3);
+  background: rgba(251, 113, 133, 0.08);
+}
+
+.phase-actions .delete-phase-btn:hover {
+  background: #be123c;
+  color: white;
+}
+
+/* Empty state */
+
+.no-phases {
+  text-align: center;
+  padding: 55px 20px;
+  background: rgba(3, 19, 52, 0.9);
+  border: 1px dashed #365274;
+  border-radius: 14px;
+}
+
+.no-phases p {
+  color: #b9d2f2;
+  font-size: 13px;
+}
+
+/* Responsive */
+
+@media (max-width: 700px) {
+  .phases-page {
+    padding: 20px 14px;
+  }
+
+  .phases-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .phase-date-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .phase-card {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .phase-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .progress-info {
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
