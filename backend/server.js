@@ -33,6 +33,8 @@ if (!JWT_SECRET) {
 const allowedFrontendOrigins = new Set([
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "http://localhost:5174",
+  "http://127.0.0.1:5174",
   ...Object.values(os.networkInterfaces()).flatMap((interfaces) =>
     (interfaces || [])
       .filter((address) =>
@@ -53,7 +55,6 @@ app.use(
       if (!origin || allowedFrontendOrigins.has(origin)) {
         return callback(null, true);
       }
-
       return callback(new Error("Origin is not allowed by CORS"));
     },
   })

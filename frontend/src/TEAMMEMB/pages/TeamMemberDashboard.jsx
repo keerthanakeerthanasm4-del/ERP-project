@@ -19,7 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import "../style/TeamMemberDashboard.css";
+import "../styles/TeamMemberDashboard.css";
 
 const menuItems = [
   { name: "Dashboard", icon: LayoutDashboard },
