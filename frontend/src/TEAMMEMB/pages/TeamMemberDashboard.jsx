@@ -1,6 +1,7 @@
 import Astronaut3D from "../components/Astronaut3D.jsx";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../api.js";
 
 import {
   LayoutDashboard,
@@ -40,6 +41,49 @@ function TeamMemberDashboard() {
   const [tasks] = useState([]);
   const [notifications] = useState([]);
   const [profile] = useState(null);
+    // TEAM MEMBER PROJECT DATA
+  const [projects, setProjects] = useState([]);
+  const [projectLoading, setProjectLoading] = useState(true);
+  const [projectError, setProjectError] = useState("");
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        // Find the existing login token
+        const token =
+          localStorage.getItem("token") ||
+          sessionStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("Login token not found. Please log in again.");
+        }
+
+        const response = await fetch(
+          `${API_URL}/api/student/my-projects`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch projects.");
+        }
+
+        setProjects(data.projects || []);
+      } catch (error) {
+        console.error("Team Member Project Fetch Error:", error);
+        setProjectError(error.message);
+      } finally {
+        setProjectLoading(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   const totalTasks = tasks.length;
 
